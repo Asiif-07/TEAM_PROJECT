@@ -1,3 +1,5 @@
+import Button from "./button.jsx";
+
 function Banner({
   title,
   text,
@@ -22,9 +24,9 @@ function Banner({
             {text}
           </p>
 
-          <button className="mt-6 rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition">
+          <Button className="mt-6 rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition">
             {buttonText}
-          </button>
+          </Button>
         </div>
 
         {/* Image */}

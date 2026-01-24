@@ -1,6 +1,8 @@
-export function Button(){
+function Button({ children, className }) {
     return (
-        <button>Click Me</button>
+        <button className={className}>
+            {children}
+        </button>
     );
 }
 
