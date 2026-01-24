@@ -28,20 +28,8 @@ function Banner({
         </div>
 
         {/* Image */}
-        <div className="flex-1" style={{ position: 'relative' }}>
-          <img 
-            src={image} 
-            alt="" 
-            style={{
-              width: '574px',
-              height: '435.39px',
-              position: 'absolute',
-              top: '80.59px',
-              left: '786px',
-              opacity: 1,
-              transform: 'rotate(0deg)'
-            }}
-          />
+        <div className="flex-1">
+          <img src={image} alt="" className="w-full max-w-md mx-auto" />
         </div>
       </div>
     </div>
