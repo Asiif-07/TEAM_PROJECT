@@ -9,7 +9,7 @@ export default function Companies() {
       </p>
 
       {/* Company names */}
-      {/* <div className="flex justify-center gap-10 mb-6 text-[14px] font-medium text-gray-900">
+      {/* <div className="flex justify-center gap-10 mb-6 text-[14px] font-medigit um text-gray-900">
         <span>Boltshift</span>
         <span>FeatherDev</span>
         <span>Spherule</span>
