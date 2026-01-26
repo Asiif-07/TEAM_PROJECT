@@ -1,8 +1,25 @@
-import { AppBar, Toolbar, Box, Button, Typography } from "@mui/material";
+import { AppBar, Toolbar, Box, Button, Typography, Menu, MenuItem } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import logo from "../../assets/images/logo.png";
+import { useState } from "react";
 
 const Header = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
+
+  const handleLanguageClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleLanguageClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLanguageSelect = (language) => {
+    setSelectedLanguage(language);
+    setAnchorEl(null);
+  };
+
   return (
     <AppBar
       position="sticky"
@@ -72,7 +89,7 @@ const Header = () => {
           )}
 
           {/* Language */}
-          <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+          <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={handleLanguageClick}>
             <Typography
               sx={{
                 fontFamily: "Inter, sans-serif",
@@ -82,11 +99,65 @@ const Header = () => {
                 whiteSpace: "nowrap",
               }}
             >
-              Language
+              {selectedLanguage}
             </Typography>
             <ArrowDropDownIcon 
             sx={{ color: "#1F2937", fontSize: 20 }} />
           </Box>
+
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleLanguageClose}
+            sx={{
+              "& .MuiPaper-root": {
+                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+                borderRadius: "8px",
+                mt: 1,
+              },
+            }}
+          >
+            <MenuItem
+              onClick={() => handleLanguageSelect("English")}
+              sx={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "14px",
+                backgroundColor: selectedLanguage === "English" ? "#EFF6FF" : "transparent",
+              }}
+            >
+              English
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleLanguageSelect("Spanish")}
+              sx={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "14px",
+                backgroundColor: selectedLanguage === "Spanish" ? "#EFF6FF" : "transparent",
+              }}
+            >
+              Spanish
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleLanguageSelect("French")}
+              sx={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "14px",
+                backgroundColor: selectedLanguage === "French" ? "#EFF6FF" : "transparent",
+              }}
+            >
+              French
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleLanguageSelect("German")}
+              sx={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "14px",
+                backgroundColor: selectedLanguage === "German" ? "#EFF6FF" : "transparent",
+              }}
+            >
+              German
+            </MenuItem>
+          </Menu>
         </Box>
 
         {/* Auth */}
