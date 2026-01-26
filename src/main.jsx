@@ -9,5 +9,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <CssBaseline />
     <RouterProvider router={router} />
+    
+      <CssBaseline />
+
+
+   
   </React.StrictMode>
 );

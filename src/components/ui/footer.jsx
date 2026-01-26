@@ -53,7 +53,7 @@ export default function Footer() {
   return (
     <footer className="bg-slate-800 text-gray-300 py-12 px-6">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12 px-6">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
@@ -170,7 +170,7 @@ export default function Footer() {
           
         </div>
 
-        <div className="border-t border-b border-[#293547] pt-8">
+        <div className="border-t border-b border-[#293547] pt-8 px-6">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-6">
             <div className="flex flex-col sm:flex-row items-center gap-6 text-sm">
               <address className="not-italic flex items-center gap-2">
