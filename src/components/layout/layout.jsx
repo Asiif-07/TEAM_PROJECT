@@ -9,7 +9,6 @@ export function LayoutPage() {
     <>
       <Header />
       <Outlet />
-       <Companies/>
       <Footer />
      
     </>
