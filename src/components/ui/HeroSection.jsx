@@ -1,34 +1,11 @@
 import React from 'react';
 import { Clock, FileText, Sparkles, Play } from 'lucide-react';
+import CvPreviewImage from '../../assets/images/heroImg.png';
 
-export default function ResumeHeroSection() {
+export default function HeroSection() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Navigation */}
-      <nav className="flex items-center justify-between px-8 py-4 bg-white shadow-sm">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-500 rounded"></div>
-            <span className="font-semibold text-lg">ResumeAI</span>
-          </div>
-          <div className="flex gap-6 text-sm text-gray-700">
-            <a href="#" className="hover:text-blue-600">How It Work</a>
-            <a href="#" className="hover:text-blue-600">About</a>
-            <a href="#" className="hover:text-blue-600">Contact Us</a>
-            <a href="#" className="hover:text-blue-600">Pricing</a>
-            <a href="#" className="hover:text-blue-600">Blog</a>
-            <a href="#" className="hover:text-blue-600">Language ▼</a>
-          </div>
-        </div>
-        <div className="flex gap-3">
-          <button className="px-4 py-2 text-sm text-gray-700 hover:text-blue-600">
-            Log In
-          </button>
-          <button className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-            Sign UP
-          </button>
-        </div>
-      </nav>
+     
 
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-8 py-16">
@@ -94,7 +71,7 @@ export default function ResumeHeroSection() {
 
           {/* Right Content - CV Preview */}
           <div className="relative">
-            
+                <img src={CvPreviewImage} alt="CV Preview" />
           </div>
         </div>
       </div>
