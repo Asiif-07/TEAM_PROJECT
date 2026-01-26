@@ -53,7 +53,7 @@ export default function Footer() {
   return (
     <footer className="bg-slate-800 text-gray-300 py-12 px-6">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
@@ -81,7 +81,7 @@ export default function Footer() {
                 placeholder="Enter your email to subscribe..."
                 className="flex-1 bg-slate-700 text-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
               />
-              <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+              <button className="bg-gradient-to-r from-blue-400 to-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
                 Subscribe
               </button>
             </div>
@@ -146,10 +146,32 @@ export default function Footer() {
               </ul>
             </nav>
           </div>
+
+          <div>
+  <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Legal</h3>
+  <nav>
+    <ul className="space-y-3">
+      <li>
+        <a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a>
+      </li>
+      <li>
+        <a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a>
+      </li>
+      <li>
+        <a href="#" className="text-gray-300 hover:text-white transition-colors">Cookie Policy</a>
+      </li>
+      <li>
+        <a href="#" className="text-gray-300 hover:text-white transition-colors">GDPR</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+          
         </div>
 
-        <div className="border-t border-slate-700 pt-8">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+        <div className="border-t border-b  border-#293547 pt-8">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-6">
             <div className="flex flex-col sm:flex-row items-center gap-6 text-sm">
               <address className="not-italic flex items-center gap-2">
                 <MailIcon />
@@ -211,24 +233,6 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="hidden lg:block mt-4">
-          <nav>
-            <ul className="flex justify-end gap-6 text-sm">
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">Cookie Policy</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">GDPR</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
       </div>
     </footer>
   );
