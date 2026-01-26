@@ -1,11 +1,14 @@
 // import Banner from "../components/ui/Banner.jsx";
 
-import HeroSection from "../components/ui/HeroSection";
+import Companies from "../components/ui/Companies";
+// import Services from "../components/ui/Services.jsx";
 function HomePage() {
     return (
        
-            <>
-                <HeroSection />
+        <>
+            <h1>Home Page</h1>
+            <Companies/>
+            {/* <Services/> */}
             </>
     );
 }
