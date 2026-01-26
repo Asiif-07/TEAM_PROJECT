@@ -4,7 +4,7 @@ import CvPreviewImage from '../../assets/images/heroImg.png';
 
 export default function HeroSection() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-blue-50 to-white">
      
 
       {/* Hero Section */}
@@ -51,11 +51,11 @@ export default function HeroSection() {
               <p className="text-sm text-gray-500 mb-3">Trusted by Professionals</p>
               <div className="flex items-center gap-4">
                 <div className="flex -space-x-2">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white"></div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 border-2 border-white"></div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white"></div>
+                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
+                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
+                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-pink-400 to-pink-600 border-2 border-white"></div>
+                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-orange-400 to-orange-600 border-2 border-white"></div>
+                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-green-400 to-green-600 border-2 border-white"></div>
                 </div>
                 <div className="flex flex-col">
                   <div className="flex text-yellow-400 text-sm">
