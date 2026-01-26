@@ -1,102 +1,123 @@
 import { AppBar, Toolbar, Box, Button, Typography } from "@mui/material";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import logo from "../../assets/images/logo.png";
 
 const Header = () => {
-  const navLinks = ["How It Work", "About", "Contact Us", "Pricing", "Blog", "Language"];
-
   return (
     <AppBar
       position="sticky"
       elevation={0}
       sx={{
-        backgroundImage: "linear-gradient(180deg, #D1E9FF 0%, #FFFFFF 100%)",
+        background: "linear-gradient(180deg, #D1E9FF 0%, #FFFFFF 100%)",
+        borderTop: "1px solid #49A1F133",
+        borderBottom: "1px solid #49A1F133",
         boxShadow: "none",
       }}
     >
       <Toolbar
         sx={{
-          maxWidth: "1200px",
+          maxWidth: "1280px",
           width: "100%",
           mx: "auto",
           minHeight: "80px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
           px: 2,
+          display: "flex",
+          alignItems: "center",
+          gap: "24px",
         }}
       >
-        {/* Logo + Name */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Box
-            component="img"
-            src={logo}
-            alt="Logo"
-            sx={{ height: "36px", width: "36px" }}
-          />
+        {/* Logo */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+          <Box component="img" src={logo} alt="Logo" sx={{ width: 36, height: 36 }} />
           <Typography
             sx={{
+              fontFamily: "Inter, sans-serif",
               fontSize: "20px",
               fontWeight: 700,
-              fontFamily: "'Inter', sans-serif",
-              color: "#1F2937",
+              color: "#1E3A8A",
+              whiteSpace: "nowrap",
             }}
           >
             CurriculumVit.AI
           </Typography>
         </Box>
 
-        {/* Nav links */}
-        <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
-          {navLinks.map((link) => (
-            <Box
-              key={link}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: link === "Language" ? 0.5 : 0,
-                cursor: "pointer",
-              }}
-            >
+        {/* Navigation */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: "16px", lg: "28px" },
+            flexWrap: "wrap",
+            flexGrow: 1,
+            justifyContent: "center",
+          }}
+        >
+          {["How It Work", "About", "Contact Us", "Pricing", "Blog"].map(
+            (item) => (
               <Typography
+                key={item}
                 sx={{
+                  fontFamily: "Inter, sans-serif",
                   fontSize: "14px",
                   fontWeight: 500,
-                  fontFamily: "'Inter', sans-serif",
                   color: "#1F2937",
-                  textTransform: "none",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {link}
+                {item}
               </Typography>
-              {link === "Language" && <ArrowDropDownIcon sx={{ color: "#1F2937" }} />}
-            </Box>
-          ))}
+            )
+          )}
+
+          {/* Language */}
+          <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+            <Typography
+              sx={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "14px",
+                fontWeight: 500,
+                color: "#1F2937",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Language
+            </Typography>
+            <ArrowDropDownIcon 
+            sx={{ color: "#1F2937", fontSize: 20 }} />
+          </Box>
         </Box>
 
-        {/* Login & Sign Up */}
-        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-          <Button
+        {/* Auth */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
+          <Typography
             sx={{
+              fontFamily: "Inter, sans-serif",
               fontSize: "14px",
               fontWeight: 500,
-              fontFamily: "'Inter', sans-serif",
               color: "#2563EB",
-              textTransform: "none",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
             }}
           >
             Log In
-          </Button>
+          </Typography>
+
           <Button
             variant="contained"
             sx={{
-              fontSize: "14px",
-              fontWeight: 500,
-              fontFamily: "'Inter', sans-serif",
-              borderRadius: "8px",
               backgroundColor: "#2563EB",
+              fontFamily: "Inter, sans-serif",
+              fontSize: "14px",
+              fontWeight: 600,
+              borderRadius: "8px",
               textTransform: "none",
-              px: 3,
+              px: "18px",
+              py: "8px",
+              whiteSpace: "nowrap",
+              boxShadow: "none",
+              "&:hover": { backgroundColor: "#1D4ED8" },
             }}
           >
             Sign Up
