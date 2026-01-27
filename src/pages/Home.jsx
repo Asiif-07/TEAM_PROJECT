@@ -9,6 +9,7 @@ import SuccessStories from "../components/ui/Successstory.jsx";
 import Services from "../components/ui/Services.jsx";
 import FeatureSection from "../components/ui/Feature_services.jsx";
 import ProcessSection from "../components/ui/ProcessSection.jsx";
+import Dream from "../components/ui/Dream.jsx";
 
 // import Services from "../components/ui/Services.jsx";
 function HomePage() {
@@ -24,6 +25,7 @@ function HomePage() {
             <FeatureSection/>
             <Vector/>   
             <SuccessStories/>
+            <Dream/>
 
             </>
 
