@@ -8,7 +8,7 @@ const data = [
   
   export default function Features() {
     return (
-      <section className="max-w-6xl mx-auto p-8 bg-slate-50">
+      <section className="max-w-[1293px] mx-auto p-8 ">
         <div className="grid grid-cols-1 md:grid-cols-6 gap-[32px]">
           
           {data.map((item, i) => (

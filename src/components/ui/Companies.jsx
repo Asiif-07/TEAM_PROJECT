@@ -36,7 +36,7 @@ export default function Companies() {
           Quickly upload, customize, and download your resume tailored to any
           job description in no time
         </p>
-      </div> */} */
+      </div> */}
     </section>
   );
 }
