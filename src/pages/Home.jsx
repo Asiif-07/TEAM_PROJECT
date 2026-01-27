@@ -6,6 +6,10 @@ import HeroSection from "../components/ui/HeroSection.jsx";
 import Features from "../components/ui/Features.jsx";
 import Vector from "../components/ui/Vector.jsx";
 import SuccessStories from "../components/ui/Successstory.jsx";
+import Services from "../components/ui/Services.jsx";
+import FeatureSection from "../components/ui/Feature_services.jsx";
+import ProcessSection from "../components/ui/ProcessSection.jsx";
+
 // import Services from "../components/ui/Services.jsx";
 function HomePage() {
     return (
@@ -13,9 +17,12 @@ function HomePage() {
             <>
             <HeroSection/>
             <Companies/>
+            <ProcessSection/>
             <WhyChooseSection />
             <Features/>
-            <Vector/>
+            <Services/>
+            <FeatureSection/>
+            <Vector/>   
             <SuccessStories/>
 
             </>
