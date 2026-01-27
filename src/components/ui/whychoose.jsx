@@ -1,6 +1,7 @@
 export default function WhyChooseSection() {
     return (
-        <section className="w-full max-w-[1268px] bg-white py-20 px-6">
+       <div  className="  " >
+         <section className="w-full max-w-[1268px] bg-white py-20 px-6 mx-auto"  >
             <div className="mx-auto max-w-[1237px] text-center">
                 {/* Heading */}
                 <h2 className="text-3xl md:text-4xl font-semibold text-gray-900">
@@ -53,5 +54,6 @@ export default function WhyChooseSection() {
             </div>
 
         </section>
+       </div>
     );
 }
