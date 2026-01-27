@@ -2,6 +2,7 @@ import { AppBar, Toolbar, Box, Button, Typography, Menu, MenuItem } from "@mui/m
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import logo from "../../assets/images/logo.png";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -19,6 +20,31 @@ const Header = () => {
     setSelectedLanguage(language);
     setAnchorEl(null);
   };
+
+
+  // ["How It Work", "About", "Contact Us", "Pricing", "Blog"]
+  let navLinks = [
+    {
+      pageName:"How It Work",
+      path:"/how-it-works"
+    },
+    {
+      pageName:"Services",
+      path:"/services"
+    },
+    {
+      pageName:"About",
+      path:"/about"
+    },
+    {
+      pageName:"Contact Us",
+      path:"/contact-us"
+    },
+    {
+      pageName:"Blog",
+      path:"/blog"
+    }
+  ]
 
   return (
     <AppBar
@@ -70,21 +96,25 @@ const Header = () => {
             justifyContent: "center",
           }}
         >
-          {["How It Work", "About", "Contact Us", "Pricing", "Blog"].map(
+          {navLinks.map(
             (item) => (
-              <Typography
-                key={item}
-                sx={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  color: "#1F2937",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                }}
+              <Link to={item.path}>
+
+                <Typography
+                  key={item.pageName}
+                  sx={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    color: "#1F2937",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {item.pageName}
+                </Typography
               >
-                {item}
-              </Typography>
+              </Link>
             )
           )}
 
@@ -101,8 +131,8 @@ const Header = () => {
             >
               {selectedLanguage}
             </Typography>
-            <ArrowDropDownIcon 
-            sx={{ color: "#1F2937", fontSize: 20 }} />
+            <ArrowDropDownIcon
+              sx={{ color: "#1F2937", fontSize: 20 }} />
           </Box>
 
           <Menu
