@@ -97,18 +97,20 @@ const Banner = ({
   );
 };
 
-const ProcessSection = () => {
+const ProcessSection = ({ showHeading = true }) => {
   return (
     <section className="bg-[#FCFDFF] py-24 overflow-hidden">
-      {/* Header Area */}
-      <div className="text-center mb-10 px-6">
-         <h2 className="text-5xl md:text-6xl font-[950] text-slate-900 mb-6 tracking-tight">
-           How <span className="text-blue-600 font-normal">It works</span>
-         </h2>
-         <p className=" max-w-lg mx-auto text-lg font-medium leading-relaxed">
-           Quickly upload, customize, and download your resume tailored to any job description in no time.
-         </p>
-      </div>
+      {/* Header Area (optional so we can override per page) */}
+      {showHeading && (
+        <div className="text-center mb-10 px-6">
+          <h2 className="text-5xl md:text-6xl font-[950] text-slate-900 mb-6 tracking-tight">
+            How <span className="text-blue-600 font-normal">It works</span>
+          </h2>
+          <p className=" max-w-lg mx-auto text-lg font-medium leading-relaxed">
+            Quickly upload, customize, and download your resume tailored to any job description in no time.
+          </p>
+        </div>
+      )}
 
       <Banner 
         stepLabel="STEP 1"

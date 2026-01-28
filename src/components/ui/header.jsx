@@ -1,5 +1,6 @@
-import { AppBar, Toolbar, Box, Button, Typography, Menu, MenuItem } from "@mui/material";
+import { AppBar, Toolbar, Box, Button, Typography, Menu, MenuItem, IconButton, Drawer, List, ListItem, ListItemText } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import MenuIcon from "@mui/icons-material/Menu";
 import logo from "../../assets/images/logo.png";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -7,6 +8,7 @@ import { Link } from "react-router-dom";
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLanguageClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -19,6 +21,10 @@ const Header = () => {
   const handleLanguageSelect = (language) => {
     setSelectedLanguage(language);
     setAnchorEl(null);
+  };
+
+  const handleDrawerToggle = () => {
+    setMobileOpen((prev) => !prev);
   };
 
 
@@ -69,8 +75,8 @@ const Header = () => {
           gap: "24px",
         }}
       >
-        {/* Logo */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+        {/* Logo (clickable, goes to home) */}
+        <Box component={Link} to="/" sx={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0, textDecoration: "none" }}>
           <Box component="img" src={logo} alt="Logo" sx={{ width: 36, height: 36 }} />
           <Typography
             sx={{
@@ -88,7 +94,7 @@ const Header = () => {
         {/* Navigation */}
         <Box
           sx={{
-            display: "flex",
+            display: { xs: "none", md: "flex" },
             alignItems: "center",
             gap: { xs: "16px", lg: "28px" },
             flexWrap: "wrap",
@@ -96,27 +102,22 @@ const Header = () => {
             justifyContent: "center",
           }}
         >
-          {navLinks.map(
-            (item) => (
-              <Link to={item.path}>
-
-                <Typography
-                  key={item.pageName}
-                  sx={{
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    color: "#1F2937",
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {item.pageName}
-                </Typography
+          {navLinks.map((item) => (
+            <Link key={item.pageName} to={item.path} style={{ textDecoration: "none" }}>
+              <Typography
+                sx={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  color: "#1F2937",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
               >
-              </Link>
-            )
-          )}
+                {item.pageName}
+              </Typography>
+            </Link>
+          ))}
 
           {/* Language */}
           <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={handleLanguageClick}>
@@ -190,8 +191,20 @@ const Header = () => {
           </Menu>
         </Box>
 
-        {/* Auth */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
+        {/* Mobile hamburger */}
+        <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center", ml: "auto" }}>
+          <IconButton
+            edge="end"
+            color="inherit"
+            aria-label="open navigation"
+            onClick={handleDrawerToggle}
+          >
+            <MenuIcon sx={{ color: "#1F2937" }} />
+          </IconButton>
+        </Box>
+
+        {/* Auth (desktop) */}
+        <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: "12px", flexShrink: 0 }}>
           <Typography
             sx={{
               fontFamily: "Inter, sans-serif",
@@ -225,6 +238,47 @@ const Header = () => {
           </Button>
         </Box>
       </Toolbar>
+
+      {/* Mobile drawer */}
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+      >
+        <Box
+          sx={{ width: 260, p: 2 }}
+          role="presentation"
+          onClick={handleDrawerToggle}
+          onKeyDown={handleDrawerToggle}
+        >
+          <Box sx={{ mb: 2 }}>
+            <Typography
+              sx={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#1E3A8A",
+              }}
+            >
+              CurriculumVit.AI
+            </Typography>
+          </Box>
+          <List>
+            {navLinks.map((item) => (
+              <ListItem key={item.pageName} disablePadding>
+                <ListItemText>
+                  <Link to={item.path} style={{ textDecoration: "none", color: "#1F2937" }}>
+                    {item.pageName}
+                  </Link>
+                </ListItemText>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
     </AppBar>
   );
 };
