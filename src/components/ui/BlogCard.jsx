@@ -1,11 +1,13 @@
 import React from 'react';
 import { Avatar, Chip, Button } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { Link } from 'react-router-dom';
 
 // ==========================================
 // 1. REUSABLE CHILD COMPONENT (BlogCard)
 // ==========================================
 const BlogCard = ({ 
+  id,
   image, 
   category, 
   title, 
@@ -80,6 +82,8 @@ const BlogCard = ({
 
           {/* Read More Button */}
           <Button 
+            component={Link}
+            to={`/blog/details/${id}`}
             variant="outlined" 
             fullWidth
             sx={{
