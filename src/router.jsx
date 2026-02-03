@@ -8,6 +8,7 @@ import BlogDetails from './pages/Blog_Details.jsx';
 import Contact from './pages/ContactUs.jsx';
 import HowItWorksPage from './pages/HowItWorks.jsx';
 import Services from './pages/Service.jsx';
+import NotFound from './pages/NotFound.jsx';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -36,16 +37,20 @@ const router = createBrowserRouter([
       {
         path: 'blog/details/:id',
         element: <BlogDetails />,
-      },  
+      },
       {
         path: 'contact-us',
         element: <Contact />,
       },
       {
         path: 'services',
-        element: <Services />,  
+        element: <Services />,
       }
     ],
+  },
+  {
+    path: '*',
+    element: <NotFound />,
   },
 ]);
 
