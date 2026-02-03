@@ -31,24 +31,24 @@ const Header = () => {
   // ["How It Work", "About", "Contact Us", "Pricing", "Blog"]
   let navLinks = [
     {
-      pageName:"How It Work",
-      path:"/how-it-works"
+      pageName: "How It Work",
+      path: "/how-it-works"
     },
     {
-      pageName:"Services",
-      path:"/services"
+      pageName: "Services",
+      path: "/services"
     },
     {
-      pageName:"About",
-      path:"/about"
+      pageName: "About",
+      path: "/about"
     },
     {
-      pageName:"Contact Us",
-      path:"/contact-us"
+      pageName: "Contact Us",
+      path: "/contact-us"
     },
     {
-      pageName:"Blog",
-      path:"/blog"
+      pageName: "Blog",
+      path: "/blog"
     }
   ]
 
@@ -192,15 +192,55 @@ const Header = () => {
         </Box>
 
         {/* Mobile hamburger */}
-        <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center", ml: "auto" }}>
-          <IconButton
-            edge="end"
-            color="inherit"
-            aria-label="open navigation"
-            onClick={handleDrawerToggle}
-          >
-            <MenuIcon sx={{ color: "#1F2937" }} />
-          </IconButton>
+        {/* Mobile hamburger */}
+        <Box
+          onClick={handleDrawerToggle}
+          sx={{
+            display: { xs: "flex", md: "none" },
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            width: 44,
+            height: 44,
+            cursor: "pointer",
+            zIndex: 1300, // Ensure it's above the drawer
+            ml: "auto",
+            position: "relative",
+          }}
+        >
+          <Box
+            sx={{
+              width: 24,
+              height: 2.5,
+              bgcolor: "#1E3A8A",
+              borderRadius: "2px",
+              transition: "all 0.3s ease-in-out",
+              position: "absolute",
+              transform: mobileOpen ? "rotate(45deg)" : "translateY(-8px)",
+            }}
+          />
+          <Box
+            sx={{
+              width: 24,
+              height: 2.5,
+              bgcolor: "#1E3A8A",
+              borderRadius: "2px",
+              transition: "all 0.3s ease-in-out",
+              position: "absolute",
+              opacity: mobileOpen ? 0 : 1,
+            }}
+          />
+          <Box
+            sx={{
+              width: 24,
+              height: 2.5,
+              bgcolor: "#1E3A8A",
+              borderRadius: "2px",
+              transition: "all 0.3s ease-in-out",
+              position: "absolute",
+              transform: mobileOpen ? "rotate(-45deg)" : "translateY(8px)",
+            }}
+          />
         </Box>
 
         {/* Auth (desktop) */}
@@ -240,43 +280,149 @@ const Header = () => {
       </Toolbar>
 
       {/* Mobile drawer */}
+      {/* Mobile drawer */}
       <Drawer
         anchor="right"
         open={mobileOpen}
         onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true,
+        PaperProps={{
+          sx: {
+            width: "100%",
+            maxWidth: "320px",
+            background: "#FFFFFF",
+            boxShadow: "-4px 0 20px rgba(0,0,0,0.1)",
+            display: "flex",
+            flexDirection: "column",
+            px: 3,
+            py: 4,
+          },
         }}
       >
-        <Box
-          sx={{ width: 260, p: 2 }}
-          role="presentation"
-          onClick={handleDrawerToggle}
-          onKeyDown={handleDrawerToggle}
-        >
-          <Box sx={{ mb: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 4 }}>
+          <Box component="img" src={logo} alt="Logo" sx={{ width: 36, height: 36 }} />
+          <Typography
+            sx={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "#1E3A8A",
+            }}
+          >
+            CurriculumVit.AI
+          </Typography>
+        </Box>
+
+        <List sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {navLinks.map((item) => (
+            <ListItem
+              key={item.pageName}
+              disablePadding
+              sx={{ borderBottom: "1px solid #F3F4F6", pb: 1 }}
+            >
+              <Link
+                to={item.path}
+                onClick={handleDrawerToggle}
+                style={{
+                  textDecoration: "none",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "16px",
+                    fontWeight: 500,
+                    color: "#1F2937",
+                    py: 1,
+                  }}
+                >
+                  {item.pageName}
+                </Typography>
+              </Link>
+            </ListItem>
+          ))}
+        </List>
+
+        <Box sx={{ mt: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+          {/* Mobile Language Selector */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             <Typography
               sx={{
                 fontFamily: "Inter, sans-serif",
-                fontSize: "18px",
-                fontWeight: 700,
-                color: "#1E3A8A",
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "#6B7280",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
               }}
             >
-              CurriculumVit.AI
+              Language
             </Typography>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {["English", "Spanish", "French", "German"].map((lang) => (
+                <Box
+                  key={lang}
+                  onClick={() => {
+                    handleLanguageSelect(lang);
+                    handleDrawerToggle(); // Optional: close on select
+                  }}
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    borderRadius: "20px",
+                    backgroundColor: selectedLanguage === lang ? "#EFF6FF" : "#F3F4F6",
+                    color: selectedLanguage === lang ? "#2563EB" : "#4B5563",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    border: selectedLanguage === lang ? "1px solid #BFDBFE" : "1px solid transparent",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {lang}
+                </Box>
+              ))}
+            </Box>
           </Box>
-          <List>
-            {navLinks.map((item) => (
-              <ListItem key={item.pageName} disablePadding>
-                <ListItemText>
-                  <Link to={item.path} style={{ textDecoration: "none", color: "#1F2937" }}>
-                    {item.pageName}
-                  </Link>
-                </ListItemText>
-              </ListItem>
-            ))}
-          </List>
+
+          <Box sx={{ height: "1px", bgcolor: "#E5E7EB", my: 1 }} />
+
+          {/* Mobile Auth */}
+          <Typography
+            sx={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "14px",
+              fontWeight: 500,
+              color: "#2563EB",
+              cursor: "pointer",
+              textAlign: "center",
+              py: 1,
+            }}
+          >
+            Log In
+          </Typography>
+
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={handleDrawerToggle}
+            sx={{
+              backgroundColor: "#2563EB",
+              fontFamily: "Inter, sans-serif",
+              fontSize: "14px",
+              fontWeight: 600,
+              borderRadius: "8px",
+              textTransform: "none",
+              py: "12px",
+              boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06)",
+              "&:hover": { backgroundColor: "#1D4ED8" },
+            }}
+          >
+            Sign Up
+          </Button>
         </Box>
       </Drawer>
     </AppBar>
