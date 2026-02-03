@@ -9,6 +9,8 @@ import Contact from './pages/ContactUs.jsx';
 import HowItWorksPage from './pages/HowItWorks.jsx';
 import Services from './pages/Service.jsx';
 import NotFound from './pages/NotFound.jsx';
+import Login from './pages/Login.jsx';
+import Signup from './pages/Signup.jsx';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -45,6 +47,14 @@ const router = createBrowserRouter([
       {
         path: 'services',
         element: <Services />,
+      },
+      {
+        path: 'login',
+        element: <Login />,
+      },
+      {
+        path: 'signup',
+        element: <Signup />,
       }
     ],
   },

@@ -4,11 +4,13 @@ import MenuIcon from "@mui/icons-material/Menu";
 import logo from "../../assets/images/logo.png";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const handleLanguageClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -245,37 +247,77 @@ const Header = () => {
 
         {/* Auth (desktop) */}
         <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: "12px", flexShrink: 0 }}>
-          <Typography
-            sx={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "14px",
-              fontWeight: 500,
-              color: "#2563EB",
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Log In
-          </Typography>
+          {user ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Typography
+                sx={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#1F2937",
+                }}
+              >
+                Hi, {user.name}
+              </Typography>
+              <Button
+                onClick={logout}
+                variant="outlined"
+                sx={{
+                  color: "#2563EB",
+                  borderColor: "#2563EB",
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                  textTransform: "none",
+                  px: "18px",
+                  py: "8px",
+                  "&:hover": { borderColor: "#1D4ED8", backgroundColor: "#EFF6FF" },
+                }}
+              >
+                Logout
+              </Button>
+            </Box>
+          ) : (
+            <>
+              <Link to="/login" style={{ textDecoration: "none" }}>
+                <Typography
+                  sx={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    color: "#2563EB",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    "&:hover": { textDecoration: "underline" },
+                  }}
+                >
+                  Log In
+                </Typography>
+              </Link>
 
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: "#2563EB",
-              fontFamily: "Inter, sans-serif",
-              fontSize: "14px",
-              fontWeight: 600,
-              borderRadius: "8px",
-              textTransform: "none",
-              px: "18px",
-              py: "8px",
-              whiteSpace: "nowrap",
-              boxShadow: "none",
-              "&:hover": { backgroundColor: "#1D4ED8" },
-            }}
-          >
-            Sign Up
-          </Button>
+              <Link to="/signup" style={{ textDecoration: "none" }}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "#2563EB",
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    px: "18px",
+                    py: "8px",
+                    whiteSpace: "nowrap",
+                    boxShadow: "none",
+                    "&:hover": { backgroundColor: "#1D4ED8" },
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          )}
         </Box>
       </Toolbar>
 
@@ -391,38 +433,80 @@ const Header = () => {
           <Box sx={{ height: "1px", bgcolor: "#E5E7EB", my: 1 }} />
 
           {/* Mobile Auth */}
-          <Typography
-            sx={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "14px",
-              fontWeight: 500,
-              color: "#2563EB",
-              cursor: "pointer",
-              textAlign: "center",
-              py: 1,
-            }}
-          >
-            Log In
-          </Typography>
+          {user ? (
+            <>
+              <Typography
+                sx={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#1F2937",
+                  textAlign: "center",
+                  py: 1,
+                }}
+              >
+                Hi, {user.name}
+              </Typography>
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={() => {
+                  logout();
+                  handleDrawerToggle();
+                }}
+                sx={{
+                  color: "#2563EB",
+                  borderColor: "#2563EB",
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                  textTransform: "none",
+                  py: "12px",
+                }}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
+                <Typography
+                  sx={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    color: "#2563EB",
+                    cursor: "pointer",
+                    textAlign: "center",
+                    py: 1,
+                  }}
+                >
+                  Log In
+                </Typography>
+              </Link>
 
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={handleDrawerToggle}
-            sx={{
-              backgroundColor: "#2563EB",
-              fontFamily: "Inter, sans-serif",
-              fontSize: "14px",
-              fontWeight: 600,
-              borderRadius: "8px",
-              textTransform: "none",
-              py: "12px",
-              boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06)",
-              "&:hover": { backgroundColor: "#1D4ED8" },
-            }}
-          >
-            Sign Up
-          </Button>
+              <Link to="/signup" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    backgroundColor: "#2563EB",
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    py: "12px",
+                    boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06)",
+                    "&:hover": { backgroundColor: "#1D4ED8" },
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          )}
         </Box>
       </Drawer>
     </AppBar>
