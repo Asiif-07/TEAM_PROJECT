@@ -23,6 +23,7 @@ export default function SkillsEducationStep({
               fullWidth
               placeholder="Type a skill and press Add"
               value={skillInput}
+              inputProps={{ "data-enter-ignore": "true" }}
               onChange={(e) => setSkillInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {

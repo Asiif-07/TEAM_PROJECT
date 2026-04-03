@@ -24,3 +24,20 @@ export function deleteCv({ accessToken, refreshAccessToken, id }) {
     refreshAccessToken,
   });
 }
+
+export function getCv({ accessToken, refreshAccessToken, id }) {
+  return apiRequest(`/api/v1/cv/cv/${id}`, {
+    method: "GET",
+    accessToken,
+    refreshAccessToken,
+  });
+}
+
+export function updateCv({ accessToken, refreshAccessToken, id, cv }) {
+  return apiRequest(`/api/v1/cv/cv/${id}`, {
+    method: "PUT",
+    body: cv,
+    accessToken,
+    refreshAccessToken,
+  });
+}

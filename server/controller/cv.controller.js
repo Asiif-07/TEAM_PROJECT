@@ -312,19 +312,14 @@ const getAllCvs = AsyncHandler(async(req,res,next)=>{
 
     const userId = req.userId;
 
-    const cvs = await Cv.find({userId})
+    const cvs = await Cv.find({ userId }).sort({ createdAt: -1 })
 
     console.log(cvs);
     
-
-    if(cvs.length === 0){
-        throw new CustomError(404, 'CVs not found')
-    }
-
     res.status(200).json({
         success: true,
         message: 'CVs fetched successfully',
-        data: cvs
+        data: cvs || []
     })
     
 })

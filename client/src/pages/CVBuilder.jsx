@@ -23,11 +23,15 @@ export default function CVBuilder() {
     const [searchParams] = useSearchParams();
     const selectedCategory = searchParams.get("category");
     const selectedTemplate = searchParams.get("template");
+    const cvId = searchParams.get("cvId");
     const { accessToken, refreshAccessToken, isAuthenticated } = useAuth();
     const [activeStep, setActiveStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [cvContent, setCvContent] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [savedCvId, setSavedCvId] = useState("");
+    const [currentTemplate, setCurrentTemplate] = useState(selectedTemplate || "modern-blue");
+    const [currentCategory, setCurrentCategory] = useState(selectedCategory || "saved");
     const [skillInput, setSkillInput] = useState("");
     const [formData, setFormData] = useState({
         personalInfo: { name: "", title: "", about: "", email: "", phone: "", github: "", linkedin: "" },
@@ -55,10 +59,77 @@ export default function CVBuilder() {
     };
 
     useEffect(() => {
-        if (!selectedTemplate || !selectedCategory) {
+        if (!cvId && (!selectedTemplate || !selectedCategory)) {
             navigate("/cv-templates");
         }
-    }, [selectedTemplate, selectedCategory, navigate]);
+    }, [cvId, selectedTemplate, selectedCategory, navigate]);
+
+    // If editing an existing CV, load it and prefill the form.
+    useEffect(() => {
+        const run = async () => {
+            if (!cvId) return;
+            if (!isAuthenticated || !accessToken) return;
+            try {
+                setLoading(true);
+                setErrorMessage("");
+                const data = await cvApi.getCv({ accessToken, refreshAccessToken, id: cvId });
+                const cv = data?.data;
+                if (!cv) return;
+
+                setSavedCvId(cv._id);
+                setCurrentTemplate(cv.templateId || selectedTemplate || "modern-blue");
+                setCurrentCategory(cv.templateCategory || selectedCategory || "saved");
+                setFormData({
+                    personalInfo: {
+                        name: cv.name || "",
+                        title: "",
+                        about: cv.summary || "",
+                        email: cv.email || "",
+                        phone: cv.phone || "",
+                        github: cv.github || "",
+                        linkedin: cv.linkedin || "",
+                    },
+                    experience: Array.isArray(cv.experience) && cv.experience.length ? cv.experience : [{ role: "", company: "", duration: "", description: "" }],
+                    skills: Array.isArray(cv.skills) ? cv.skills : [],
+                    education: Array.isArray(cv.education) && cv.education.length ? cv.education : [{ degree: "", institute: "", year: "" }],
+                    projects: Array.isArray(cv.projects)
+                        ? cv.projects
+                            .map((p) => `${p.title || ""} | ${p.description || ""} | ${p.githubLink || ""} | ${p.liveLink || ""}`.trim())
+                            .filter(Boolean)
+                            .join("\n")
+                        : "",
+                    languages: "",
+                    certifications: "",
+                });
+                const previewPayload = {
+                    name: cv.name || "",
+                    email: cv.email || "",
+                    phone: cv.phone || "",
+                    github: cv.github || "",
+                    linkedin: cv.linkedin || "",
+                    summary: cv.summary || "",
+                    education: Array.isArray(cv.education) ? cv.education : [],
+                    skills: Array.isArray(cv.skills) ? cv.skills : [],
+                    projects: Array.isArray(cv.projects) ? cv.projects : [],
+                    experience: Array.isArray(cv.experience) ? cv.experience : [],
+                    templateId: cv.templateId || selectedTemplate || "modern-blue",
+                };
+                setCvContent(
+                    buildMarkdownPreviewUtil(previewPayload, {
+                        selectedTemplate: cv.templateId || selectedTemplate || "modern-blue",
+                        personalInfoTitle: "",
+                    })
+                );
+                setActiveStep(4);
+            } catch (e) {
+                setErrorMessage(e?.message || "Failed to load CV for editing.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        run();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [cvId, isAuthenticated, accessToken]);
 
     // Initialize history state and keep step synced with browser Back/Forward.
     useEffect(() => {
@@ -84,15 +155,15 @@ export default function CVBuilder() {
         }
     };
 
-    const buildCvPayload = () => buildCvPayloadUtil(formData, selectedTemplate, selectedCategory);
+    const buildCvPayload = () => buildCvPayloadUtil(formData, currentTemplate, currentCategory);
 
     const buildMarkdownPreview = (cv) =>
         buildMarkdownPreviewUtil(cv, {
-            selectedTemplate,
+            selectedTemplate: currentTemplate,
             personalInfoTitle: formData.personalInfo.title,
         });
 
-    const getTemplateClassName = () => getTemplateClassNameUtil(selectedTemplate);
+    const getTemplateClassName = () => getTemplateClassNameUtil(currentTemplate);
 
     const generateCV = async () => {
         setLoading(true);
@@ -137,11 +208,22 @@ export default function CVBuilder() {
             }
 
             const payload = buildCvPayload();
-            await cvApi.createCv({
-                accessToken,
-                refreshAccessToken,
-                cv: payload,
-            });
+            if (cvId) {
+                const updated = await cvApi.updateCv({
+                    accessToken,
+                    refreshAccessToken,
+                    id: cvId,
+                    cv: payload,
+                });
+                setSavedCvId(updated?.data?._id || cvId);
+            } else {
+                const created = await cvApi.createCv({
+                    accessToken,
+                    refreshAccessToken,
+                    cv: payload,
+                });
+                setSavedCvId(created?.data?._id || "");
+            }
 
             setCvContent(buildMarkdownPreview(payload));
             handleNext();
@@ -175,6 +257,41 @@ export default function CVBuilder() {
         }
     };
 
+    const handleEnterKeyFlow = (e) => {
+        if (e.key !== "Enter" || e.shiftKey) return;
+
+        const target = e.target;
+        const currentTarget = e.currentTarget;
+        if (!(target instanceof HTMLElement) || !(currentTarget instanceof HTMLElement)) return;
+
+        // Keep normal Enter behavior for multiline fields and explicitly ignored inputs.
+        const tagName = target.tagName?.toLowerCase();
+        if (tagName === "textarea") return;
+        if (target.closest('[data-enter-ignore="true"]')) return;
+
+        // Only remap Enter while filling fields (not for random buttons/containers).
+        const isField =
+            tagName === "input" ||
+            tagName === "select" ||
+            target.getAttribute("role") === "textbox" ||
+            target.isContentEditable;
+        if (!isField) return;
+
+        e.preventDefault();
+
+        const focusable = Array.from(
+            currentTarget.querySelectorAll(
+                'input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [contenteditable="true"]'
+            )
+        ).filter((el) => el instanceof HTMLElement && el.offsetParent !== null);
+
+        const index = focusable.indexOf(target);
+        if (index >= 0 && index < focusable.length - 1) {
+            const next = focusable[index + 1];
+            if (next instanceof HTMLElement) next.focus();
+        }
+    };
+
     if (cvContent && activeStep === 4) {
         return (
             <Box sx={{ py: 10, bgcolor: '#F8FAF8', minHeight: '100vh' }} className="bg-mesh">
@@ -195,6 +312,33 @@ export default function CVBuilder() {
                                 sx={{ borderRadius: '16px', textTransform: 'none', fontWeight: 700, px: 4, height: '56px', border: '2px solid #E5E7EB', color: '#374151', '&:hover': { border: '2px solid #2563EB', color: '#2563EB' } }}
                             >
                                 Edit Data
+                            </Button>
+                            {savedCvId && (
+                                <Button
+                                    color="error"
+                                    variant="outlined"
+                                    onClick={async () => {
+                                        try {
+                                            await cvApi.deleteCv({ accessToken, refreshAccessToken, id: savedCvId });
+                                            setSavedCvId("");
+                                            setCvContent("");
+                                            setActiveStep(0);
+                                            navigate("/my-cvs");
+                                        } catch (e) {
+                                            setErrorMessage(e?.message || "Failed to delete CV.");
+                                        }
+                                    }}
+                                    sx={{ borderRadius: '16px', textTransform: 'none', fontWeight: 700, px: 4, height: '56px', border: '2px solid #FCA5A5' }}
+                                >
+                                    Delete CV
+                                </Button>
+                            )}
+                            <Button
+                                variant="outlined"
+                                onClick={() => navigate("/my-cvs")}
+                                sx={{ borderRadius: '16px', textTransform: 'none', fontWeight: 700, px: 4, height: '56px', border: '2px solid #E5E7EB', color: '#374151', '&:hover': { border: '2px solid #2563EB', color: '#2563EB' } }}
+                            >
+                                My CVs
                             </Button>
                             <Button
                                 variant="contained"
@@ -262,13 +406,14 @@ export default function CVBuilder() {
                         The most advanced AI CV builder for elite professionals.
                     </Typography>
                     <Typography sx={{ mt: 2, color: '#1D4ED8', fontWeight: 700 }}>
-                        Selected Template: {selectedCategory} / {selectedTemplate}
+                        Selected Template: {currentCategory} / {currentTemplate}
                     </Typography>
                 </Box>
 
                 <Paper
                     className="glass"
                     elevation={0}
+                    onKeyDown={handleEnterKeyFlow}
                     sx={{
                         p: { xs: 4, md: 8 },
                         borderRadius: '32px',
