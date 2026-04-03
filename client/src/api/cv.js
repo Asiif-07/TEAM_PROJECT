@@ -24,4 +24,3 @@ export function deleteCv({ accessToken, refreshAccessToken, id }) {
     refreshAccessToken,
   });
 }
-

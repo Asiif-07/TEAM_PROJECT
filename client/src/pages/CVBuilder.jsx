@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, Typography, Paper, Container } from "@mui/material";
 import { Download, RefreshCcw, ChevronRight, ChevronLeft } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
@@ -39,14 +39,41 @@ export default function CVBuilder() {
         certifications: ""
     });
 
-    const handleNext = () => setActiveStep((prev) => prev + 1);
-    const handleBack = () => setActiveStep((prev) => prev - 1);
+    const handleNext = () => {
+        setActiveStep((prev) => {
+            const next = prev + 1;
+            // Push history entry so browser Back navigates steps.
+            window.history.pushState({ cvBuilderStep: next }, "");
+            return next;
+        });
+    };
+
+    const handleBack = () => {
+        if (activeStep <= 0) return;
+        // Keep history + step perfectly in sync.
+        window.history.back();
+    };
 
     useEffect(() => {
         if (!selectedTemplate || !selectedCategory) {
             navigate("/cv-templates");
         }
     }, [selectedTemplate, selectedCategory, navigate]);
+
+    // Initialize history state and keep step synced with browser Back/Forward.
+    useEffect(() => {
+        window.history.replaceState({ cvBuilderStep: 0 }, "");
+
+        const onPopState = (e) => {
+            const stepFromState = e?.state?.cvBuilderStep;
+            if (typeof stepFromState === "number") {
+                setActiveStep(stepFromState);
+            }
+        };
+
+        window.addEventListener("popstate", onPopState);
+        return () => window.removeEventListener("popstate", onPopState);
+    }, []);
 
     const handleChange = (e, section) => {
         setErrorMessage("");
