@@ -3,6 +3,16 @@ import { Box, Typography } from '@mui/material';
 
 export default function KoreanTemplate({ data }) {
   const { personalInfo = {}, experience = [], education = [] } = data || {};
+  
+  const getImageUrl = (img) => {
+    if (!img) return null;
+    if (typeof img === 'string') return img;
+    if (img.secure_url) return img.secure_url;
+    if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
+    return null;
+  };
+  const profileImageUrl = getImageUrl(personalInfo.profileImage);
+
   const thStyle = { border: '1px solid black', padding: '8px', backgroundColor: '#f3f4f6', textAlign: 'center', fontSize: '13px', fontWeight: 'bold' };
   const tdStyle = { border: '1px solid black', padding: '8px', textAlign: 'center', fontSize: '13px' };
 
@@ -13,7 +23,13 @@ export default function KoreanTemplate({ data }) {
       <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid black', marginBottom: '30px' }}>
         <tbody>
           <tr>
-            <td rowSpan={4} style={{ width: '130px', border: '1px solid black', textAlign: 'center', backgroundColor: '#f9fafb', color: '#9ca3af', height: '160px' }}><Typography variant="caption">사진<br/>(Photo)</Typography></td>
+            <td rowSpan={4} style={{ width: '130px', border: '1px solid black', textAlign: 'center', backgroundColor: '#f9fafb', color: '#9ca3af', height: '160px', padding: 0, overflow: 'hidden' }}>
+              {profileImageUrl ? (
+                <img src={profileImageUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <Typography variant="caption" sx={{ p: 1, display: "block" }}>사진<br/>(Photo)</Typography>
+              )}
+            </td>
             <td style={thStyle}>성 명</td>
             <td style={{ ...tdStyle, textAlign: 'left', paddingLeft: '15px', fontWeight: 'bold', fontSize: '16px' }} colSpan={3}>{personalInfo.name}</td>
           </tr>

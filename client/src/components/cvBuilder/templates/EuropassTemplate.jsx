@@ -5,6 +5,15 @@ export default function EuropassTemplate({ data }) {
   const { personalInfo = {}, experience = [], education = [], skills = [] } = data || {};
   const euroBlue = "#0e4194";
 
+  const getImageUrl = (img) => {
+    if (!img) return null;
+    if (typeof img === 'string') return img;
+    if (img.secure_url) return img.secure_url;
+    if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
+    return null;
+  };
+  const profileImageUrl = getImageUrl(personalInfo.profileImage);
+
   return (
     <Box sx={{ minHeight: '297mm', width: '210mm', bgcolor: 'white', mx: 'auto', p: 6, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
       
@@ -14,10 +23,15 @@ export default function EuropassTemplate({ data }) {
          </Box>
       </Box>
 
-      <Typography variant="h3" sx={{ color: euroBlue, mb: 1, fontWeight: 'normal' }}>
-        {personalInfo.name || "Your Name"}
-      </Typography>
-      <Box sx={{ width: '100%', height: '2px', bgcolor: euroBlue, mb: 4 }} />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <Typography variant="h3" sx={{ color: euroBlue, mb: 1, fontWeight: 'normal', mt: 'auto' }}>
+          {personalInfo.name || "Your Name"}
+        </Typography>
+        {profileImageUrl && (
+          <Box component="img" src={profileImageUrl} sx={{ width: '100px', height: '130px', objectFit: 'cover', border: `2px solid ${euroBlue}` }} />
+        )}
+      </Box>
+      <Box sx={{ width: '100%', height: '2px', bgcolor: euroBlue, mb: 4, mt: 1 }} />
 
       <Box sx={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: '0 24px' }}>
         

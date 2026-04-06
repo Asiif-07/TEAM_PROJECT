@@ -1,11 +1,25 @@
 import React from "react";
-import { Box, Grow } from "@mui/material";
+import { Box, Grow, Typography, Button } from "@mui/material";
 import PremiumInput from "../PremiumInput";
 
 export default function PersonalInfoStep({ formData, handleChange }) {
   return (
     <Grow in={true}>
       <Box>
+        <Box sx={{ mb: 3, p: 2, border: "1px dashed #CBD5E1", borderRadius: "12px", textAlign: "center", bgcolor: "#F8FAFC" }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: "#334155" }}>
+            Profile Picture (Optional)
+          </Typography>
+          <Button variant="outlined" component="label" sx={{ textTransform: "none", borderRadius: "8px" }}>
+            Upload Image
+            <input type="file" name="profileImage" hidden accept="image/png, image/jpeg, image/jpg" onChange={(e) => handleChange(e, "personalInfo")} />
+          </Button>
+          {formData.personalInfo?.profileImage && (
+            <Typography variant="caption" display="block" sx={{ mt: 1, color: "#16A34A", fontWeight: 700 }}>
+              {formData.personalInfo.profileImage.name} selected
+            </Typography>
+          )}
+        </Box>
         <PremiumInput
           label="What is your full name?"
           placeholder="e.g. John Doe"

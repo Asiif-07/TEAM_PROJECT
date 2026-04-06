@@ -27,7 +27,7 @@ export default function CVBuilder() {
     const [skillInput, setSkillInput] = useState("");
 
     const [formData, setFormData] = useState({
-        personalInfo: { name: "", title: "", about: "", email: "", phone: "", github: "", linkedin: "" },
+        personalInfo: { name: "", title: "", about: "", email: "", phone: "", github: "", linkedin: "", profileImage: null },
         experience: [{ role: "", company: "", startDate: "", endDate: "", description: "" }],
         skills: [],
         education: [{ degree: "", institute: "", startDate: "", endDate: "" }],
@@ -47,7 +47,11 @@ export default function CVBuilder() {
     const handleChange = (e, section) => {
         setErrorMessage("");
         if (section === 'personalInfo') {
-            setFormData({ ...formData, personalInfo: { ...formData.personalInfo, [e.target.name]: e.target.value } });
+            if (e.target.name === 'profileImage') {
+                setFormData({ ...formData, personalInfo: { ...formData.personalInfo, profileImage: e.target.files[0] } });
+            } else {
+                setFormData({ ...formData, personalInfo: { ...formData.personalInfo, [e.target.name]: e.target.value } });
+            }
         } else {
             setFormData({ ...formData, [e.target.name]: e.target.value });
         }
@@ -67,7 +71,21 @@ export default function CVBuilder() {
             if (!formData.personalInfo.email.trim()) return setErrorMessage("Please enter your email.");
 
             const payload = buildCvPayload();
-            await cvApi.createCv({ accessToken, refreshAccessToken, cv: payload });
+            
+            const form = new FormData();
+            Object.keys(payload).forEach(key => {
+                if (typeof payload[key] === 'object' && payload[key] !== null) {
+                    form.append(key, JSON.stringify(payload[key]));
+                } else {
+                    form.append(key, payload[key]);
+                }
+            });
+
+            if (formData.personalInfo.profileImage) {
+                form.append("profileImage", formData.personalInfo.profileImage);
+            }
+
+            await cvApi.createCv({ accessToken, refreshAccessToken, cv: form });
 
             // Triggers the final preview step
             setCvContent("success");

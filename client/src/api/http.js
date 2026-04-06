@@ -35,14 +35,19 @@ export async function apiRequest(path, options = {}) {
 
   const payload = resolveBody();
 
+  const fetchHeaders = {
+    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : null),
+    ...(headers || {}),
+  };
+  
+  if (!(payload instanceof FormData) && payload != null) {
+    fetchHeaders["Content-Type"] = "application/json";
+  }
+
   const res = await fetch(buildUrl(path), {
     method,
     credentials,
-    headers: {
-      "Content-Type": payload instanceof FormData ? undefined : "application/json",
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : null),
-      ...(headers || {}),
-    },
+    headers: fetchHeaders,
     body:
       payload == null
         ? undefined

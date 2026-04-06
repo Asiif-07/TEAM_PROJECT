@@ -1,7 +1,7 @@
 const parseJsonFields = (allowedFields = []) => {
   return (req, res, next) => {
     try {
-      Object.keys(req.body).forEach((key) => {
+      Object.keys(req.body || {}).forEach((key) => {
         const value = req.body[key];
 
         // ✅ Sirf allowed fields hi parse hon

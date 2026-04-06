@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, Grow, Paper, TextField, Typography } from "@mui/material";
+import { Box, Button, Grow, Paper, TextField, Typography, FormControlLabel, Checkbox } from "@mui/material";
 import PremiumInput from "../PremiumInput";
 
 export default function SkillsEducationStep({
@@ -139,7 +139,7 @@ export default function SkillsEducationStep({
                 />
                 <TextField
                   label="Start Date"
-                  type="month"
+                  type="date"
                   InputLabelProps={{ shrink: true }}
                   value={item.startDate || ''}
                   onChange={(e) => {
@@ -151,21 +151,40 @@ export default function SkillsEducationStep({
                   }}
                   fullWidth
                 />
-                <TextField
-                  label="End Date (or expected)"
-                  type="month"
-                  InputLabelProps={{ shrink: true }}
-                  helperText="Leave empty for 'Present'"
-                  value={item.endDate || ''}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setFormData((prev) => ({
-                      ...prev,
-                      education: prev.education.map((x, i) => (i === idx ? { ...x, endDate: v } : x)),
-                    }));
-                  }}
-                  fullWidth
-                />
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <TextField
+                    label={item.current ? "Present" : "End Date (or expected)"}
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
+                    value={item.endDate || ''}
+                    disabled={item.current}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        education: prev.education.map((x, i) => (i === idx ? { ...x, endDate: v } : x)),
+                      }));
+                    }}
+                    fullWidth
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={item.current || false}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setFormData((prev) => ({
+                            ...prev,
+                            education: prev.education.map((x, i) => (i === idx ? { ...x, current: checked, endDate: checked ? '' : x.endDate } : x)),
+                          }));
+                        }}
+                      />
+                    }
+                    label={<Typography variant="caption" sx={{ color: "#475569", fontWeight: 600 }}>I currently study here</Typography>}
+                    sx={{ mt: 0.5, ml: 0 }}
+                  />
+                </Box>
               </Box>
             </Paper>
           ))}
@@ -178,7 +197,7 @@ export default function SkillsEducationStep({
               ...prev,
               education: [
                 ...(prev.education || []),
-                { degree: "", institute: "", startDate: "", endDate: "" },
+                { degree: "", institute: "", startDate: "", endDate: "", current: false },
               ],
             }));
           }}
