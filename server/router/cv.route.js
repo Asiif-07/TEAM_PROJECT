@@ -16,4 +16,5 @@ const uploadProfile = imageMulter(5,["image/jpeg","image/png","image/jpg"])
 cvRouter.route("/cv").post(uploadProfile.single("profileImage"),parseJsonFields(["education", "skills", "projects", "experience"]),validate(CvSchema), CreateCv).get(getAllCvs)
 cvRouter.route("/cv/:id").put(validate(updateCvSchema) , updateCv).get(SingleCv).delete(deleteCv)
 
+
 export default cvRouter
