@@ -17,6 +17,7 @@ import RequireAuth from './components/RequireAuth.jsx';
 import CVTemplates from './pages/CVTemplates.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
+import OAuthGoogleDone from './pages/OAuthGoogleDone.jsx';
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: 'login',
         element: <Login />,
+      },
+      {
+        path: 'oauth/google-done',
+        element: <OAuthGoogleDone />,
       },
       {
         path: 'signup',

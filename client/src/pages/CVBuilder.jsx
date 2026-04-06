@@ -10,7 +10,7 @@ import PersonalInfoStep from "../components/cvBuilder/steps/PersonalInfoStep";
 import ExperienceStep from "../components/cvBuilder/steps/ExperienceStep";
 import SkillsEducationStep from "../components/cvBuilder/steps/SkillsEducationStep";
 import GenerateStep from "../components/cvBuilder/steps/GenerateStep";
-import CustomStepper from "../components/cvBuilder/CustomStepper"; 
+import CustomStepper from "../components/cvBuilder/CustomStepper";
 
 export default function CVBuilder() {
     const navigate = useNavigate();
@@ -18,19 +18,19 @@ export default function CVBuilder() {
     const [searchParams] = useSearchParams();
     const selectedCategory = searchParams.get("category");
     const selectedTemplate = searchParams.get("template");
-    
+
     const { accessToken, refreshAccessToken, isAuthenticated } = useAuth();
     const [activeStep, setActiveStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [cvContent, setCvContent] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [skillInput, setSkillInput] = useState("");
-    
+
     const [formData, setFormData] = useState({
         personalInfo: { name: "", title: "", about: "", email: "", phone: "", github: "", linkedin: "" },
-        experience: [{ role: "", company: "", duration: "", description: "" }],
+        experience: [{ role: "", company: "", startDate: "", endDate: "", description: "" }],
         skills: [],
-        education: [{ degree: "", institute: "", year: "" }],
+        education: [{ degree: "", institute: "", startDate: "", endDate: "" }],
         projects: "",
         languages: "",
         certifications: ""
@@ -65,12 +65,12 @@ export default function CVBuilder() {
             }
             if (!formData.personalInfo.name.trim()) return setErrorMessage("Please enter your name.");
             if (!formData.personalInfo.email.trim()) return setErrorMessage("Please enter your email.");
-            
+
             const payload = buildCvPayload();
             await cvApi.createCv({ accessToken, refreshAccessToken, cv: payload });
 
             // Triggers the final preview step
-            setCvContent("success"); 
+            setCvContent("success");
             handleNext();
         } catch (error) {
             setErrorMessage(error?.message || "Failed to create CV.");
@@ -89,16 +89,16 @@ export default function CVBuilder() {
         }
     };
 
-   
+
     if (cvContent && activeStep === 4) {
         return (
-            <PreviewCV 
-                formData={formData} 
-                selectedTemplate={selectedTemplate} 
+            <PreviewCV
+                formData={formData}
+                selectedTemplate={selectedTemplate}
                 selectedCategory={selectedCategory}
-                cvContent={cvContent} 
-                setCvContent={setCvContent} 
-                setActiveStep={setActiveStep} 
+                cvContent={cvContent}
+                setCvContent={setCvContent}
+                setActiveStep={setActiveStep}
             />
         );
     }

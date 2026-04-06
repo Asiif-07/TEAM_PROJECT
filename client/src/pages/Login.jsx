@@ -1,14 +1,26 @@
 import { Box, Button, TextField, Typography, Paper, Checkbox, FormControlLabel, Fade } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
+import { useCallback, useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import GoogleSignInButton from "../components/auth/GoogleSignInButton";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const { login } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from || "/";
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [error, setError] = useState(() => searchParams.get("oauth_error") || "");
+
+    useEffect(() => {
+        if (searchParams.has("oauth_error")) {
+            const next = new URLSearchParams(searchParams);
+            next.delete("oauth_error");
+            setSearchParams(next, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,11 +33,24 @@ const Login = () => {
 
         const result = await login(email, password);
         if (result.success) {
-            navigate("/");
+            navigate(from, { replace: true });
         } else {
             setError(result.message);
         }
     };
+
+    const handleGoogleCredential = useCallback(
+        async (credential) => {
+            setError("");
+            const result = await loginWithGoogle(credential);
+            if (result.success) {
+                navigate(from, { replace: true });
+            } else {
+                setError(result.message);
+            }
+        },
+        [from, loginWithGoogle, navigate]
+    );
 
     return (
         <Box
@@ -202,45 +227,47 @@ const Login = () => {
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
                     </Box>
 
-                    <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                         <Button
+                            component="a"
+                            href="/api/v1/auth/google/start"
                             fullWidth
                             variant="outlined"
-                            disabled
                             sx={{
                                 py: 1.5,
                                 borderRadius: "12px",
                                 textTransform: "none",
                                 fontWeight: 600,
-                                borderColor: "rgba(0,0,0,0.1)",
+                                borderColor: "rgba(0,0,0,0.12)",
                                 color: "#374151",
-                                "&:hover": { bgcolor: "white", borderColor: "#2563EB" }
+                                textDecoration: "none",
                             }}
                         >
-                            Google
+                            Continue with Google
                         </Button>
+                        <GoogleSignInButton onCredential={handleGoogleCredential} />
                         <Button
                             fullWidth
                             variant="outlined"
                             disabled
+                            title="LinkedIn sign-in coming soon"
                             sx={{
                                 py: 1.5,
                                 borderRadius: "12px",
                                 textTransform: "none",
                                 fontWeight: 600,
                                 borderColor: "rgba(0,0,0,0.1)",
-                                color: "#374151",
-                                "&:hover": { bgcolor: "white", borderColor: "#0A66C2" }
+                                color: "#9CA3AF",
                             }}
                         >
-                            LinkedIn
+                            LinkedIn (coming soon)
                         </Button>
                     </Box>
                 </Box>
 
                 <Box sx={{ textAlign: "center" }}>
                     <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500 }}>
-                        New to StoryLake?{" "}
+                        New to CurriculumVit.AI?{" "}
                         <Box
                             component={Link}
                             to="/signup"

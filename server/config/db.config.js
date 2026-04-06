@@ -18,7 +18,7 @@ const ensureDatabaseName = (rawUri) => {
     }
 
     // Default database name instead of implicit "test".
-    return `${rawUri.replace(/\/?$/, "")}/storylake`;
+    return `${rawUri.replace(/\/?$/, "")}/CurriculumVitAI`;
 }
 
 async function connectDB() {

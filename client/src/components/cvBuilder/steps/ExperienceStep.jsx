@@ -18,7 +18,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
             color: "#1E40AF",
           }}
         >
-          💡 Tip: Use one line per role in this format: Role | Company | Duration | Description
+          💡 Tip: Add your most recent work experience first. Leave 'End Date' blank if it's your current job.
         </Typography>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
@@ -77,18 +77,34 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
                   fullWidth
                 />
                 <TextField
-                  label="Duration"
-                  value={item.duration}
+                  label="Start Date"
+                  type="month"
+                  InputLabelProps={{ shrink: true }}
+                  value={item.startDate || ''}
                   onChange={(e) => {
                     const v = e.target.value;
                     setFormData((prev) => ({
                       ...prev,
-                      experience: prev.experience.map((x, i) => (i === idx ? { ...x, duration: v } : x)),
+                      experience: prev.experience.map((x, i) => (i === idx ? { ...x, startDate: v } : x)),
                     }));
                   }}
                   fullWidth
                 />
-                <Box />
+                <TextField
+                  label="End Date (or expected)"
+                  type="month"
+                  InputLabelProps={{ shrink: true }}
+                  helperText="Leave empty for 'Present'"
+                  value={item.endDate || ''}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setFormData((prev) => ({
+                      ...prev,
+                      experience: prev.experience.map((x, i) => (i === idx ? { ...x, endDate: v } : x)),
+                    }));
+                  }}
+                  fullWidth
+                />
               </Box>
 
               <TextField
@@ -117,7 +133,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
               ...prev,
               experience: [
                 ...(prev.experience || []),
-                { role: "", company: "", duration: "", description: "" },
+                { role: "", company: "", startDate: "", endDate: "", description: "" },
               ],
             }));
           }}

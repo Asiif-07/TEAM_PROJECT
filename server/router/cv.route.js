@@ -1,8 +1,16 @@
 import { Router } from "express";
-import { CreateCv, updateCv, getAllCvs,SingleCv,deleteCv } from "../controller/cv.controller.js";
+
+import {
+    CreateCv,
+    updateCv,
+    getAllCvs,
+    SingleCv,
+    deleteCv
+} from "../controller/cv.controller.js";
 import  validate  from '../middleWare/validate.js'
 import  {CvSchema,updateCvSchema} from '../schemas/cv.schema.js'
 import authMiddleWare from "../middleWare/authMiddleWare.js";
+import CustomError from "../handler/CustomError.js";
 
 const cvRouter = Router();
 
