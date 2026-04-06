@@ -2,6 +2,13 @@ import AsyncHandler from '../handler/AsyncHandler.js'
 import Cv from '../model/cvModle.js'
 import CustomError from '../handler/CustomError.js'
 import User from '../model/user.model.js';
+import uploadToCloudinary from '../utils/uploadToCloudinary.js';
+
+
+function isSectionHeader(line) {
+    const l = String(line || "").trim().toLowerCase();
+    return /^(summary|profile|about|objective|skills|technical skills|key skills|core skills|education|academic( background)?|experience|work experience|professional experience|employment|projects?|certifications?|licenses?|languages?)\b[:]?$/i.test(l);
+}
 
 
 const CreateCv = AsyncHandler(async (req, res, next) => {
@@ -19,6 +26,27 @@ const CreateCv = AsyncHandler(async (req, res, next) => {
         throw new CustomError(404, 'User not found')
     }
 
+    let profileImage;
+
+    if(req.file){
+        const result = await uploadToCloudinary(
+            {resource_type: "image",
+            buffer: req.file.buffer,
+            folder: "cv-profiles"}
+        )
+
+        if(!result){
+            throw new CustomError(500, 'Failed to upload profile image')
+        }
+
+        profileImage = {
+            secure_url: result.secure_url,
+            public_id: result.public_id
+        }
+    }
+
+
+
     const newCv = await Cv.create({
       name,
       email,
@@ -31,7 +59,8 @@ const CreateCv = AsyncHandler(async (req, res, next) => {
       projects,
       experience,
       userId,
-      templateId
+      templateId,
+      profileImage
     })
 
     if(!newCv){
