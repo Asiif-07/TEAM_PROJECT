@@ -11,4 +11,5 @@ cvRouter.use(authMiddleWare)
 cvRouter.route("/cv").post(validate(CvSchema), CreateCv).get(getAllCvs)
 cvRouter.route("/cv/:id").put(validate(updateCvSchema) , updateCv).get(SingleCv).delete(deleteCv)
 
+
 export default cvRouter

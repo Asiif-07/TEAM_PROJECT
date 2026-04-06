@@ -317,3 +317,25 @@
     margin-top: 10px;
     border-radius: 999px;
 }
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .cv-document, .cv-document * {
+    visibility: visible;
+  }
+  .cv-document {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    height: 297mm;
+    box-shadow: none !important;
+    margin: 0;
+    padding: 0;
+  }
+  * {
+    -webkit-print-color-adjust:git exact !important;
+    print-color-adjust: exact !important;
+  }
+}
