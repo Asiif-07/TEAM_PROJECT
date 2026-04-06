@@ -1,7 +1,8 @@
 import { Box, Button, TextField, Typography, Paper, Fade, MenuItem } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useCallback, useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import GoogleSignInButton from "../components/auth/GoogleSignInButton";
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -12,11 +13,35 @@ const Signup = () => {
         gender: "male",
     });
 
-    const { signup } = useAuth();
+    const { signup, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
-    const [error, setError] = useState("");
+    const location = useLocation();
+    const from = location.state?.from || "/";
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [error, setError] = useState(() => searchParams.get("oauth_error") || "");
     const [successMessage, setSuccessMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (searchParams.has("oauth_error")) {
+            const next = new URLSearchParams(searchParams);
+            next.delete("oauth_error");
+            setSearchParams(next, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
+
+    const handleGoogleCredential = useCallback(
+        async (credential) => {
+            setError("");
+            const result = await loginWithGoogle(credential);
+            if (result.success) {
+                navigate(from, { replace: true });
+            } else {
+                setError(result.message);
+            }
+        },
+        [from, loginWithGoogle, navigate]
+    );
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -62,7 +87,7 @@ const Signup = () => {
             confirmPassword: "",
             gender: "male",
         });
-        setTimeout(() => navigate("/login"), 1200);
+        setTimeout(() => navigate("/login", { state: { from: location.state?.from || "/" } }), 1200);
     };
 
     return (
@@ -110,7 +135,7 @@ const Signup = () => {
                             letterSpacing: '-1px'
                         }}
                     >
-                        Join StoryLake
+                        Join CurriculumVit.AI
                     </Typography>
                     <Typography
                         sx={{
@@ -327,38 +352,40 @@ const Signup = () => {
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
                     </Box>
 
-                    <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                         <Button
+                            component="a"
+                            href="/api/v1/auth/google/start"
                             fullWidth
                             variant="outlined"
-                            disabled
                             sx={{
                                 py: 1.5,
                                 borderRadius: "12px",
                                 textTransform: "none",
                                 fontWeight: 600,
-                                borderColor: "rgba(0,0,0,0.1)",
+                                borderColor: "rgba(0,0,0,0.12)",
                                 color: "#374151",
-                                "&:hover": { bgcolor: "white", borderColor: "#2563EB" }
+                                textDecoration: "none",
                             }}
                         >
-                            Google
+                            Continue with Google
                         </Button>
+                        <GoogleSignInButton onCredential={handleGoogleCredential} />
                         <Button
                             fullWidth
                             variant="outlined"
                             disabled
+                            title="LinkedIn sign-in coming soon"
                             sx={{
                                 py: 1.5,
                                 borderRadius: "12px",
                                 textTransform: "none",
                                 fontWeight: 600,
                                 borderColor: "rgba(0,0,0,0.1)",
-                                color: "#374151",
-                                "&:hover": { bgcolor: "white", borderColor: "#0A66C2" }
+                                color: "#9CA3AF",
                             }}
                         >
-                            LinkedIn
+                            LinkedIn (coming soon)
                         </Button>
                     </Box>
                 </Box>

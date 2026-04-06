@@ -15,9 +15,16 @@ const userSchema = new mongoose.Schema({
         trim: true,
         match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
     },
+    googleId: {
+        type: String,
+        sparse: true,
+        unique: true,
+    },
     password: {
         type: String,
-        required : true,
+        required: function passwordRequired() {
+            return !this.googleId;
+        },
         minlength: 6,
         select: false
     },
@@ -51,7 +58,7 @@ const userSchema = new mongoose.Schema({
 })
 
 userSchema.pre("save", async function (){
-    if(!this.isModified("password")){
+    if(!this.isModified("password") || !this.password){
         return
     }
     try {
@@ -64,6 +71,7 @@ userSchema.pre("save", async function (){
 } )
 
 userSchema.methods.comparePassword = async function (password){
+    if (!this.password) return false;
     const isMatch = await bcrypt.compare(password, this.password);
     return isMatch; 
 }

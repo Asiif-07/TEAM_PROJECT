@@ -138,18 +138,34 @@ export default function SkillsEducationStep({
                   fullWidth
                 />
                 <TextField
-                  label="Year"
-                  value={item.year}
+                  label="Start Date"
+                  type="month"
+                  InputLabelProps={{ shrink: true }}
+                  value={item.startDate || ''}
                   onChange={(e) => {
                     const v = e.target.value;
                     setFormData((prev) => ({
                       ...prev,
-                      education: prev.education.map((x, i) => (i === idx ? { ...x, year: v } : x)),
+                      education: prev.education.map((x, i) => (i === idx ? { ...x, startDate: v } : x)),
                     }));
                   }}
                   fullWidth
                 />
-                <Box />
+                <TextField
+                  label="End Date (or expected)"
+                  type="month"
+                  InputLabelProps={{ shrink: true }}
+                  helperText="Leave empty for 'Present'"
+                  value={item.endDate || ''}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setFormData((prev) => ({
+                      ...prev,
+                      education: prev.education.map((x, i) => (i === idx ? { ...x, endDate: v } : x)),
+                    }));
+                  }}
+                  fullWidth
+                />
               </Box>
             </Paper>
           ))}
@@ -162,7 +178,7 @@ export default function SkillsEducationStep({
               ...prev,
               education: [
                 ...(prev.education || []),
-                { degree: "", institute: "", year: "" },
+                { degree: "", institute: "", startDate: "", endDate: "" },
               ],
             }));
           }}

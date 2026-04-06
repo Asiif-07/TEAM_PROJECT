@@ -4,19 +4,39 @@ const splitLines = (text) =>
     .map((line) => line.trim())
     .filter(Boolean);
 
-export function buildCvPayload(formData, selectedTemplate, selectedCategory) {
-  const education = (formData.education || []).map((e) => ({
-    degree: (e?.degree || "").trim() || "Degree",
-    institute: (e?.institute || "").trim() || "Institute",
-    year: (e?.year || "").trim() || "N/A",
-  }));
+const formatMonthYear = (dateStr) => {
+  if (!dateStr) return 'Present';
+  const [year, month] = dateStr.split('-');
+  const date = new Date(year, parseInt(month) - 1);
+  return date.toLocaleString('default', { month: 'short', year: 'numeric' });
+};
 
-  const experience = (formData.experience || []).map((x) => ({
-    role: (x?.role || "").trim() || "Role",
-    company: (x?.company || "").trim() || "Company",
-    duration: (x?.duration || "").trim() || "N/A",
-    description: (x?.description || "").trim() || "Professional experience details",
-  }));
+const formatDuration = (start, end) => {
+  if (!start && !end) return '';
+  return `${start ? formatMonthYear(start) : 'N/A'} - ${formatMonthYear(end)}`;
+};
+
+export function buildCvPayload(formData, selectedTemplate, selectedCategory) {
+  const education = (formData.education || []).map((e) => {
+    const defaultYear = (e?.year || "").trim();
+    const computedYear = (e?.startDate || e?.endDate) ? formatDuration(e.startDate, e.endDate) : defaultYear;
+    return {
+      degree: (e?.degree || "").trim() || "Degree",
+      institute: (e?.institute || "").trim() || "Institute",
+      year: computedYear || "N/A",
+    };
+  });
+
+  const experience = (formData.experience || []).map((x) => {
+    const defaultDuration = (x?.duration || "").trim();
+    const computedDuration = (x?.startDate || x?.endDate) ? formatDuration(x.startDate, x.endDate) : defaultDuration;
+    return {
+      role: (x?.role || "").trim() || "Role",
+      company: (x?.company || "").trim() || "Company",
+      duration: computedDuration || "N/A",
+      description: (x?.description || "").trim() || "Professional experience details",
+    };
+  });
 
   const skills = (formData.skills || [])
     .map((s) => String(s || "").trim())
@@ -74,31 +94,35 @@ export function getTemplateClassName(selectedTemplate) {
   if (selectedTemplate === "modern-blue") return "cv-template-modern-blue";
   if (selectedTemplate === "minimal-black") return "cv-template-minimal-black";
   if (selectedTemplate === "creative-purple") return "cv-template-creative-purple";
+  if (selectedTemplate === "ats-simple") return "cv-template-ats-simple";
+  if (selectedTemplate === "two-column-teal") return "cv-template-two-column-teal";
+  if (selectedTemplate === "professional-navy") return "cv-template-professional-navy";
   return "cv-template-modern-blue";
 }
 
 export function buildMarkdownPreview(cv, { selectedTemplate, personalInfoTitle }) {
-  const skillsLine = cv.skills.length ? cv.skills.join(", ") : "N/A";
+  const skills = cv.skills || [];
+  const skillsLine = skills.length ? skills.join(", ") : "N/A";
   const educationLines = cv.education.length
     ? cv.education.map((e) => `- **${e.degree}**, ${e.institute} (${e.year})`).join("\n")
     : "- N/A";
   const experienceLines = cv.experience.length
     ? cv.experience
-        .map((e) => `- **${e.role}** at **${e.company}** (${e.duration})\n  - ${e.description}`)
-        .join("\n")
+      .map((e) => `- **${e.role}** at **${e.company}** (${e.duration})\n  - ${e.description}`)
+      .join("\n")
     : "- N/A";
   const projectsLines = cv.projects?.length
     ? cv.projects
-        .map((p) => {
-          const links = [
-            p.githubLink ? `GitHub: ${p.githubLink}` : "",
-            p.liveLink ? `Live: ${p.liveLink}` : "",
-          ]
-            .filter(Boolean)
-            .join(" | ");
-          return `- **${p.title}**\n  - ${p.description}${links ? `\n  - ${links}` : ""}`;
-        })
-        .join("\n")
+      .map((p) => {
+        const links = [
+          p.githubLink ? `GitHub: ${p.githubLink}` : "",
+          p.liveLink ? `Live: ${p.liveLink}` : "",
+        ]
+          .filter(Boolean)
+          .join(" | ");
+        return `- **${p.title}**\n  - ${p.description}${links ? `\n  - ${links}` : ""}`;
+      })
+      .join("\n")
     : "- N/A";
 
   const sectionMap = {
@@ -121,7 +145,13 @@ export function buildMarkdownPreview(cv, { selectedTemplate, personalInfoTitle }
           ? ["summary", "skills", "education", "experience"]
           : selectedTemplate === "creative-purple"
             ? ["summary", "experience", "skills", "education"]
-            : defaultOrder;
+            : selectedTemplate === "ats-simple"
+              ? ["summary", "skills", "education", "experience"]
+              : selectedTemplate === "two-column-teal"
+                ? ["summary", "experience", "education", "skills"]
+                : selectedTemplate === "professional-navy"
+                  ? ["summary", "education", "skills", "experience"]
+                  : defaultOrder;
 
   const orderedSections = orderWithProjects(templateOrder)
     .map((key) => sectionMap[key])
@@ -130,14 +160,15 @@ export function buildMarkdownPreview(cv, { selectedTemplate, personalInfoTitle }
   // Template-specific header content (still data comes from backend CV form).
   const titleBlock = `**Title:** ${personalInfoTitle || "Professional"}`;
   const contactBlock =
-    selectedTemplate === "minimal-black"
+    selectedTemplate === "minimal-black" || selectedTemplate === "ats-simple"
       ? `**Contact:** ${cv.email} | ${cv.phone}`
       : selectedTemplate === "creative-purple"
-        ? `**Contact:** ${cv.email} | ${cv.phone}\n**Links:** ${
-            cv.github ? `GitHub: ${cv.github}` : "GitHub: N/A"
-          } | ${cv.linkedin ? `LinkedIn: ${cv.linkedin}` : "LinkedIn: N/A"}`
-        : `**Email:** ${cv.email}\n**Phone:** ${cv.phone}\n**GitHub:** ${cv.github || "N/A"}\n**LinkedIn:** ${
-            cv.linkedin || "N/A"
+        ? `**Contact:** ${cv.email} | ${cv.phone}\n**Links:** ${cv.github ? `GitHub: ${cv.github}` : "GitHub: N/A"
+        } | ${cv.linkedin ? `LinkedIn: ${cv.linkedin}` : "LinkedIn: N/A"}`
+        : selectedTemplate === "two-column-teal"
+          ? `**Email:** ${cv.email} · **Phone:** ${cv.phone}\n**GitHub:** ${cv.github || "N/A"} · **LinkedIn:** ${cv.linkedin || "N/A"
+          }`
+          : `**Email:** ${cv.email}\n**Phone:** ${cv.phone}\n**GitHub:** ${cv.github || "N/A"}\n**LinkedIn:** ${cv.linkedin || "N/A"
           }`;
 
   return `# ${cv.name}\n\n${titleBlock}\n\n${contactBlock}\n\n${orderedSections}`;

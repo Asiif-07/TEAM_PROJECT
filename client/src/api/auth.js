@@ -16,6 +16,14 @@ export function login({ email, password }) {
   });
 }
 
+export function googleLogin({ credential }) {
+  return apiRequest("/api/v1/auth/google", {
+    method: "POST",
+    body: { credential },
+    credentials: "include",
+  });
+}
+
 export function refreshToken() {
   return apiRequest("/api/v1/auth/refresh-Token", {
     method: "POST",

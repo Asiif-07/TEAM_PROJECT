@@ -19,6 +19,8 @@ export async function apiRequest(path, options = {}) {
   const {
     method = "GET",
     body,
+    /** Use for file uploads: multipart body is often consumed on the first fetch; rebuild on 401 retry. */
+    rebuildBody,
     accessToken,
     headers,
     credentials = "include",
@@ -26,20 +28,27 @@ export async function apiRequest(path, options = {}) {
     refreshAccessToken,
   } = options;
 
+  const resolveBody = () => {
+    if (typeof rebuildBody === "function") return rebuildBody();
+    return body;
+  };
+
+  const payload = resolveBody();
+
   const res = await fetch(buildUrl(path), {
     method,
     credentials,
     headers: {
-      "Content-Type": body instanceof FormData ? undefined : "application/json",
+      "Content-Type": payload instanceof FormData ? undefined : "application/json",
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : null),
       ...(headers || {}),
     },
     body:
-      body == null
+      payload == null
         ? undefined
-        : body instanceof FormData
-          ? body
-          : JSON.stringify(body),
+        : payload instanceof FormData
+          ? payload
+          : JSON.stringify(payload),
   });
 
   if (res.status === 401 && retryOn401 && typeof refreshAccessToken === "function") {

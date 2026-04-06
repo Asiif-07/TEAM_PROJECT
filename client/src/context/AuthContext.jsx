@@ -79,11 +79,35 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const loginWithGoogle = async (credential) => {
+        try {
+            const data = await authApi.googleLogin({ credential });
+            if (data?.accessToken) {
+                setAccessToken(data.accessToken);
+                localStorage.setItem("accessToken", data.accessToken);
+            }
+            if (data?.user) {
+                setUser(data.user);
+                localStorage.setItem("currentUser", JSON.stringify(data.user));
+            }
+            return { success: true };
+        } catch (err) {
+            return { success: false, message: err?.message || "Google sign-in failed." };
+        }
+    };
+
     const logout = async () => {
         try {
             await authApi.logout();
         } catch {
             // Cleanup local session even if backend logout request fails.
+        }
+        try {
+            if (typeof window !== "undefined" && window.google?.accounts?.id) {
+                window.google.accounts.id.disableAutoSelect();
+            }
+        } catch {
+            // Ignore if GIS is unavailable.
         }
         setUser(null);
         localStorage.removeItem("currentUser");
@@ -99,6 +123,7 @@ export const AuthProvider = ({ children }) => {
         refreshAccessToken,
         signup,
         login,
+        loginWithGoogle,
         logout,
         loading,
         isAuthenticated: Boolean(accessToken),
