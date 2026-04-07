@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import * as authApi from "../api/auth";
 
 const AuthContext = createContext();
@@ -22,24 +22,24 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const refreshPromiseRef = useRef(null);
 
-    const refreshAccessToken = async () => {
+    const refreshAccessToken = useCallback(async () => {
         if (refreshPromiseRef.current) return refreshPromiseRef.current;
 
         refreshPromiseRef.current = (async () => {
-        try {
-            const data = await authApi.refreshToken();
-            if (data?.accessToken) {
-                setAccessToken(data.accessToken);
-                localStorage.setItem("accessToken", data.accessToken);
+            try {
+                const data = await authApi.refreshToken();
+                if (data?.accessToken) {
+                    setAccessToken(data.accessToken);
+                    localStorage.setItem("accessToken", data.accessToken);
+                }
+                if (data?.user) {
+                    setUser(data.user);
+                    localStorage.setItem("currentUser", JSON.stringify(data.user));
+                }
+                return { accessToken: data?.accessToken || "" };
+            } catch {
+                return { accessToken: "" };
             }
-            if (data?.user) {
-                setUser(data.user);
-                localStorage.setItem("currentUser", JSON.stringify(data.user));
-            }
-            return { accessToken: data?.accessToken || "" };
-        } catch {
-            return { accessToken: "" };
-        }
         })();
 
         try {
@@ -47,25 +47,24 @@ export const AuthProvider = ({ children }) => {
         } finally {
             refreshPromiseRef.current = null;
         }
-    };
+    }, []);
 
     useEffect(() => {
         // Avoid calling refresh-token on initial mount. Instead, refresh is triggered only when an API
         // returns 401 (see `client/src/api/http.js`), preventing startup timing/proxy errors.
         setLoading(false);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const signup = async (name, email, password, gender) => {
+    const signup = useCallback(async (name, email, password, gender) => {
         try {
             const data = await authApi.register({ name, email, password, gender });
             return { success: true, message: data?.message || "Account created successfully." };
         } catch (err) {
             return { success: false, message: err?.message || "An error occurred during signup." };
         }
-    };
+    }, []);
 
-    const login = async (email, password) => {
+    const login = useCallback(async (email, password) => {
         try {
             const data = await authApi.login({ email, password });
             if (data?.accessToken) {
@@ -77,9 +76,9 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
             return { success: false, message: err?.message || "An error occurred during login." };
         }
-    };
+    }, [refreshAccessToken]);
 
-    const loginWithGoogle = async (credential) => {
+    const loginWithGoogle = useCallback(async (credential) => {
         try {
             const data = await authApi.googleLogin({ credential });
             if (data?.accessToken) {
@@ -94,9 +93,9 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
             return { success: false, message: err?.message || "Google sign-in failed." };
         }
-    };
+    }, []);
 
-    const logout = async () => {
+    const logout = useCallback(async () => {
         try {
             await authApi.logout();
         } catch {
@@ -113,7 +112,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("currentUser");
         setAccessToken("");
         localStorage.removeItem("accessToken");
-    };
+    }, []);
 
     const value = useMemo(() => ({
         user,
@@ -127,7 +126,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         loading,
         isAuthenticated: Boolean(accessToken),
-    }), [user, accessToken, loading]);
+    }), [user, accessToken, loading, refreshAccessToken, signup, login, loginWithGoogle, logout]);
 
     return (
         <AuthContext.Provider value={value}>

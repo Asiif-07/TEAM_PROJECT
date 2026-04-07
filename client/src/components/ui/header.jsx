@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Box, Button, Typography, Menu, MenuItem, IconButton, Drawer, List, ListItem, ListItemText } from "@mui/material";
+import { AppBar, Toolbar, Box, Button, Typography, Menu, MenuItem, IconButton, Drawer, List, ListItem, ListItemText, Avatar } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuIcon from "@mui/icons-material/Menu";
 import logo from "../../assets/images/logo.png";
@@ -8,6 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [userAnchorEl, setUserAnchorEl] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
@@ -29,30 +30,21 @@ const Header = () => {
     setMobileOpen((prev) => !prev);
   };
 
+  const handleUserMenuClick = (event) => {
+    setUserAnchorEl(event.currentTarget);
+  };
 
-  // ["How It Work", "About", "Contact Us", "Pricing", "Blog"]
-  let navLinks = [
-    {
-      pageName: "How It Work",
-      path: "/how-it-works"
-    },
-    {
-      pageName: "Services",
-      path: "/services"
-    },
-    {
-      pageName: "About",
-      path: "/about"
-    },
-    {
-      pageName: "Contact Us",
-      path: "/contact-us"
-    },
-    {
-      pageName: "Blog",
-      path: "/blog"
-    }
-  ]
+  const handleUserMenuClose = () => {
+    setUserAnchorEl(null);
+  };
+
+  const navLinks = [
+    { pageName: "How It Work", path: "/how-it-works" },
+    { pageName: "Services", path: "/services" },
+    { pageName: "About", path: "/about" },
+    { pageName: "Contact Us", path: "/contact-us" },
+    { pageName: "Blog", path: "/blog" }
+  ];
 
   return (
     <AppBar
@@ -195,7 +187,6 @@ const Header = () => {
         </Box>
 
         {/* Mobile hamburger */}
-        {/* Mobile hamburger */}
         <Box
           onClick={handleDrawerToggle}
           sx={{
@@ -206,78 +197,72 @@ const Header = () => {
             width: 44,
             height: 44,
             cursor: "pointer",
-            zIndex: 1300, // Ensure it's above the drawer
+            zIndex: 1300,
             ml: "auto",
             position: "relative",
           }}
         >
-          <Box
-            sx={{
-              width: 24,
-              height: 2.5,
-              bgcolor: "#1E3A8A",
-              borderRadius: "2px",
-              transition: "all 0.3s ease-in-out",
-              position: "absolute",
-              transform: mobileOpen ? "rotate(45deg)" : "translateY(-8px)",
-            }}
-          />
-          <Box
-            sx={{
-              width: 24,
-              height: 2.5,
-              bgcolor: "#1E3A8A",
-              borderRadius: "2px",
-              transition: "all 0.3s ease-in-out",
-              position: "absolute",
-              opacity: mobileOpen ? 0 : 1,
-            }}
-          />
-          <Box
-            sx={{
-              width: 24,
-              height: 2.5,
-              bgcolor: "#1E3A8A",
-              borderRadius: "2px",
-              transition: "all 0.3s ease-in-out",
-              position: "absolute",
-              transform: mobileOpen ? "rotate(-45deg)" : "translateY(8px)",
-            }}
-          />
+          <Box sx={{ width: 24, height: 2.5, bgcolor: "#1E3A8A", borderRadius: "2px", transition: "all 0.3s ease-in-out", position: "absolute", transform: mobileOpen ? "rotate(45deg)" : "translateY(-8px)" }} />
+          <Box sx={{ width: 24, height: 2.5, bgcolor: "#1E3A8A", borderRadius: "2px", transition: "all 0.3s ease-in-out", position: "absolute", opacity: mobileOpen ? 0 : 1 }} />
+          <Box sx={{ width: 24, height: 2.5, bgcolor: "#1E3A8A", borderRadius: "2px", transition: "all 0.3s ease-in-out", position: "absolute", transform: mobileOpen ? "rotate(-45deg)" : "translateY(8px)" }} />
         </Box>
 
         {/* Auth (desktop) */}
         <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: "12px", flexShrink: 0 }}>
           {user ? (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Typography
-                sx={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#1F2937",
-                }}
-              >
-                Hi, {user.name}
-              </Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
               <Button
-                onClick={logout}
-                variant="outlined"
+                onClick={handleUserMenuClick}
+                endIcon={<ArrowDropDownIcon />}
                 sx={{
-                  color: "#2563EB",
-                  borderColor: "#2563EB",
+                  color: "#1F2937",
                   fontFamily: "Inter, sans-serif",
                   fontSize: "14px",
                   fontWeight: 600,
-                  borderRadius: "8px",
                   textTransform: "none",
-                  px: "18px",
-                  py: "8px",
-                  "&:hover": { borderColor: "#1D4ED8", backgroundColor: "#EFF6FF" },
+                  borderRadius: "12px",
+                  gap: "8px",
+                  px: 1,
+                  "&:hover": { backgroundColor: "#F3F4F6" },
                 }}
               >
-                Logout
+                <Avatar
+                  src={user.profileImage?.secure_url}
+                  sx={{ width: 32, height: 32, bgcolor: "#2563EB", fontSize: "14px", fontWeight: 700 }}
+                >
+                  {!user.profileImage?.secure_url && user.name?.charAt(0).toUpperCase()}
+                </Avatar>
+                <Typography sx={{ display: { xs: "none", sm: "block" }, fontSize: "14px", fontWeight: 600 }}>
+                  Hi, {user?.name?.split(" ")[0] || "User"}
+                </Typography>
               </Button>
+              <Menu
+                anchorEl={userAnchorEl}
+                open={Boolean(userAnchorEl)}
+                onClose={handleUserMenuClose}
+                sx={{
+                  "& .MuiPaper-root": {
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+                    borderRadius: "12px",
+                    mt: 1,
+                    minWidth: "160px",
+                  },
+                }}
+              >
+                <MenuItem component={Link} to="/profile" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5 }}>
+                  My Profile
+                </MenuItem>
+                <MenuItem component={Link} to="/my-cvs" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5 }}>
+                  My CVs
+                </MenuItem>
+                <Box sx={{ borderTop: "1px solid #E5E7EB", my: 1 }} />
+                <MenuItem
+                  onClick={() => { logout(); handleUserMenuClose(); }}
+                  sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5, color: "#DC2626" }}
+                >
+                  Logout
+                </MenuItem>
+              </Menu>
             </Box>
           ) : (
             <>
@@ -436,18 +421,63 @@ const Header = () => {
           {/* Mobile Auth */}
           {user ? (
             <>
-              <Typography
-                sx={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#1F2937",
-                  textAlign: "center",
-                  py: 1,
-                }}
-              >
-                Hi, {user.name}
-              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, py: 2 }}>
+                <Avatar
+                  src={user.profileImage?.secure_url}
+                  sx={{ width: 64, height: 64, bgcolor: "#2563EB", fontSize: "24px", fontWeight: 700, border: "2px solid #E5E7EB" }}
+                >
+                  {!user.profileImage?.secure_url && user.name?.charAt(0).toUpperCase()}
+                </Avatar>
+                <Typography
+                  sx={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    color: "#111827",
+                  }}
+                >
+                  {user?.name || "User"}
+                </Typography>
+              </Box>
+              <Link to="/profile" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    color: "#111827",
+                    borderColor: "#111827",
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    py: "12px",
+                    mb: 1.5,
+                  }}
+                >
+                  My Profile
+                </Button>
+              </Link>
+              <Link to="/my-cvs" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    backgroundColor: "#111827",
+                    color: "white",
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    py: "12px",
+                    mb: 1,
+                    "&:hover": { backgroundColor: "#374151" },
+                  }}
+                >
+                  My CVs Dashboard
+                </Button>
+              </Link>
               <Button
                 variant="outlined"
                 fullWidth

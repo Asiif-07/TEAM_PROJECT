@@ -2,53 +2,53 @@ import crypto from "crypto";
 import AsyncHandler from '../handler/AsyncHandler.js'
 import User from '../model/user.model.js'
 import CustomError from '../handler/CustomError.js'
-import {generateAccessToken , generateRefreshToken} from "../utils/genrateAccessToken.js"
-import {CookieOptions} from '../utils/cookiesOption.js'
+import { generateAccessToken, generateRefreshToken } from "../utils/genrateAccessToken.js"
+import { CookieOptions } from '../utils/cookiesOption.js'
 import jwt from 'jsonwebtoken'
 import { OAuth2Client } from "google-auth-library"
-import {welcomeEmailTemplate} from "../template/registration.js"
+import { welcomeEmailTemplate } from "../template/registration.js"
 import sendEmail from "../utils/sendMail.js"
 import sanitizeUser from "../utils/sanitizeUser.js"
 
 const getAppUrlFromRequest = (req) => {
-    const origin = req?.headers?.origin;
-    return origin || process.env.APP_URL || "http://localhost:5173";
+  const origin = req?.headers?.origin;
+  return origin || process.env.APP_URL || "http://localhost:5173";
 }
 
-const RegisterUser = AsyncHandler(async(req,res,next)=>{
+const RegisterUser = AsyncHandler(async (req, res, next) => {
 
-    const {name,email,password,gender} = req.body
-    const normalizedEmail = email.trim().toLowerCase();
+  const { name, email, password, gender } = req.body
+  const normalizedEmail = email.trim().toLowerCase();
 
-    const UserExist = await User.findOne({email: normalizedEmail})
+  const UserExist = await User.findOne({ email: normalizedEmail })
 
-    if(UserExist){
-        return next(new CustomError(400 ,"User already exist"))
-    }
+  if (UserExist) {
+    return next(new CustomError(400, "User already exist"))
+  }
 
-    const user = await User.create({
-        name,
-        email: normalizedEmail,
-        password,
-        gender
-    })
+  const user = await User.create({
+    name,
+    email: normalizedEmail,
+    password,
+    gender
+  })
 
-    if (!user){
-        return next(new CustomError(400 ,"User not created"))
-    }
+  if (!user) {
+    return next(new CustomError(400, "User not created"))
+  }
 
-    const appUrl = getAppUrlFromRequest(req)
-    const welcomeEmail = welcomeEmailTemplate(user.name, user.email, appUrl)
+  const appUrl = getAppUrlFromRequest(req)
+  const welcomeEmail = welcomeEmailTemplate(user.name, user.email, appUrl)
 
-    // Do not block signup on email sending (faster UX).
-    sendEmail(user.email, "welcome to our application", welcomeEmail)
-        .catch((error) => console.error("Welcome email failed:", error?.message || error))
+  // Do not block signup on email sending (faster UX).
+  sendEmail(user.email, "welcome to our application", welcomeEmail)
+    .catch((error) => console.error("Welcome email failed:", error?.message || error))
 
-    res.status(201).json({
-        success:true,
-        message: "Account created successfully. Please log in.",
-        user: sanitizeUser(user)
-    })
+  res.status(201).json({
+    success: true,
+    message: "Account created successfully. Please log in.",
+    user: sanitizeUser(user)
+  })
 
 
 
@@ -164,15 +164,21 @@ async function findOrCreateUserFromGooglePayload(payload) {
     throw new CustomError(400, "Invalid Google account data");
   }
   const email = String(payload.email).toLowerCase().trim();
+  const googleName = payload.name || email.split("@")[0];
+  const googlePicture = payload.picture || "";
 
   let user = await User.findOne({ $or: [{ googleId: payload.sub }, { email }] });
 
   if (!user) {
     user = await User.create({
-      name: email.split("@")[0],
+      name: googleName,
       email,
       googleId: payload.sub,
       gender: "other",
+      profileImage: {
+        secure_url: googlePicture,
+        public_id: ""
+      }
     });
     return user;
   }
@@ -186,10 +192,20 @@ async function findOrCreateUserFromGooglePayload(payload) {
     user.googleId = payload.sub;
     needsSave = true;
   }
-  if (user.name === "hi" || user.name === "Hi") {
-    user.name = email.split("@")[0];
+
+  if (!user.name || user.name === "hi" || user.name === "Hi" || user.name === email.split("@")[0]) {
+    user.name = googleName;
     needsSave = true;
   }
+
+  if (!user.profileImage?.secure_url && googlePicture) {
+    user.profileImage = {
+      secure_url: googlePicture,
+      public_id: ""
+    };
+    needsSave = true;
+  }
+
   if (needsSave) {
     await user.save({ validateBeforeSave: false });
   }
@@ -219,7 +235,7 @@ const GoogleOAuthStart = AsyncHandler(async (req, res, next) => {
       new CustomError(
         400,
         `Could not pick a safe redirect URI. Open the app from an allowed origin (see OAUTH_REDIRECT_ORIGINS), ` +
-          `and in Google Cloud add these Authorized redirect URIs: ${examples}`
+        `and in Google Cloud add these Authorized redirect URIs: ${examples}`
       )
     );
   }
@@ -271,7 +287,7 @@ const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
     clearOAuthCookies();
     return redirectLogin(
       "Invalid OAuth redirect (redirect_uri_mismatch). Add this exact URL under Google Cloud → Credentials → Authorized redirect URIs: " +
-        (redirectUri || buildGoogleRedirectUri("http://localhost:5173"))
+      (redirectUri || buildGoogleRedirectUri("http://localhost:5173"))
     );
   }
 
@@ -368,98 +384,98 @@ const GoogleLoginUser = AsyncHandler(async (req, res, next) => {
   });
 });
 
-const LoginUser = AsyncHandler(async(req,res,next)=>{
-    const {email,password} = req.body
-    const normalizedEmail = email.trim().toLowerCase();
+const LoginUser = AsyncHandler(async (req, res, next) => {
+  const { email, password } = req.body
+  const normalizedEmail = email.trim().toLowerCase();
 
-    const user = await User.findOne({email: normalizedEmail}).select("+password")
+  const user = await User.findOne({ email: normalizedEmail }).select("+password")
 
-    if(!user){
-        return next(new CustomError(400 ,"Invalid email or password"))
-    }
+  if (!user) {
+    return next(new CustomError(400, "Invalid email or password"))
+  }
 
-    const comparePassword = await user.comparePassword(password);
+  const comparePassword = await user.comparePassword(password);
 
-    if(!comparePassword){
-        return next(new CustomError(400 ,"Invalid email or password"))
-    }
+  if (!comparePassword) {
+    return next(new CustomError(400, "Invalid email or password"))
+  }
 
-    let accessToken = generateAccessToken(user)
-    let refreshToken = generateRefreshToken(user)
+  let accessToken = generateAccessToken(user)
+  let refreshToken = generateRefreshToken(user)
 
-    user.refreshToken =[{token: refreshToken , createdAt: Date.now()}]
+  user.refreshToken = [{ token: refreshToken, createdAt: Date.now() }]
 
-    await user.save({validateBeforeSave: false})
+  await user.save({ validateBeforeSave: false })
 
-    res.cookie("refreshToken" , refreshToken, CookieOptions).status(200).json({
-        success:true,
-        message:"User logged in successfully",
-        accessToken: accessToken,
-        user: sanitizeUser(user)
-    })
+  res.cookie("refreshToken", refreshToken, CookieOptions).status(200).json({
+    success: true,
+    message: "User logged in successfully",
+    accessToken: accessToken,
+    user: sanitizeUser(user)
+  })
 
 })
 
-const RefreshToken = AsyncHandler(async(req,res,next)=>{
-    
-    const incomingRefreshToken = req.cookies.refreshToken
+const RefreshToken = AsyncHandler(async (req, res, next) => {
 
-    if(!incomingRefreshToken){
-        return next(new CustomError(400 ,"Refresh token not found"))
-    }
+  const incomingRefreshToken = req.cookies.refreshToken
 
-    const decoded = jwt.verify(incomingRefreshToken , process.env.REFRESH_TOKEN_SECRET)
+  if (!incomingRefreshToken) {
+    return next(new CustomError(400, "Refresh token not found"))
+  }
 
-    if(!decoded.userId){
-        return next(new CustomError(400 ,"Invalid refresh token"))
-    }
+  const decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
 
-    const isTokenValid = await User.findOne({"refreshToken.token": incomingRefreshToken});
+  if (!decoded.userId) {
+    return next(new CustomError(400, "Invalid refresh token"))
+  }
 
-    if(!isTokenValid){
-        return next(new CustomError(400 ,"Invalid refresh token"))
-    }
+  const isTokenValid = await User.findOne({ "refreshToken.token": incomingRefreshToken });
 
-    const newAccessToken = generateAccessToken(isTokenValid)
-    const newRefreshToken = generateRefreshToken(isTokenValid)
+  if (!isTokenValid) {
+    return next(new CustomError(400, "Invalid refresh token"))
+  }
 
-    // Use update query to avoid Mongoose optimistic concurrency conflicts.
-    const updatedUser = await User.findOneAndUpdate(
-        { _id: isTokenValid._id, "refreshToken.token": incomingRefreshToken },
-        {
-            $set: {
-                refreshToken: [{ token: newRefreshToken, createdAt: Date.now() }],
-            },
-        },
-        { new: true }
-    )
+  const newAccessToken = generateAccessToken(isTokenValid)
+  const newRefreshToken = generateRefreshToken(isTokenValid)
 
-    if (!updatedUser) {
-        return next(new CustomError(400, "Invalid refresh token"))
-    }
+  // Use update query to avoid Mongoose optimistic concurrency conflicts.
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: isTokenValid._id, "refreshToken.token": incomingRefreshToken },
+    {
+      $set: {
+        refreshToken: [{ token: newRefreshToken, createdAt: Date.now() }],
+      },
+    },
+    { new: true }
+  )
 
-    res.cookie("refreshToken", newRefreshToken, CookieOptions).status(200).json({
-        success: true,
-        message: "Tokens refreshed successfully",
-        accessToken: newAccessToken,
-        user: sanitizeUser(updatedUser),
-    })
+  if (!updatedUser) {
+    return next(new CustomError(400, "Invalid refresh token"))
+  }
+
+  res.cookie("refreshToken", newRefreshToken, CookieOptions).status(200).json({
+    success: true,
+    message: "Tokens refreshed successfully",
+    accessToken: newAccessToken,
+    user: sanitizeUser(updatedUser),
+  })
 })
 
-const LogoutUser = AsyncHandler(async(req,res,next)=>{
-    const incomingRefreshToken = req.cookies.refreshToken;
+const LogoutUser = AsyncHandler(async (req, res, next) => {
+  const incomingRefreshToken = req.cookies.refreshToken;
 
-    if (incomingRefreshToken) {
-        await User.updateOne(
-            { "refreshToken.token": incomingRefreshToken },
-            { $pull: { refreshToken: { token: incomingRefreshToken } } }
-        );
-    }
+  if (incomingRefreshToken) {
+    await User.updateOne(
+      { "refreshToken.token": incomingRefreshToken },
+      { $pull: { refreshToken: { token: incomingRefreshToken } } }
+    );
+  }
 
-    res.clearCookie("refreshToken", CookieOptions).status(200).json({
-        success: true,
-        message: "User logged out successfully",
-    });
+  res.clearCookie("refreshToken", CookieOptions).status(200).json({
+    success: true,
+    message: "User logged out successfully",
+  });
 })
 
 export {

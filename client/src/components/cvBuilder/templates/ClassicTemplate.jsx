@@ -5,20 +5,35 @@ export default function ClassicTemplate({ data }) {
   const { personalInfo = {}, experience = [], education = [], skills = [] } = data || {};
   const accentBlue = "#0078D4";
 
+  const profileImageUrl = React.useMemo(() => {
+    const img = personalInfo.profileImage;
+    if (!img) return null;
+    if (typeof img === 'string') return img;
+    if (img.secure_url) return img.secure_url;
+    if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
+    return null;
+  }, [personalInfo.profileImage]);
+
   return (
     <Box sx={{ minHeight: '297mm', width: '210mm', bgcolor: 'white', mx: 'auto', p: 6, fontFamily: '"Arial", sans-serif', color: '#000' }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h3" fontWeight="900" sx={{ color: '#000', mb: 0.5, letterSpacing: '-0.5px' }}>
-          {personalInfo.name || "Sebastian Hurst"}
-        </Typography>
-        <Typography variant="h6" fontWeight="bold" sx={{ color: accentBlue, mb: 1 }}>
-          {personalInfo.title || "Business Data Analyst"}
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', color: '#333' }}>
-          {personalInfo.phone && <Typography variant="body2" fontWeight="bold">📞 {personalInfo.phone}</Typography>}
-          {personalInfo.email && <Typography variant="body2" fontWeight="bold">📧 {personalInfo.email}</Typography>}
-          {personalInfo.linkedin && <Typography variant="body2" fontWeight="bold">🔗 {personalInfo.linkedin}</Typography>}
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <Box>
+          <Typography variant="h3" fontWeight="900" sx={{ color: '#000', mb: 0.5, letterSpacing: '-0.5px' }}>
+            {personalInfo.name || "Sebastian Hurst"}
+          </Typography>
+          <Typography variant="h6" fontWeight="bold" sx={{ color: accentBlue, mb: 1 }}>
+            {personalInfo.title || "Business Data Analyst"}
+          </Typography>
         </Box>
+        {profileImageUrl && (
+          <Box component="img" src={profileImageUrl} sx={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${accentBlue}` }} />
+        )}
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', color: '#333', mb: 3 }}>
+        {personalInfo.phone && <Typography variant="body2" fontWeight="bold">📞 {personalInfo.phone}</Typography>}
+        {personalInfo.email && <Typography variant="body2" fontWeight="bold">📧 {personalInfo.email}</Typography>}
+        {personalInfo.linkedin && <Typography variant="body2" fontWeight="bold">🔗 {personalInfo.linkedin}</Typography>}
       </Box>
 
       <Box sx={{ mb: 3 }}>
@@ -53,12 +68,12 @@ export default function ClassicTemplate({ data }) {
 
       <Box>
         <Typography variant="h6" fontWeight="900" sx={{ textTransform: 'uppercase', borderBottom: '3px solid #000', pb: 0.5, mb: 1.5 }}>Skills</Typography>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {skills.map((skill, idx) => (
-            <Typography key={idx} variant="body2" fontWeight="bold" sx={{ borderBottom: '1px solid #ccc', pb: 0.5 }}>{skill}</Typography>
+            <Typography key={idx} variant="body2" fontWeight="bold">• {skill}</Typography>
           ))}
         </Box>
       </Box>
-    </Box>
+    </Box >
   );
 }

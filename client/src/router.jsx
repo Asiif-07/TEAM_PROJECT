@@ -18,6 +18,7 @@ import CVTemplates from './pages/CVTemplates.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import OAuthGoogleDone from './pages/OAuthGoogleDone.jsx';
+import Profile from './pages/Profile.jsx';
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,14 @@ const router = createBrowserRouter([
       {
         path: 'cv-builder',
         element: <CVBuilder />,
+      },
+      {
+        path: 'profile',
+        element: (
+          <RequireAuth>
+            <Profile />
+          </RequireAuth>
+        ),
       },
       {
         path: 'my-cvs',

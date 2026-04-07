@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
 import cors from "cors";
 import limiter from "express-rate-limit";
 import ErrorMiddleWare from "./middleWare/errorMiddleWare.middleware.js";
@@ -8,35 +9,27 @@ import cookieParser from "cookie-parser";
 import userRouter from "./router/user.route.js";
 import cvRouter from "./router/cv.route.js";
 
-
-dotenv.config();
-
-
 const app = express();
 
 const isAllowed = ['http://localhost:5173'];
 const localhostPortPattern = /^http:\/\/localhost:\d+$/;
 
-const corsOptions = (req , cb) => {
-
+const corsOptions = (req, cb) => {
     const origin = req.headers.origin;
-
-    if(!origin){
+    if (!origin) {
         return cb(null, true);
     }
-
-    if(isAllowed.includes(origin) || localhostPortPattern.test(origin)){
+    if (isAllowed.includes(origin) || localhostPortPattern.test(origin)) {
         return cb(
             null,
             {
                 origin: true,
-                methods:["GET" , "POST" , "PUT" , "PATCH" , "DELETE"],
+                methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
                 credentials: true,
                 allowedHeaders: ['Content-Type', 'Authorization']
             }
         )
     }
-
     return cb(new Error("Not allowed by CORS"))
 }
 
@@ -44,7 +37,7 @@ app.use(cors(corsOptions));
 
 const rateLimiter = limiter({
     windowMs: 15 * 60 * 1000,
-    limit:100,
+    limit: 100,
     legacyHeaders: false,
     standardHeaders: true,
     handler: (req, res) => {
@@ -54,23 +47,16 @@ const rateLimiter = limiter({
     }
 });
 
-app.use(rateLimiter);
+// app.use(rateLimiter);
 
 app.use(express.json({ limit: "15mb" }));
-
 app.use(cookieParser())
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.urlencoded({extended:true}));
-
-
-app.use('/api/v1/auth' , authRouter); 
-app.use('/api/v1/user' , userRouter); 
-app.use('/api/v1/cv' , cvRouter); 
-
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/user', userRouter);
+app.use('/api/v1/cv', cvRouter);
 
 app.use(ErrorMiddleWare);
 
 export default app;
-
-
-

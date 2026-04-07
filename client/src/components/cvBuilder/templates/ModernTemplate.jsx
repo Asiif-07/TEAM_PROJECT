@@ -4,12 +4,25 @@ import { Box, Typography } from '@mui/material';
 export default function ModernTemplate({ data }) {
   const { personalInfo = {}, experience = [], education = [], skills = [] } = data || {};
 
+  const profileImageUrl = React.useMemo(() => {
+    const img = personalInfo.profileImage;
+    if (!img) return null;
+    if (typeof img === 'string') return img;
+    if (img.secure_url) return img.secure_url;
+    if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
+    return null;
+  }, [personalInfo.profileImage]);
+
   return (
     <Box sx={{ display: 'flex', minHeight: '297mm', width: '210mm', bgcolor: 'white', mx: 'auto', fontFamily: '"Arial", sans-serif' }}>
-      
+
       <Box sx={{ width: '35%', bgcolor: '#E5E7EB', display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ height: '220px', display: 'flex', justifyContent: 'center', alignItems: 'center', pt: 4 }}>
-          <Box sx={{ width: 150, height: 150, borderRadius: '50%', bgcolor: '#ccc', border: '6px solid #d1d5db' }} />
+          {profileImageUrl ? (
+            <Box component="img" src={profileImageUrl} sx={{ width: 150, height: 150, borderRadius: '50%', objectFit: 'cover', border: '6px solid #d1d5db' }} />
+          ) : (
+            <Box sx={{ width: 150, height: 150, borderRadius: '50%', bgcolor: '#ccc', border: '6px solid #d1d5db' }} />
+          )}
         </Box>
 
         <Box sx={{ bgcolor: '#1F2937', color: 'white', py: 1.5, px: 4, mb: 2, mt: 2 }}><Typography variant="h6" fontWeight="bold" letterSpacing={1}>Contact</Typography></Box>
@@ -31,10 +44,10 @@ export default function ModernTemplate({ data }) {
         </Box>
 
         <Box sx={{ bgcolor: '#1F2937', color: 'white', py: 1.5, px: 4, mb: 2 }}><Typography variant="h6" fontWeight="bold" letterSpacing={1}>Skills</Typography></Box>
-        <Box sx={{ px: 4, mb: 4 }}>
-          <ul style={{ margin: 0, paddingLeft: '20px' }}>
-            {skills.map((skill, idx) => (<li key={idx}><Typography variant="body2" sx={{ mb: 0.5 }}>{skill}</Typography></li>))}
-          </ul>
+        <Box sx={{ px: 4, mb: 4, display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {skills.map((skill, idx) => (
+            <Typography key={idx} variant="body2">• {skill}</Typography>
+          ))}
         </Box>
       </Box>
 
@@ -47,7 +60,7 @@ export default function ModernTemplate({ data }) {
         </Box>
 
         {personalInfo.about && (
-           <Box sx={{ mb: 4 }}><Typography variant="body2" sx={{ color: '#4b5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{personalInfo.about}</Typography></Box>
+          <Box sx={{ mb: 4 }}><Typography variant="body2" sx={{ color: '#4b5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{personalInfo.about}</Typography></Box>
         )}
 
         <Typography variant="h6" fontWeight="900" sx={{ mb: 3, color: '#1f2937' }}>Professional Experience</Typography>

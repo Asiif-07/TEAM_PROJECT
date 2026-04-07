@@ -9,6 +9,20 @@ export function forgetPassword({ email }) {
   });
 }
 
+export function updateProfilePic({ accessToken, refreshAccessToken, file }) {
+  const formData = new FormData();
+  formData.append("profileImage", file);
+
+  return apiRequest("/api/v1/user/update-profile-pic", {
+    method: "POST",
+    accessToken,
+    refreshAccessToken,
+    body: formData,
+    credentials: "include",
+    retryOn401: true,
+  });
+}
+
 export function resetPassword({ token, password, confirmPassword }) {
   return apiRequest(`/api/v1/user/resetpassword/${token}`, {
     method: "POST",

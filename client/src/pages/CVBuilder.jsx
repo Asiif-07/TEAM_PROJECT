@@ -18,6 +18,7 @@ export default function CVBuilder() {
     const [searchParams] = useSearchParams();
     const selectedCategory = searchParams.get("category");
     const selectedTemplate = searchParams.get("template");
+    const cvId = searchParams.get("cvId");
 
     const { accessToken, refreshAccessToken, isAuthenticated } = useAuth();
     const [activeStep, setActiveStep] = useState(0);
@@ -30,19 +31,74 @@ export default function CVBuilder() {
         personalInfo: { name: "", title: "", about: "", email: "", phone: "", github: "", linkedin: "", profileImage: null },
         experience: [{ role: "", company: "", startDate: "", endDate: "", description: "" }],
         skills: [],
-        education: [{ degree: "", institute: "", startDate: "", endDate: "" }],
+        education: [{ degree: "", institute: "", startDate: "", endDate: "", year: "" }],
         projects: "",
         languages: "",
         certifications: ""
     });
 
+    // If they bypass the templates page, kick them back (unless editing an existing CV)
+    useEffect(() => {
+        if (!cvId && (!selectedTemplate || !selectedCategory)) {
+            navigate("/cv-templates");
+        }
+    }, [selectedTemplate, selectedCategory, cvId, navigate]);
+
+    // Fetch CV data if editing
+    useEffect(() => {
+        const fetchCvData = async () => {
+            if (!cvId || !accessToken) return;
+            setLoading(true);
+            try {
+                const response = await cvApi.getCvById({ accessToken, refreshAccessToken, id: cvId });
+                if (response.success && response.data) {
+                    const cv = response.data;
+
+                    // Map projects back to string format
+                    const projectsString = (cv.projects || []).map(p =>
+                        `${p.title} | ${p.description} | ${p.githubLink || ""} | ${p.liveLink || ""}`
+                    ).join("\n");
+
+                    setFormData({
+                        personalInfo: {
+                            name: cv.name || "",
+                            title: cv.title || "", // if backend has title
+                            about: cv.summary || "",
+                            email: cv.email || "",
+                            phone: cv.phone || "",
+                            github: cv.github || "",
+                            linkedin: cv.linkedin || "",
+                            profileImage: cv.profileImage?.secure_url || null
+                        },
+                        experience: cv.experience?.length ? cv.experience.map(x => ({
+                            role: x.role || "",
+                            company: x.company || "",
+                            duration: x.duration || "", // We store as duration in backend, might need to handle dates if we want more granularity
+                            description: x.description || ""
+                        })) : [{ role: "", company: "", startDate: "", endDate: "", description: "" }],
+                        skills: cv.skills || [],
+                        education: cv.education?.length ? cv.education.map(e => ({
+                            degree: e.degree || "",
+                            institute: e.institute || "",
+                            year: e.year || ""
+                        })) : [{ degree: "", institute: "", startDate: "", endDate: "", year: "" }],
+                        projects: projectsString,
+                        languages: cv.languages || "",
+                        certifications: cv.certifications || ""
+                    });
+                }
+            } catch {
+                setErrorMessage("Failed to load CV data.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCvData();
+    }, [cvId, accessToken, refreshAccessToken]);
+
     const handleNext = () => setActiveStep((prev) => prev + 1);
     const handleBack = () => setActiveStep((prev) => prev - 1);
-
-    // If they bypass the templates page, kick them back
-    useEffect(() => {
-        if (!selectedTemplate || !selectedCategory) navigate("/cv-templates");
-    }, [selectedTemplate, selectedCategory, navigate]);
 
     const handleChange = (e, section) => {
         setErrorMessage("");
@@ -60,41 +116,54 @@ export default function CVBuilder() {
     const buildCvPayload = () => buildCvPayloadUtil(formData, selectedTemplate, selectedCategory);
 
     const generateCV = async () => {
-        setLoading(true);
         setErrorMessage("");
-        try {
-            if (!isAuthenticated || !accessToken) {
-                setErrorMessage("Please log in first to generate and save your CV.");
-                return;
-            }
-            if (!formData.personalInfo.name.trim()) return setErrorMessage("Please enter your name.");
-            if (!formData.personalInfo.email.trim()) return setErrorMessage("Please enter your email.");
 
-            const payload = buildCvPayload();
-            
-            const form = new FormData();
-            Object.keys(payload).forEach(key => {
-                if (typeof payload[key] === 'object' && payload[key] !== null) {
-                    form.append(key, JSON.stringify(payload[key]));
-                } else {
-                    form.append(key, payload[key]);
+        // Optimistic transition: Move to preview instantly
+        setCvContent("success");
+        handleNext();
+
+        // Perform the save in the background to 'decrease' perceived time
+        (async () => {
+            setLoading(true);
+            try {
+                if (!isAuthenticated || !accessToken) {
+                    setErrorMessage("Please log in first to save your CV.");
+                    return;
                 }
-            });
 
-            if (formData.personalInfo.profileImage) {
-                form.append("profileImage", formData.personalInfo.profileImage);
+                const payload = buildCvPayload();
+                const hasNewImage = formData.personalInfo.profileImage instanceof File;
+
+                if (hasNewImage) {
+                    const form = new FormData();
+                    Object.keys(payload).forEach(key => {
+                        if (typeof payload[key] === 'object' && payload[key] !== null) {
+                            form.append(key, JSON.stringify(payload[key]));
+                        } else {
+                            form.append(key, payload[key]);
+                        }
+                    });
+                    form.append("profileImage", formData.personalInfo.profileImage);
+
+                    if (cvId) {
+                        await cvApi.updateCv({ accessToken, refreshAccessToken, id: cvId, cvData: form });
+                    } else {
+                        await cvApi.createCv({ accessToken, refreshAccessToken, cv: form });
+                    }
+                } else {
+                    if (cvId) {
+                        await cvApi.updateCv({ accessToken, refreshAccessToken, id: cvId, cvData: payload });
+                    } else {
+                        await cvApi.createCv({ accessToken, refreshAccessToken, cv: payload });
+                    }
+                }
+            } catch (error) {
+                console.error("Delayed save failed:", error);
+                setErrorMessage("Your changes were not saved to the cloud. Please try again.");
+            } finally {
+                setLoading(false);
             }
-
-            await cvApi.createCv({ accessToken, refreshAccessToken, cv: form });
-
-            // Triggers the final preview step
-            setCvContent("success");
-            handleNext();
-        } catch (error) {
-            setErrorMessage(error?.message || "Failed to create CV.");
-        } finally {
-            setLoading(false);
-        }
+        })();
     };
 
     const renderStepContent = (step) => {

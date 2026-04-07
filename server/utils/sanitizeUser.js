@@ -6,6 +6,7 @@ const sanitizeUser = (userDoc) => {
         name: userDoc.name,
         email: userDoc.email,
         gender: userDoc.gender,
+        profileImage: userDoc.profileImage,
         createdAt: userDoc.createdAt,
         updatedAt: userDoc.updatedAt,
     };

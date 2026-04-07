@@ -59,7 +59,7 @@ export function deleteCv({ accessToken, refreshAccessToken, id }) {
   });
 }
 
-export function getCv({ accessToken, refreshAccessToken, id }) {
+export function getCvById({ accessToken, refreshAccessToken, id }) {
   return apiRequest(`/api/v1/cv/cv/${id}`, {
     method: "GET",
     accessToken,
@@ -67,10 +67,10 @@ export function getCv({ accessToken, refreshAccessToken, id }) {
   });
 }
 
-export function updateCv({ accessToken, refreshAccessToken, id, cv }) {
+export function updateCv({ accessToken, refreshAccessToken, id, cvData }) {
   return apiRequest(`/api/v1/cv/cv/${id}`, {
     method: "PUT",
-    body: cv,
+    body: cvData,
     accessToken,
     refreshAccessToken,
   });

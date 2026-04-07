@@ -5,22 +5,22 @@ export default function EuropassTemplate({ data }) {
   const { personalInfo = {}, experience = [], education = [], skills = [] } = data || {};
   const euroBlue = "#0e4194";
 
-  const getImageUrl = (img) => {
+  const profileImageUrl = React.useMemo(() => {
+    const img = personalInfo.profileImage;
     if (!img) return null;
     if (typeof img === 'string') return img;
     if (img.secure_url) return img.secure_url;
     if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
     return null;
-  };
-  const profileImageUrl = getImageUrl(personalInfo.profileImage);
+  }, [personalInfo.profileImage]);
 
   return (
     <Box sx={{ minHeight: '297mm', width: '210mm', bgcolor: 'white', mx: 'auto', p: 6, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-      
+
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 4 }}>
-         <Box sx={{ bgcolor: euroBlue, color: 'white', px: 1.5, py: 0.5, borderRadius: 0.5, fontWeight: 'bold', letterSpacing: 1 }}>
-           europass
-         </Box>
+        <Box sx={{ bgcolor: euroBlue, color: 'white', px: 1.5, py: 0.5, borderRadius: 0.5, fontWeight: 'bold', letterSpacing: 1 }}>
+          europass
+        </Box>
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -34,15 +34,15 @@ export default function EuropassTemplate({ data }) {
       <Box sx={{ width: '100%', height: '2px', bgcolor: euroBlue, mb: 4, mt: 1 }} />
 
       <Box sx={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: '0 24px' }}>
-        
+
         <Typography sx={{ textAlign: 'right', color: euroBlue, fontWeight: 'bold', fontSize: '0.85rem', pt: 0.5 }}>PERSONAL INFORMATION</Typography>
         <Box sx={{ borderLeft: `1px solid ${euroBlue}`, pl: 3, pb: 4 }}>
           {personalInfo.email && <Typography variant="body2" sx={{ mb: 0.5 }}><strong>Email address:</strong> {personalInfo.email}</Typography>}
           {personalInfo.phone && <Typography variant="body2" sx={{ mb: 0.5 }}><strong>Phone number:</strong> {personalInfo.phone}</Typography>}
           {personalInfo.linkedin && <Typography variant="body2" sx={{ mb: 0.5 }}><strong>LinkedIn:</strong> {personalInfo.linkedin}</Typography>}
-          
+
           <Box sx={{ mt: 3, p: 2, bgcolor: '#f9fafb', borderLeft: `3px solid ${euroBlue}` }}>
-             <Typography variant="body2" sx={{ fontStyle: 'italic', color: '#4b5563', whiteSpace: 'pre-wrap' }}>{personalInfo.about}</Typography>
+            <Typography variant="body2" sx={{ fontStyle: 'italic', color: '#4b5563', whiteSpace: 'pre-wrap' }}>{personalInfo.about}</Typography>
           </Box>
         </Box>
 
@@ -76,7 +76,11 @@ export default function EuropassTemplate({ data }) {
 
         <Typography sx={{ textAlign: 'right', color: euroBlue, fontWeight: 'bold', fontSize: '0.85rem', pt: 0.5 }}>DIGITAL SKILLS</Typography>
         <Box sx={{ borderLeft: `1px solid ${euroBlue}`, pl: 3, pb: 4 }}>
-          <Typography variant="body2" sx={{ lineHeight: 1.8 }}>{skills.join(" | ")}</Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            {skills.map((skill, idx) => (
+              <Typography key={idx} variant="body2">• {skill}</Typography>
+            ))}
+          </Box>
         </Box>
 
       </Box>

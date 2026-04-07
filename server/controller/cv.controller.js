@@ -9,33 +9,31 @@ function isSectionHeader(line) {
     const l = String(line || "").trim().toLowerCase();
     return /^(summary|profile|about|objective|skills|technical skills|key skills|core skills|education|academic( background)?|experience|work experience|professional experience|employment|projects?|certifications?|licenses?|languages?)\b[:]?$/i.test(l);
 }
-
-
 const CreateCv = AsyncHandler(async (req, res, next) => {
-
     const userId = req.userId;
-
-    const { 
-      name, email, phone, github, linkedin, 
-      summary, education, skills, projects, experience,templateId
+    const {
+        name, email, phone, github, linkedin,
+        summary, education, skills, projects, experience, templateId
     } = req.body;
 
     const findId = await User.findById(userId)
 
-    if(!findId){
+    if (!findId) {
         throw new CustomError(404, 'User not found')
     }
 
     let profileImage;
 
-    if(req.file){
+    if (req.file) {
         const result = await uploadToCloudinary(
-            {resource_type: "image",
-            buffer: req.file.buffer,
-            folder: "cv-profiles"}
+            {
+                resource_type: "image",
+                buffer: req.file.buffer,
+                folder: "cv-profiles"
+            }
         )
 
-        if(!result){
+        if (!result) {
             throw new CustomError(500, 'Failed to upload profile image')
         }
 
@@ -45,25 +43,23 @@ const CreateCv = AsyncHandler(async (req, res, next) => {
         }
     }
 
-
-
     const newCv = await Cv.create({
-      name,
-      email,
-      phone,
-      github,
-      linkedin,
-      summary,
-      education,
-      skills,
-      projects,
-      experience,
-      userId,
-      templateId,
-      profileImage
+        name,
+        email,
+        phone,
+        github,
+        linkedin,
+        summary,
+        education,
+        skills,
+        projects,
+        experience,
+        userId,
+        templateId,
+        profileImage
     })
 
-    if(!newCv){
+    if (!newCv) {
         throw new CustomError(500, 'Failed to create CV')
     }
 
@@ -71,38 +67,51 @@ const CreateCv = AsyncHandler(async (req, res, next) => {
         success: true,
         message: 'CV created successfully',
         data: newCv
-    })
-
-    
-
-    
-})
+    });
+});
 
 
-const updateCv = AsyncHandler(async(req,res,next)=>{
+const updateCv = AsyncHandler(async (req, res, next) => {
 
-    const {id} = req.params;
+    const { id } = req.params;
     const userId = req.userId;
 
     //db check
     const findCv = await Cv.findById(id)
 
-    if(!findCv){
+    if (!findCv) {
         throw new CustomError(404, 'CV not found')
-    }   
+    }
 
     //check if the user is the owner of the cv
-    if(findCv.userId.toString() !== userId.toString()) {
+    if (findCv.userId.toString() !== userId.toString()) {
         throw new CustomError(403, 'Not authorized to update this CV')
     }
 
-    const { 
-      name, email, phone, github, linkedin, 
-      summary, education, skills, projects, experience, templateId
+    const {
+        name, email, phone, github, linkedin,
+        summary, education, skills, projects, experience, templateId
     } = req.body;
 
 
-    const updatedFields ={};
+    const updatedFields = {};
+
+    if (req.file) {
+        const result = await uploadToCloudinary(
+            {
+                resource_type: "image",
+                buffer: req.file.buffer,
+                folder: "cv-profiles"
+            }
+        )
+
+        if (result) {
+            updatedFields.profileImage = {
+                secure_url: result.secure_url,
+                public_id: result.public_id
+            }
+        }
+    }
 
     if (name) updatedFields.name = name;
     if (email) updatedFields.email = email;
@@ -116,9 +125,9 @@ const updateCv = AsyncHandler(async(req,res,next)=>{
     if (experience) updatedFields.experience = experience;
     if (templateId) updatedFields.templateId = templateId;
 
-    const updateCvFields = await Cv.findByIdAndUpdate(id, {$set: updatedFields}, {new: true})
+    const updateCvFields = await Cv.findByIdAndUpdate(id, { $set: updatedFields }, { new: true })
 
-    if(!updateCvFields){
+    if (!updateCvFields) {
         throw new CustomError(500, 'Failed to update CV')
     }
 
@@ -133,19 +142,19 @@ const updateCv = AsyncHandler(async(req,res,next)=>{
 
 
 
-    
+
 })
 
-const getAllCvs = AsyncHandler(async(req,res,next)=>{
+const getAllCvs = AsyncHandler(async (req, res, next) => {
 
     const userId = req.userId;
 
-    const cvs = await Cv.find({userId})
+    const cvs = await Cv.find({ userId })
 
     console.log(cvs);
-    
 
-    if(cvs.length === 0){
+
+    if (cvs.length === 0) {
         throw new CustomError(404, 'CVs not found')
     }
 
@@ -154,19 +163,19 @@ const getAllCvs = AsyncHandler(async(req,res,next)=>{
         message: 'CVs fetched successfully',
         data: cvs
     })
-    
+
 })
 
-const SingleCv = AsyncHandler(async(req,res,next)=>{
-    const {id} = req.params;
+const SingleCv = AsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
 
     const findCv = await Cv.findById(id)
 
-    if(!findCv){
+    if (!findCv) {
         throw new CustomError(404, "cv not found")
     }
 
-    if(findCv.userId.toString() !== req.userId.toString()){
+    if (findCv.userId.toString() !== req.userId.toString()) {
         throw new CustomError(403, "Not authorized to view this CV")
     }
 
@@ -177,8 +186,8 @@ const SingleCv = AsyncHandler(async(req,res,next)=>{
     })
 })
 
-const deleteCv = AsyncHandler(async(req,res,next)=>{
-    const {id} = req.params;
+const deleteCv = AsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
 
     console.log(id)
 
@@ -186,11 +195,11 @@ const deleteCv = AsyncHandler(async(req,res,next)=>{
 
     console.log(findId)
 
-    if(!findId){
+    if (!findId) {
         throw new CustomError(404, "Cv not found")
     }
 
-    if(findId.userId.toString() !== req.userId.toString()){
+    if (findId.userId.toString() !== req.userId.toString()) {
         throw new CustomError(403, "Not authorized to delete this CV")
     }
 
@@ -201,7 +210,7 @@ const deleteCv = AsyncHandler(async(req,res,next)=>{
         message: 'CV deleted successfully'
     })
 
-    
+
 })
 
 export { CreateCv, updateCv, getAllCvs, SingleCv, deleteCv }

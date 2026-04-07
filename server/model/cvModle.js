@@ -32,7 +32,7 @@ const cvSchema = new mongoose.Schema({
     required: true
   },
 
-  education: [  
+  education: [
     {
       degree: {
         type: String,
@@ -96,13 +96,17 @@ const cvSchema = new mongoose.Schema({
     }
   ],
   userId: {
-    type: mongoose.Schema.Types.ObjectId, 
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
   templateId: {
-    type:String,
-    default:"american-style"
+    type: String,
+    default: "american-style"
+  },
+  profileImage: {
+    secure_url: { type: String },
+    public_id: { type: String }
   }
 
 }, { timestamps: true });
