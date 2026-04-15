@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { generateSummary, enhanceExperience } from "../controller/ai.controller.js";
 import authMiddleWare from "../middleWare/authMiddleWare.js";
+import { generateAIContent } from "../controller/ai.controller.js";
+import validate from "../middleWare/validate.js";
+import { aiGenSchema } from "../schemas/genAi.schema.js";
 
 const aiRouter = Router();
 
-aiRouter.use(authMiddleWare);
-
-aiRouter.post("/generate-summary", generateSummary);
-aiRouter.post("/enhance-experience", enhanceExperience);
+aiRouter.route("/ai-generate").post(validate(aiGenSchema),authMiddleWare, generateAIContent)
 
 export default aiRouter;
