@@ -18,23 +18,26 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
 
     try {
       setLoadingIdx(idx);
-      const res = await aiApi.enhanceExperience({
+      const res = await aiApi.generateContent({
         accessToken,
         refreshAccessToken,
-        role: item.role,
-        company: item.company,
-        description: item.description
+        type: "experience",
+        data: {
+          role: item.role,
+          company: item.company,
+          rawDescription: item.description
+        }
       });
 
-      if (res.success && res.data) {
+      if (res.success && res.data && res.data.description) {
         setFormData((prev) => ({
           ...prev,
-          experience: prev.experience.map((x, i) => (i === idx ? { ...x, description: res.data } : x)),
+          experience: prev.experience.map((x, i) => (i === idx ? { ...x, description: res.data.description } : x)),
         }));
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to enhance description. Please check your connection and API key.");
+      alert(error.message || "Failed to enhance description. Please check your connection and API key.");
     } finally {
       setLoadingIdx(null);
     }

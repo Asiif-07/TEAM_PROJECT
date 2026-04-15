@@ -21,14 +21,21 @@ export default function PersonalInfoStep({ formData, handleChange, selectedTempl
     }
 
     try {
-      setIsGenerating(true);
-      const res = await aiApi.generateSummary({ accessToken, refreshAccessToken, title });
-      if (res.success && res.data) {
-        handleChange({ target: { name: 'about', value: res.data } }, "personalInfo");
+      const res = await aiApi.generateContent({
+        accessToken, refreshAccessToken,
+        type: 'summary',
+        data: {
+          name: formData.personalInfo.name || "A professional",
+          role: title,
+          skills: formData.skills || []
+        }
+      });
+      if (res.success && res.data && res.data.summary) {
+        handleChange({ target: { name: 'about', value: res.data.summary } }, "personalInfo");
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to connect to the AI service. Please ensure the backend is running and the API key is configured.");
+      alert(error.message || "Failed to connect to the AI service. Please ensure the backend is running and the API key is configured.");
     } finally {
       setIsGenerating(false);
     }

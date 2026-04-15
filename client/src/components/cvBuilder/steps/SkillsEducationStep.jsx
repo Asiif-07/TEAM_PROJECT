@@ -1,6 +1,9 @@
-import React from "react";
-import { Box, Button, Grow, Paper, TextField, Typography, FormControlLabel, Checkbox } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Button, Grow, Paper, TextField, Typography, FormControlLabel, Checkbox, CircularProgress } from "@mui/material";
+import { Sparkles } from "lucide-react";
 import PremiumInput from "../PremiumInput";
+import { useAuth } from "../../../context/AuthContext";
+import * as aiApi from "../../../api/ai";
 
 export default function SkillsEducationStep({
   formData,
@@ -9,13 +12,70 @@ export default function SkillsEducationStep({
   setSkillInput,
   handleChange,
 }) {
+  const { accessToken, refreshAccessToken } = useAuth();
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerateSkills = async () => {
+    const role = formData.personalInfo?.title;
+    if (!role?.trim()) {
+      alert("Please go back to Personal Info and enter your target Job Title first so the AI knows what skills to suggest.");
+      return;
+    }
+
+    try {
+      setIsGenerating(true);
+      const res = await aiApi.generateContent({
+        accessToken,
+        refreshAccessToken,
+        type: "skills",
+        data: { role }
+      });
+
+      if (res.success && res.data && res.data.skills) {
+        // Find skills that aren't already added
+        const currentSkills = (formData.skills || []).map(s => s.toLowerCase());
+        const newSkills = res.data.skills.filter(s => !currentSkills.includes(s.toLowerCase()));
+
+        if (newSkills.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            skills: [...(prev.skills || []), ...newSkills],
+          }));
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Failed to generate skills. Please ensure the backend and API key are configured.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <Grow in={true}>
       <Box>
         <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 900, color: "#374151" }}>
-            Skills
-          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: "#374151" }}>
+              Skills
+            </Typography>
+            <Button
+              size="small"
+              onClick={handleGenerateSkills}
+              disabled={isGenerating}
+              startIcon={isGenerating ? <CircularProgress size={16} /> : <Sparkles size={16} />}
+              sx={{
+                textTransform: "none",
+                borderRadius: "8px",
+                color: "#6366F1",
+                fontWeight: 700,
+                bgcolor: "rgba(99, 102, 241, 0.1)",
+                "&:hover": { bgcolor: "rgba(99, 102, 241, 0.2)" }
+              }}
+            >
+              {isGenerating ? "Suggesting..." : "Suggest AI Skills"}
+            </Button>
+          </Box>
 
           <Box sx={{ display: "flex", gap: 1, mb: 1.5 }}>
             <TextField
