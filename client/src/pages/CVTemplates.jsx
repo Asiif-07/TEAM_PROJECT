@@ -10,7 +10,7 @@ const templates = [
     title: "Classic Professional",
     description: "Clean and traditional structure with strong section headings.",
     highlights: ["Balanced spacing", "Section-first layout", "Professional accent"],
-    image: "src/assets/images/classical cv.png" 
+    image: "src/assets/images/classical cv.png"
   },
   {
     id: "europass-standard",
@@ -18,7 +18,7 @@ const templates = [
     title: "Standard EU Format",
     description: "The official layout required for many European institutions.",
     highlights: ["Official format", "Left-aligned labels", "Recognized Europe-wide"],
-    image: "src/assets/images/euro poass.png" 
+    image: "src/assets/images/euro poass.png"
   },
   {
     id: "korean-standard",
@@ -26,7 +26,7 @@ const templates = [
     title: "Standard 이력서",
     description: "Traditional grid-based layout for the Korean job market.",
     highlights: ["Photo inclusion", "Strict table grid", "Standard data fields"],
-    image: "src/assets/images/korean cv teof.jpg" 
+    image: "src/assets/images/korean cv teof.jpg"
   },
   {
     id: "modern-blue",
@@ -34,7 +34,23 @@ const templates = [
     title: "Modern Split-Layout",
     description: "Contemporary layout designed for quick recruiter scanning.",
     highlights: ["Sidebar header", "Readable typography", "Modern section dividers"],
-    image: "src/assets/images/modern cv.webp" 
+    image: "src/assets/images/modern cv.webp"
+  },
+  {
+    id: "minimalist-clean",
+    category: "Minimalist",
+    title: "Minimalist Zen",
+    description: "Ultra-clean design that focuses on typography and whitespace.",
+    highlights: ["High whitespace", "Elegant serif font", "Focused structure"],
+    image: "https://placehold.co/400x500/white/grey?text=Minimalist+Preview"
+  },
+  {
+    id: "creative-indigo",
+    category: "Creative",
+    title: "Creative Spark",
+    description: "Dynamic and bold layout with colorful accents for a standout CV.",
+    highlights: ["Colorful accents", "Modern avatar", "High impact"],
+    image: "https://placehold.co/400x500/6366f1/white?text=Creative+Preview"
   },
 ];
 

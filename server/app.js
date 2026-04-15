@@ -8,6 +8,7 @@ import authRouter from "./router/auth.route.js";
 import cookieParser from "cookie-parser";
 import userRouter from "./router/user.route.js";
 import cvRouter from "./router/cv.route.js";
+import aiRouter from "./router/ai.route.js";
 
 const app = express();
 
@@ -53,9 +54,15 @@ app.use(express.json({ limit: "15mb" }));
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+    console.log(`[DEBUG] ${req.method} ${req.url}`);
+    next();
+});
+
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/cv', cvRouter);
+app.use('/api/v1/ai', aiRouter);
 
 app.use(ErrorMiddleWare);
 

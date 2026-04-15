@@ -1,8 +1,45 @@
-import React from "react";
-import { Box, Button, Grow, Paper, TextField, Typography, FormControlLabel, Checkbox } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Button, Grow, Paper, TextField, Typography, FormControlLabel, Checkbox, CircularProgress } from "@mui/material";
+import { Sparkles } from "lucide-react";
 import PremiumInput from "../PremiumInput";
+import { useAuth } from "../../../context/AuthContext";
+import * as aiApi from "../../../api/ai";
 
 export default function ExperienceStep({ formData, setFormData, handleChange }) {
+  const { accessToken, refreshAccessToken } = useAuth();
+  const [loadingIdx, setLoadingIdx] = useState(null);
+
+  const handleEnhanceDescription = async (idx) => {
+    const item = formData.experience[idx];
+    if (!item.role?.trim() || !item.description?.trim()) {
+      alert("Please provide at least the job Role and a basic Description first.");
+      return;
+    }
+
+    try {
+      setLoadingIdx(idx);
+      const res = await aiApi.enhanceExperience({
+        accessToken,
+        refreshAccessToken,
+        role: item.role,
+        company: item.company,
+        description: item.description
+      });
+
+      if (res.success && res.data) {
+        setFormData((prev) => ({
+          ...prev,
+          experience: prev.experience.map((x, i) => (i === idx ? { ...x, description: res.data } : x)),
+        }));
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to enhance description. Please check your connection and API key.");
+    } finally {
+      setLoadingIdx(null);
+    }
+  };
+
   return (
     <Grow in={true}>
       <Box>
@@ -126,10 +163,31 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
                 </Box>
               </Box>
 
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2, mb: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: "#475569" }}>
+                  Description
+                </Typography>
+                <Button
+                  size="small"
+                  onClick={() => handleEnhanceDescription(idx)}
+                  disabled={loadingIdx === idx}
+                  startIcon={loadingIdx === idx ? <CircularProgress size={12} /> : <Sparkles size={12} />}
+                  sx={{
+                    textTransform: "none",
+                    fontSize: "0.7rem",
+                    borderRadius: "6px",
+                    fontWeight: 700,
+                    bgcolor: "rgba(99, 102, 241, 0.1)",
+                    color: "#6366F1",
+                    "&:hover": { bgcolor: "rgba(99, 102, 241, 0.2)" }
+                  }}
+                >
+                  {loadingIdx === idx ? "Enhancing..." : "Enhance with AI"}
+                </Button>
+              </Box>
               <TextField
-                sx={{ mt: 1.5 }}
-                label="Description"
                 value={item.description}
+                placeholder="List your key responsibilities and achievements..."
                 onChange={(e) => {
                   const v = e.target.value;
                   setFormData((prev) => ({

@@ -5,6 +5,8 @@ import ClassicTemplate from "./templates/ClassicTemplate";
 import EuropassTemplate from "./templates/EuropassTemplate";
 import KoreanTemplate from "./templates/KoreanTemplate";
 import ModernTemplate from "./templates/ModernTemplate";
+import MinimalistTemplate from "./templates/MinimalistTemplate";
+import CreativeTemplate from "./templates/CreativeTemplate";
 
 export default function PreviewCV({ formData, selectedTemplate, selectedCategory, setCvContent, setActiveStep }) {
  
@@ -16,6 +18,8 @@ export default function PreviewCV({ formData, selectedTemplate, selectedCategory
     if (tId.includes('euro') || tCat.includes('euro')) return <EuropassTemplate data={formData} />;
     if (tId.includes('korean') || tCat.includes('korean')) return <KoreanTemplate data={formData} />;
     if (tId.includes('modern') || tCat.includes('modern')) return <ModernTemplate data={formData} />;
+    if (tId.includes('minimalist') || tCat.includes('minimalist')) return <MinimalistTemplate data={formData} />;
+    if (tId.includes('creative') || tCat.includes('creative')) return <CreativeTemplate data={formData} />;
     
     // Fallback for Classic/General
     return <ClassicTemplate data={formData} />;
