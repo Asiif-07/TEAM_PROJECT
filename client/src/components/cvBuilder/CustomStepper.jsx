@@ -9,7 +9,7 @@ const steps = [
   { label: "Generate", icon: <Wand2 size={20} /> },
 ];
 
-export default function CustomStepper({ activeStep }) {
+export default function CustomStepper({ activeStep, onStepClick }) {
   return (
     <Box sx={{ mb: 10 }}>
       <Box
@@ -49,15 +49,28 @@ export default function CustomStepper({ activeStep }) {
           return (
             <Box
               key={index}
+              onClick={() => onStepClick && onStepClick(index)}
               sx={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 zIndex: 1,
+                position: "relative",
                 width: "25%",
+                cursor: "pointer",
+                "&:hover": {
+                  "& .step-icon": {
+                    transform: "scale(1.15)",
+                    boxShadow: "0 0 25px rgba(37, 99, 235, 0.4)",
+                  },
+                  "& .step-label": {
+                    color: "#2563EB",
+                  }
+                }
               }}
             >
               <Box
+                className="step-icon"
                 sx={{
                   width: 50,
                   height: 50,
@@ -69,7 +82,7 @@ export default function CustomStepper({ activeStep }) {
                   justifyContent: "center",
                   border: "2px solid",
                   borderColor: isActive ? "#2563EB" : isCompleted ? "#111827" : "#E5E7EB",
-                  transition: "all 0.4s ease",
+                  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                   boxShadow: isActive ? "0 0 20px rgba(37, 99, 235, 0.3)" : "none",
                   transform: isActive ? "scale(1.1)" : "scale(1)",
                   mb: 1.5,
@@ -80,6 +93,7 @@ export default function CustomStepper({ activeStep }) {
 
               <Typography
                 variant="caption"
+                className="step-label"
                 sx={{
                   fontWeight: 800,
                   color: isActive ? "#2563EB" : "#6B7280",
@@ -87,6 +101,7 @@ export default function CustomStepper({ activeStep }) {
                   letterSpacing: "1px",
                   fontSize: "0.65rem",
                   textAlign: "center",
+                  transition: "all 0.4s ease",
                 }}
               >
                 {step.label}
@@ -98,4 +113,3 @@ export default function CustomStepper({ activeStep }) {
     </Box>
   );
 }
-

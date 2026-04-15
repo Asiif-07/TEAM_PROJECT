@@ -79,11 +79,19 @@ const router = createBrowserRouter([
       },
       {
         path: 'cv-templates',
-        element: <CVTemplates />,
+        element: (
+          <RequireAuth>
+            <CVTemplates />
+          </RequireAuth>
+        ),
       },
       {
         path: 'cv-builder',
-        element: <CVBuilder />,
+        element: (
+          <RequireAuth>
+            <CVBuilder />
+          </RequireAuth>
+        ),
       },
       {
         path: 'profile',

@@ -39,7 +39,16 @@ export default function KoreanTemplate({ data }) {
             <td style={{ ...thStyle, width: '100px' }}>이 메 일</td>
             <td style={{ ...tdStyle, textAlign: 'left', paddingLeft: '15px' }}>{personalInfo.email}</td>
           </tr>
-          <tr><td style={thStyle}>지 원 분 야</td><td style={{ ...tdStyle, textAlign: 'left', paddingLeft: '15px' }} colSpan={3}>{personalInfo.title}</td></tr>
+          <tr>
+            <td style={thStyle}>생년월일</td>
+            <td style={{ ...tdStyle, textAlign: 'left', paddingLeft: '15px' }}>{personalInfo.dob || '-'}</td>
+            <td style={thStyle}>지 원 분 야</td>
+            <td style={{ ...tdStyle, textAlign: 'left', paddingLeft: '15px' }}>{personalInfo.title}</td>
+          </tr>
+          <tr>
+            <td style={thStyle}>주 소</td>
+            <td style={{ ...tdStyle, textAlign: 'left', paddingLeft: '15px' }} colSpan={3}>{personalInfo.address || '-'}</td>
+          </tr>
           <tr><td style={thStyle}>링 크</td><td style={{ ...tdStyle, textAlign: 'left', paddingLeft: '15px' }} colSpan={3}>{personalInfo.linkedin || personalInfo.github || '-'}</td></tr>
         </tbody>
       </table>

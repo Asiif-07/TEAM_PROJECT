@@ -11,6 +11,7 @@ import ExperienceStep from "../components/cvBuilder/steps/ExperienceStep";
 import SkillsEducationStep from "../components/cvBuilder/steps/SkillsEducationStep";
 import GenerateStep from "../components/cvBuilder/steps/GenerateStep";
 import CustomStepper from "../components/cvBuilder/CustomStepper";
+import LivePreview from "../components/cvBuilder/LivePreview";
 
 export default function CVBuilder() {
     const navigate = useNavigate();
@@ -28,7 +29,7 @@ export default function CVBuilder() {
     const [skillInput, setSkillInput] = useState("");
 
     const [formData, setFormData] = useState({
-        personalInfo: { name: "", title: "", about: "", email: "", phone: "", github: "", linkedin: "", profileImage: null },
+        personalInfo: { name: "", title: "", about: "", email: "", phone: "", github: "", linkedin: "", address: "", dob: "", profileImage: null },
         experience: [{ role: "", company: "", startDate: "", endDate: "", description: "" }],
         skills: [],
         education: [{ degree: "", institute: "", startDate: "", endDate: "", year: "" }],
@@ -118,6 +119,12 @@ export default function CVBuilder() {
     const generateCV = async () => {
         setErrorMessage("");
 
+        // Prevent generation if minimum required data is missing
+        if (!formData.personalInfo.name?.trim() || !formData.personalInfo.email?.trim()) {
+            setErrorMessage("Please go back and provide at least your name and email to generate the CV.");
+            return;
+        }
+
         // Optimistic transition: Move to preview instantly
         setCvContent("success");
         handleNext();
@@ -167,10 +174,18 @@ export default function CVBuilder() {
     };
 
     const renderStepContent = (step) => {
+        const stepProps = {
+            formData,
+            setFormData,
+            handleChange,
+            selectedTemplate,
+            selectedCategory
+        };
+
         switch (step) {
-            case 0: return <PersonalInfoStep formData={formData} handleChange={handleChange} />;
-            case 1: return <ExperienceStep formData={formData} setFormData={setFormData} handleChange={handleChange} />;
-            case 2: return <SkillsEducationStep formData={formData} setFormData={setFormData} skillInput={skillInput} setSkillInput={setSkillInput} handleChange={handleChange} />;
+            case 0: return <PersonalInfoStep {...stepProps} />;
+            case 1: return <ExperienceStep {...stepProps} />;
+            case 2: return <SkillsEducationStep {...stepProps} skillInput={skillInput} setSkillInput={setSkillInput} />;
             case 3: return <GenerateStep generateCV={generateCV} loading={loading} />;
             default: return null;
         }
@@ -192,23 +207,44 @@ export default function CVBuilder() {
 
     return (
         <Box sx={{ minHeight: '100vh', py: 12, position: 'relative', overflow: 'hidden' }} className="bg-mesh">
-            <Container maxWidth="md">
+            <Container maxWidth="xl">
                 <Box sx={{ textAlign: 'center', mb: 10 }}>
                     <Typography variant="h2" fontWeight="900" sx={{ mb: 2 }}>Create Your Future</Typography>
                     <Typography variant="h6" color="textSecondary">Selected Template: {selectedCategory} / {selectedTemplate}</Typography>
                 </Box>
 
-                <Paper className="glass" elevation={0} sx={{ p: { xs: 4, md: 8 }, borderRadius: '32px' }}>
-                    <CustomStepper activeStep={activeStep} />
-                    {errorMessage && <Typography sx={{ mb: 3, color: "#B91C1C", fontWeight: 700, textAlign: "center" }}>{errorMessage}</Typography>}
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 4, justifyContent: 'center', alignItems: 'flex-start' }}>
+                    <Paper
+                        className="glass"
+                        elevation={0}
+                        sx={{
+                            p: { xs: 4, md: 8 },
+                            borderRadius: '32px',
+                            flex: { lg: '0 1 800px' },
+                            width: '100%',
+                            boxShadow: "0 20px 40px rgba(0,0,0,0.05)"
+                        }}
+                    >
+                        <CustomStepper activeStep={activeStep} onStepClick={setActiveStep} />
+                        {errorMessage && <Typography sx={{ mb: 3, color: "#B91C1C", fontWeight: 700, textAlign: "center" }}>{errorMessage}</Typography>}
 
-                    <Box sx={{ minHeight: 400 }}>{renderStepContent(activeStep)}</Box>
+                        <Box sx={{ minHeight: 400 }}>{renderStepContent(activeStep)}</Box>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 8, pt: 4, borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-                        <Button disabled={activeStep === 0 || loading} onClick={handleBack} startIcon={<ChevronLeft size={20} />}>Previous Step</Button>
-                        {activeStep < 3 && <Button variant="contained" onClick={handleNext} endIcon={<ChevronRight size={20} />}>Next Step</Button>}
-                    </Box>
-                </Paper>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 8, pt: 4, borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+                            <Button disabled={activeStep === 0 || loading} onClick={handleBack} startIcon={<ChevronLeft size={20} />}>Previous Step</Button>
+                            {activeStep < 3 && <Button variant="contained" onClick={handleNext} endIcon={<ChevronRight size={20} />}>Next Step</Button>}
+                        </Box>
+                    </Paper>
+
+                    {/* LIVE PREVIEW SIDEBAR */}
+                    {activeStep < 3 && (
+                        <LivePreview
+                            formData={formData}
+                            selectedTemplate={selectedTemplate}
+                            selectedCategory={selectedCategory}
+                        />
+                    )}
+                </Box>
             </Container>
         </Box>
     );
