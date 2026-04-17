@@ -4,11 +4,11 @@ import CustomError from '../handler/CustomError.js'
 import User from '../model/user.model.js';
 import uploadToCloudinary from '../utils/uploadToCloudinary.js';
 
-
 function isSectionHeader(line) {
     const l = String(line || "").trim().toLowerCase();
     return /^(summary|profile|about|objective|skills|technical skills|key skills|core skills|education|academic( background)?|experience|work experience|professional experience|employment|projects?|certifications?|licenses?|languages?)\b[:]?$/i.test(l);
 }
+
 const CreateCv = AsyncHandler(async (req, res, next) => {
     const userId = req.userId;
     const {
@@ -23,27 +23,19 @@ const CreateCv = AsyncHandler(async (req, res, next) => {
     }
 
     let profileImage;
-
     if (req.file) {
         const result = await uploadToCloudinary(
             {
                 resource_type: "image",
-                buffer: req.file.buffer,
-                folder: "cv-profiles"
-            }
-        )
-
-        if (!result) {
-            throw new CustomError(500, 'Failed to upload profile image')
-        }
-
-        profileImage = {
-            secure_url: result.secure_url,
-            public_id: result.public_id
-        }
+                public_id: `profile_${Date.now()}`
+            },
+           req.file.buffer
+        );
+        profileImage = result.secure_url;
     }
 
-    const newCv = await Cv.create({
+    const cv = await Cv.create({
+        userId,
         name,
         email,
         phone,
@@ -54,105 +46,55 @@ const CreateCv = AsyncHandler(async (req, res, next) => {
         skills,
         projects,
         experience,
-        userId,
-        templateId,
-        profileImage
-    })
-
-    if (!newCv) {
-        throw new CustomError(500, 'Failed to create CV')
-    }
+        profileImage,
+        templateId
+    });
 
     res.status(201).json({
         success: true,
         message: 'CV created successfully',
-        data: newCv
-    });
+        data: cv
+    })
 });
 
-
 const updateCv = AsyncHandler(async (req, res, next) => {
-
     const { id } = req.params;
     const userId = req.userId;
+    const updateData = { ...req.body };
 
-    //db check
-    const findCv = await Cv.findById(id)
+    const findCv = await Cv.findById(id);
 
     if (!findCv) {
-        throw new CustomError(404, 'CV not found')
+        throw new CustomError(404, "cv not found")
     }
 
-    //check if the user is the owner of the cv
     if (findCv.userId.toString() !== userId.toString()) {
-        throw new CustomError(403, 'Not authorized to update this CV')
+        throw new CustomError(403, "Not authorized to update this CV")
     }
-
-    const {
-        name, email, phone, github, linkedin,
-        summary, education, skills, projects, experience, templateId
-    } = req.body;
-
-
-    const updatedFields = {};
 
     if (req.file) {
         const result = await uploadToCloudinary(
             {
                 resource_type: "image",
-                buffer: req.file.buffer,
-                folder: "cv-profiles"
-            }
-        )
-
-        if (result) {
-            updatedFields.profileImage = {
-                secure_url: result.secure_url,
-                public_id: result.public_id
-            }
-        }
+                public_id: `profile_${Date.now()}`
+            },
+            req.file.buffer
+        );
+        updateData.profileImage = result.secure_url;
     }
 
-    if (name) updatedFields.name = name;
-    if (email) updatedFields.email = email;
-    if (phone) updatedFields.phone = phone;
-    if (github) updatedFields.github = github;
-    if (linkedin) updatedFields.linkedin = linkedin;
-    if (summary) updatedFields.summary = summary;
-    if (education) updatedFields.education = education;
-    if (skills) updatedFields.skills = skills;
-    if (projects) updatedFields.projects = projects;
-    if (experience) updatedFields.experience = experience;
-    if (templateId) updatedFields.templateId = templateId;
-
-    const updateCvFields = await Cv.findByIdAndUpdate(id, { $set: updatedFields }, { new: true })
-
-    if (!updateCvFields) {
-        throw new CustomError(500, 'Failed to update CV')
-    }
-
-    console.log(updateCvFields)
+    const updatedCv = await Cv.findByIdAndUpdate(id, updateData, { new: true });
 
     res.status(200).json({
         success: true,
         message: 'CV updated successfully',
-        data: updateCvFields
+        data: updatedCv
     })
-
-
-
-
-
-})
+});
 
 const getAllCvs = AsyncHandler(async (req, res, next) => {
-
     const userId = req.userId;
-
     const cvs = await Cv.find({ userId })
-
-    console.log(cvs);
-
 
     if (cvs.length === 0) {
         throw new CustomError(404, 'CVs not found')
@@ -163,12 +105,10 @@ const getAllCvs = AsyncHandler(async (req, res, next) => {
         message: 'CVs fetched successfully',
         data: cvs
     })
-
 })
 
 const SingleCv = AsyncHandler(async (req, res, next) => {
     const { id } = req.params;
-
     const findCv = await Cv.findById(id)
 
     if (!findCv) {
@@ -188,12 +128,7 @@ const SingleCv = AsyncHandler(async (req, res, next) => {
 
 const deleteCv = AsyncHandler(async (req, res, next) => {
     const { id } = req.params;
-
-    console.log(id)
-
     const findId = await Cv.findById(id)
-
-    console.log(findId)
 
     if (!findId) {
         throw new CustomError(404, "Cv not found")
@@ -209,8 +144,6 @@ const deleteCv = AsyncHandler(async (req, res, next) => {
         success: true,
         message: 'CV deleted successfully'
     })
-
-
 })
 
 export { CreateCv, updateCv, getAllCvs, SingleCv, deleteCv }

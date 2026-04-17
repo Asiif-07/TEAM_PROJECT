@@ -3,7 +3,7 @@ import { genAI } from '../config/gemini.js' // Apne path ke hisaab se check kar 
 import CustomError from '../handler/CustomError.js'
 
 const generateAIContent = AsyncHandler(async (req, res) => {
-    // 🔥 FIX: Yahan 'section' ki jagah ab 'type' use ho raha hai
+    console.log("[DEBUG] AI Request body:", JSON.stringify(req.body, null, 2));
     const { type, data } = req.body;
 
     // 🔥 FIX: Error check mein bhi 'type'
@@ -11,8 +11,8 @@ const generateAIContent = AsyncHandler(async (req, res) => {
         throw new CustomError(400, "Type and data are required to generate content");
     }
 
-    const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash",
+    const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash", // Use 1.5-flash as 2.5 is invalid/unstable
         generationConfig: { responseMimeType: "application/json" }
     });
 
@@ -73,13 +73,22 @@ const generateAIContent = AsyncHandler(async (req, res) => {
             throw new CustomError(400, "Invalid type requested. Allowed: summary, experience, project, skills");
     }
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    console.log("[DEBUG] Sending prompt to Gemini...");
+    let text = "";
+    try {
+        const result = await model.generateContent(prompt);
+        text = result.response.text();
+        console.log("[DEBUG] AI Raw Output:", text);
+    } catch (aiErr) {
+        console.error("[ERROR] Gemini API Error:", aiErr);
+        throw new CustomError(500, `Gemini API Error: ${aiErr.message}`);
+    }
 
     let parsedData;
     try {
         parsedData = JSON.parse(text);
     } catch (err) {
+        // Fallback for when Gemini adds markdown blocks even with responseMimeType
         const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
         try {
             parsedData = JSON.parse(cleanedText);
