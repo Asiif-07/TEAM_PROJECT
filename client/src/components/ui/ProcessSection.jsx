@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 // Reusable Banner Component
 const Banner = ({ 
@@ -13,6 +14,7 @@ const Banner = ({
   accentText, 
   extraContent,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto px-6 py-16 lg:py-24 relative" style={{ maxWidth: '1280px' }}>
       <div className={`flex flex-col md:flex-row items-center gap-16 lg:gap-32 ${imageLeft ? "md:flex-row-reverse" : ""}`}>
@@ -55,7 +57,7 @@ const Banner = ({
             <div className="mt-10 p-7 bg-[#FFF5F9] border border-[#FFD6E8] rounded-[2.5rem] max-w-[360px] space-y-4 shadow-sm">
               <div className="flex items-center gap-2 text-[#E91E63] font-bold text-xs uppercase tracking-wider">
                 <span className="text-base">💎</span>
-                Subscription Option
+                {t("Subscription Option")}
               </div>
               <ul className="space-y-3">
                 <li className="flex items-center gap-3 text-sm font-bold text-slate-800">
@@ -64,7 +66,7 @@ const Banner = ({
                 </li>
                 <li className="flex items-start gap-3 text-xs font-medium text-slate-500 leading-snug">
                   <span className="w-2 h-2 rounded-full bg-[#FFD6E8] mt-1 shrink-0"></span>
-                  Unlimited revisions for your CV & Cover letter
+                  {t("Unlimited Revisions Support")}
                 </li>
               </ul>
             </div>
@@ -98,63 +100,64 @@ const Banner = ({
 };
 
 const ProcessSection = ({ showHeading = true }) => {
+  const { t } = useTranslation();
   return (
     <section className="bg-[#FCFDFF] py-24 overflow-hidden">
       {/* Header Area (optional so we can override per page) */}
       {showHeading && (
         <div className="text-center mb-10 px-6">
           <h2 className="text-5xl md:text-6xl font-[950] text-slate-900 mb-6 tracking-tight">
-            How <span className="text-blue-600 font-normal">It works</span>
+            {t("How")} <span className="text-blue-600 font-normal">{t("It works")}</span>
           </h2>
           <p className=" max-w-lg mx-auto text-lg font-medium leading-relaxed">
-            Quickly upload, customize, and download your resume tailored to any job description in no time.
+            {t("Process Tagline")}
           </p>
         </div>
       )}
 
       <Banner 
-        stepLabel="STEP 1"
-        title="Choose Your"
-        titleAccent="Service & Package"
-        text="Browse our comprehensive range of AI-enhanced career services and select the perfect package for your career goals."
+        stepLabel={t("Step 1")}
+        title={t("Choose Service Title")}
+        titleAccent={t("Service & Package")}
+        text={t("Process Step 1 Text")}
         image="/src/assets/images/banner/673b1186892be17ee3fd3c50_res1.webp (1).png"
-        buttonText="CHOOSE SERVICE"
+        buttonText={t("Choose Service Button")}
         imageLeft={false}
         accentText="text-blue-600"
         themeColor="border-blue-600 hover:bg-blue-600 hover:text-white"
       />
 
       <Banner 
-        stepLabel="AI ANALYSIS"
-        title="AI Analysis &"
-        titleAccent="Intelligent Processing"
-        text="Our advanced AI system analyzes your information, industry requirements, and target job descriptions to create optimized content."
+        stepLabel={t("AI Analysis Title")}
+        title={t("AI Intelligent Title")}
+        titleAccent=""
+        text={t("AI Intelligent Text")}
         image="/src/assets/images/banner/673b128a0b7a6d75befd50b2_res2.webp.png"
-        buttonText="AI ANALYSIS"
+        buttonText={t("AI ANALYSIS")}
         imageLeft={true}
         accentText="text-green-600"
         themeColor="border-green-600 hover:bg-green-600 hover:text-white"
       />
 
       <Banner 
-        stepLabel="CUSTOMIZATION"
-        title="Expert Human Review &"
-        titleAccent="Refinement"
-        text="Industry professionals with deep sector knowledge review and refine the AI-generated content, ensuring perfect tone and clarity."
+        stepLabel={t("Customization Title")}
+        title={t("Human Review Title")}
+        titleAccent=""
+        text={t("Human Review Text")}
         image="/src/assets/images/banner/673b128a8eea3105e427c227_res3.webp.png"
-        buttonText="HUMAN REVIEW"
+        buttonText={t("Human Review Button")}
         imageLeft={false}
         accentText="text-orange-500"
         themeColor="border-orange-500 hover:bg-orange-500 hover:text-white"
       />
 
       <Banner 
-        stepLabel="QUALITY DELIVERY"
-        title="Quality Delivery &"
-        titleAccent="Ongoing Support"
-        text="Receive your professionally-crafted documents with detailed feedback, plus unlimited revisions and ongoing support."
+        stepLabel={t("Quality Delivery Title")}
+        title={t("Quality Delivery")}
+        titleAccent=""
+        text={t("Quality Delivery Text")}
         image="/src/assets/images/banner/673b128acbeb5118a12ab056_res4.webp.png"
-        buttonText="DELIVERED FAST"
+        buttonText={t("Delivered Fast")}
         imageLeft={true}
         accentText="text-pink-500"
         themeColor="border-pink-500 hover:bg-pink-500 hover:text-white"

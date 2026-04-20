@@ -2,8 +2,10 @@ import { Box, Button, Container, Paper, TextField, Typography, Fade } from "@mui
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { forgetPassword } from "../api/user";
+import { useTranslation } from "react-i18next";
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -15,16 +17,16 @@ export default function ForgotPassword() {
     setMessage("");
 
     if (!email.trim()) {
-      setError("Email is required.");
+      setError(t("Email Required"));
       return;
     }
 
     setIsSubmitting(true);
     try {
       const res = await forgetPassword({ email });
-      setMessage(res?.message || "If this email exists, reset instructions were sent.");
+      setMessage(res?.message || t("Reset Link Sent"));
     } catch (err) {
-      setError(err?.message || "Something went wrong. Please try again.");
+      setError(err?.message || t("Error Message"));
     } finally {
       setIsSubmitting(false);
     }
@@ -44,10 +46,10 @@ export default function ForgotPassword() {
         >
           <Box sx={{ textAlign: "center", mb: 3 }}>
             <Typography className="premium-text-gradient" sx={{ fontSize: 30, fontWeight: 900, mb: 1 }}>
-              Reset Your Password
+              {t("Reset Password Title")}
             </Typography>
             <Typography sx={{ color: "#6B7280", fontWeight: 500 }}>
-              Enter your email and we will send you a reset link.
+              {t("Reset Password Sub")}
             </Typography>
           </Box>
 
@@ -70,7 +72,7 @@ export default function ForgotPassword() {
           <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               fullWidth
-              label="Email Address"
+              label={t("Email Address")}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -84,13 +86,13 @@ export default function ForgotPassword() {
               disabled={isSubmitting}
               sx={{ bgcolor: "#111827", py: 1.5, fontWeight: 800, borderRadius: "16px", textTransform: "none", "&:hover": { bgcolor: "#1F2937" } }}
             >
-              {isSubmitting ? "Sending..." : "Send Reset Link"}
+              {isSubmitting ? t("Sending") : t("Send Reset Link")}
             </Button>
 
             <Typography sx={{ textAlign: "center", mt: 1, color: "#6B7280", fontWeight: 500, fontSize: 13 }}>
-              Remembered your password?{" "}
+              {t("Remembered Password")}{" "}
               <Link to="/login" style={{ color: "#2563EB", textDecoration: "none", fontWeight: 800 }}>
-                Go to login
+                {t("Go to Login")}
               </Link>
             </Typography>
           </Box>

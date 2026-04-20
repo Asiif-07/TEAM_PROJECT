@@ -2,6 +2,7 @@ import { Box, Button, Container, Paper, Typography, TextField } from "@mui/mater
 import { CheckCircle2, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const templates = [
   {
@@ -36,25 +37,10 @@ const templates = [
     highlights: ["Sidebar header", "Readable typography", "Modern section dividers"],
     image: "src/assets/images/modern cv.webp"
   },
-  {
-    id: "minimalist-clean",
-    category: "Minimalist",
-    title: "Minimalist Zen",
-    description: "Ultra-clean design that focuses on typography and whitespace.",
-    highlights: ["High whitespace", "Elegant serif font", "Focused structure"],
-    image: "https://placehold.co/400x500/white/grey?text=Minimalist+Preview"
-  },
-  {
-    id: "creative-indigo",
-    category: "Creative",
-    title: "Creative Spark",
-    description: "Dynamic and bold layout with colorful accents for a standout CV.",
-    highlights: ["Colorful accents", "Modern avatar", "High impact"],
-    image: "https://placehold.co/400x500/6366f1/white?text=Creative+Preview"
-  },
 ];
 
 export default function CVTemplates() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const categories = useMemo(() => ["All", ...Array.from(new Set(templates.map((t) => t.category)))], []);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -79,9 +65,9 @@ export default function CVTemplates() {
     <Box className="bg-mesh" sx={{ minHeight: "100vh", py: 10, bgcolor: "#F8FAFC" }}>
       <Container maxWidth="lg">
         <Box sx={{ textAlign: "center", mb: 7 }}>
-          <Typography variant="h3" fontWeight={900} sx={{ mb: 1, color: "#0F172A" }}>CV Templates</Typography>
+          <Typography variant="h3" fontWeight={900} sx={{ mb: 1, color: "#0F172A" }}>{t("Template Gallery")}</Typography>
           <Typography color="text.secondary" sx={{ fontSize: 18, maxWidth: 720, mx: "auto" }}>
-            Pick a design first. Then fill your details to generate your CV in that style.
+            {t("Gallery Tagline")}
           </Typography>
         </Box>
 
@@ -89,11 +75,11 @@ export default function CVTemplates() {
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             {categories.map((c) => (
               <Button key={c} onClick={() => setActiveCategory(c)} variant={activeCategory === c ? "contained" : "outlined"} size="small" sx={{ borderRadius: "999px", textTransform: "none", fontWeight: 800 }}>
-                {c}
+                {t(c)}
               </Button>
             ))}
           </Box>
-          <TextField size="small" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search templates..." sx={{ width: { xs: "100%", md: 320 }, bgcolor: "white", borderRadius: 1 }} />
+          <TextField size="small" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("Search Templates")} sx={{ width: { xs: "100%", md: 320 }, bgcolor: "white", borderRadius: 1 }} />
         </Box>
 
         <Box sx={{ display: "grid", gap: 4, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", lg: "1fr 1fr 1fr" } }}>
@@ -103,11 +89,11 @@ export default function CVTemplates() {
                 <Box component="img" src={template.image} alt={template.title} sx={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
               </Box>
               <Box sx={{ p: 3, display: "flex", flexDirection: "column", flexGrow: 1 }}>
-                <Typography variant="subtitle2" sx={{ color: "#2563EB", fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, mb: 0.5 }}>{template.category}</Typography>
+                <Typography variant="subtitle2" sx={{ color: "#2563EB", fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, mb: 0.5 }}>{t(template.category)}</Typography>
                 <Typography variant="h6" fontWeight={900} sx={{ mb: 1, color: "#0F172A", lineHeight: 1.2 }}>{template.title}</Typography>
                 <Typography color="text.secondary" variant="body2" sx={{ mb: 2, flexGrow: 1 }}>{template.description}</Typography>
                 <Button variant="contained" onClick={() => onSelectTemplate(template)} endIcon={<ChevronRight size={16} />} fullWidth sx={{ borderRadius: "12px", textTransform: "none", fontWeight: 800, py: 1.2, boxShadow: 'none' }}>
-                  Select Template
+                  {t("Select Template")}
                 </Button>
               </Box>
             </Paper>

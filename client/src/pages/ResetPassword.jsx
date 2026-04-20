@@ -2,8 +2,10 @@ import { Box, Button, Container, Paper, TextField, Typography, Fade } from "@mui
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { resetPassword } from "../api/user";
+import { useTranslation } from "react-i18next";
 
 export default function ResetPassword() {
+  const { t } = useTranslation();
   const { token } = useParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
@@ -35,10 +37,10 @@ export default function ResetPassword() {
     setIsSubmitting(true);
     try {
       const res = await resetPassword({ token, password, confirmPassword });
-      setMessage(res?.message || "Password changed successfully.");
+      setMessage(res?.message || t("Password Changed"));
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
-      setError(err?.message || "Failed to reset password. Please try again.");
+      setError(err?.message || t("Error Message"));
     } finally {
       setIsSubmitting(false);
     }
@@ -58,10 +60,10 @@ export default function ResetPassword() {
         >
           <Box sx={{ textAlign: "center", mb: 3 }}>
             <Typography className="premium-text-gradient" sx={{ fontSize: 30, fontWeight: 900, mb: 1 }}>
-              Reset Password
+              {t("Reset Password Title")}
             </Typography>
             <Typography sx={{ color: "#6B7280", fontWeight: 500 }}>
-              Choose a new password for your account.
+              {t("New Password")}
             </Typography>
           </Box>
 
@@ -76,7 +78,7 @@ export default function ResetPassword() {
           {message && (
             <Fade in={true}>
               <Typography sx={{ color: "#065F46", fontWeight: 700, fontSize: 14, mb: 2, bgcolor: "rgba(209,250,229,0.6)", p: 1.5, borderRadius: 2, border: "1px solid rgba(16,185,129,0.25)" }}>
-                {message} Redirecting to login...
+                {message}
               </Typography>
             </Fade>
           )}
@@ -84,7 +86,7 @@ export default function ResetPassword() {
           <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               fullWidth
-              label="New Password"
+              label={t("New Password")}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -92,7 +94,7 @@ export default function ResetPassword() {
             />
             <TextField
               fullWidth
-              label="Confirm Password"
+              label={t("Confirm Password")}
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -106,13 +108,13 @@ export default function ResetPassword() {
               disabled={isSubmitting}
               sx={{ bgcolor: "#111827", py: 1.5, fontWeight: 800, borderRadius: "16px", textTransform: "none", "&:hover": { bgcolor: "#1F2937" } }}
             >
-              {isSubmitting ? "Updating..." : "Update Password"}
+              {isSubmitting ? t("Updating") : t("Update Password")}
             </Button>
 
             <Typography sx={{ textAlign: "center", mt: 1, color: "#6B7280", fontWeight: 500, fontSize: 13 }}>
-              Remembered it?{" "}
+              {t("Remembered Password")}{" "}
               <Link to="/login" style={{ color: "#2563EB", textDecoration: "none", fontWeight: 800 }}>
-                Back to login
+                {t("Go to Login")}
               </Link>
             </Typography>
           </Box>

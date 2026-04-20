@@ -1,23 +1,31 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { Box, Button, Grow, Paper, TextField, Typography, FormControlLabel, Checkbox, CircularProgress } from "@mui/material";
 import { Sparkles } from "lucide-react";
-import PremiumInput from "../PremiumInput";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
 import * as aiApi from "../../../api/ai";
+import PremiumInput from "../PremiumInput";
+import { getTemplateConfig } from "../../../utils/cvBuilder/templateConfig";
 
-export default function ExperienceStep({ formData, setFormData, handleChange }) {
+export default function ExperienceStep({ formData, setFormData, handleChange, selectedTemplate }) {
+  const { t } = useTranslation();
   const { accessToken, refreshAccessToken } = useAuth();
   const [loadingIdx, setLoadingIdx] = useState(null);
+  const config = React.useMemo(() => getTemplateConfig(selectedTemplate), [selectedTemplate]);
 
   const handleEnhanceDescription = async (idx) => {
     const item = formData.experience[idx];
     if (!item.role?.trim() || !item.description?.trim()) {
-      alert("Please provide at least the job Role and a basic Description first.");
+      toast.error(t("Please provide Role and Description"));
       return;
     }
 
+    let loadingToast = null;
     try {
       setLoadingIdx(idx);
+      loadingToast = toast.loading(t("Enhancing"));
+
       const res = await aiApi.generateContent({
         accessToken,
         refreshAccessToken,
@@ -34,10 +42,14 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
           ...prev,
           experience: prev.experience.map((x, i) => (i === idx ? { ...x, description: res.data.description } : x)),
         }));
+        toast.success(t("Experience Enhanced"), { id: loadingToast });
+      } else {
+        toast.dismiss(loadingToast);
       }
     } catch (error) {
       console.error(error);
-      alert(error.message || "Failed to enhance description. Please check your connection and API key.");
+      if (loadingToast) toast.dismiss(loadingToast);
+      // Handled globally
     } finally {
       setLoadingIdx(null);
     }
@@ -58,7 +70,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
             color: "#1E40AF",
           }}
         >
-          💡 Tip: Add your most recent work experience first. Leave 'End Date' blank if it's your current job.
+          💡 {t("Experience Tip")}
         </Typography>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
@@ -74,7 +86,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
             >
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                 <Typography sx={{ fontWeight: 900, color: "#0F172A" }}>
-                  Work Experience #{idx + 1}
+                  {t("Work Experience")} #{idx + 1}
                 </Typography>
                 <Button
                   size="small"
@@ -87,13 +99,13 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
                     }));
                   }}
                 >
-                  Remove
+                  {t("Remove")}
                 </Button>
               </Box>
 
               <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 1.5 }}>
                 <TextField
-                  label="Role"
+                  label={t("Role")}
                   value={item.role}
                   onChange={(e) => {
                     const v = e.target.value;
@@ -105,7 +117,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
                   fullWidth
                 />
                 <TextField
-                  label="Company"
+                  label={t("Company")}
                   value={item.company}
                   onChange={(e) => {
                     const v = e.target.value;
@@ -117,7 +129,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
                   fullWidth
                 />
                 <TextField
-                  label="Start Date"
+                  label={t("Start Date")}
                   type="date"
                   InputLabelProps={{ shrink: true }}
                   value={item.startDate || ''}
@@ -132,7 +144,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
                 />
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <TextField
-                    label={item.current ? "Present" : "End Date (or expected)"}
+                    label={item.current ? t("Present") : t("End Date")}
                     type="date"
                     InputLabelProps={{ shrink: true }}
                     value={item.endDate || ''}
@@ -160,7 +172,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
                         }}
                       />
                     }
-                    label={<Typography variant="caption" sx={{ color: "#475569", fontWeight: 600 }}>I currently work here</Typography>}
+                    label={<Typography variant="caption" sx={{ color: "#475569", fontWeight: 600 }}>{t("Current Work")}</Typography>}
                     sx={{ mt: 0.5, ml: 0 }}
                   />
                 </Box>
@@ -168,7 +180,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
 
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2, mb: 1 }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: "#475569" }}>
-                  Description
+                  {t("Description")}
                 </Typography>
                 <Button
                   size="small"
@@ -185,12 +197,12 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
                     "&:hover": { bgcolor: "rgba(99, 102, 241, 0.2)" }
                   }}
                 >
-                  {loadingIdx === idx ? "Enhancing..." : "Enhance with AI"}
+                  {loadingIdx === idx ? t("Enhancing") : t("Enhance AI")}
                 </Button>
               </Box>
               <TextField
                 value={item.description}
-                placeholder="List your key responsibilities and achievements..."
+                placeholder={t("Description Placeholder")}
                 onChange={(e) => {
                   const v = e.target.value;
                   setFormData((prev) => ({
@@ -219,20 +231,21 @@ export default function ExperienceStep({ formData, setFormData, handleChange }) 
           }}
           sx={{ borderRadius: "16px", textTransform: "none", fontWeight: 900, mb: 2 }}
         >
-          + Add work experience
+          {t("Add Experience")}
         </Button>
 
-        <PremiumInput
-          label="Projects (optional but recommended)"
-          placeholder="Title | Description | githubLink(optional) | liveLink(optional)"
-          multiline
-          rows={6}
-          name="projects"
-          value={formData.projects}
-          onChange={handleChange}
-        />
+        {config.sections?.includes("projects") && (
+          <PremiumInput
+            label={t("Projects Optional")}
+            placeholder={t("Projects Placeholder")}
+            multiline
+            rows={6}
+            name="projects"
+            value={formData.projects}
+            onChange={handleChange}
+          />
+        )}
       </Box>
     </Grow>
   );
 }
-

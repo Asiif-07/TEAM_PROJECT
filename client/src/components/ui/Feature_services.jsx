@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Box, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import FeaturedVideoIcon from '@mui/icons-material/FeaturedVideo';
@@ -8,24 +9,25 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import { useNavigate } from 'react-router-dom';
 
 const FeatureSection = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const interviewTypesFeatures = [
-    'Always available support', 'CV questions answered', 'Career guidance',
-    'Interview tips', 'Call transcripts provided', 'Seamless human handoff',
-    'Always available support', 'CV questions answered', 'Career guidance',
-    'Interview tips', 'Call transcripts provided', 'Seamless human handoff',
+    t('Support Always'), t('CV Questions'), t('Career Guidance'),
+    t('Interview Tips'), t('Call Transcripts'), t('Human Handoff'),
+    t('Support Always'), t('CV Questions'), t('Career Guidance'),
+    t('Interview Tips'), t('Call Transcripts'), t('Human Handoff'),
   ];
 
   const practiceFeatures = [
-    'Realistic conversation flow', 'Industry-specific questions',
-    'Real-time feedback', 'Performance scoring',
-    'Session recordings', 'Improvement suggestions',
+    t('Realistic Conversation'), t('Industry Questions'),
+    t('Realtime Feedback'), t('Performance Scoring'),
+    t('Session Recordings'), t('Improvement Suggestions'),
   ];
 
   const supportFeatures = [
-    'Always available support', 'CV questions answered',
-    'Career guidance', 'Interview tips',
-    'Call transcripts provided', 'Seamless human handoff',
+    t('Support Always'), t('CV Questions'),
+    t('Career Guidance'), t('Interview Tips'),
+    t('Call Transcripts'), t('Human Handoff'),
   ];
 
   return (
@@ -41,22 +43,22 @@ const FeatureSection = () => {
           <div className="lg:w-1/2">
             <div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-600 rounded-full px-4 py-1 mb-6">
               <FeaturedVideoIcon fontSize="small" />
-              <span className="text-sm font-medium">Featured Service</span>
+              <span className="text-sm font-medium">{t("Featured Service")}</span>
             </div>
-            <h1 className="text-4xl font-bold text-blue-600 mb-4">AI Interview Coaching</h1>
+            <h1 className="text-4xl font-bold text-blue-600 mb-4">{t("AI Interview Coaching")}</h1>
             <p className="text-gray-600 mb-8 text-lg">
-              Practice with our advanced AI interviewer. Get real-time feedback, master all interview types, and boost your confidence.
+              {t("AI Interview Desc")}
             </p>
             <div className="flex space-x-4 mb-8">
               <div className="bg-green-200 p-6 rounded-lg flex-1 shadow-sm">
                 <FeaturedVideoIcon fontSize="large" className="text-green-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">8 Interviews Types</h3>
-                <p className="text-gray-600">Panel, Group Tecnical & more</p>
+                <h3 className="text-xl font-semibold mb-2">{t("8 Interview Types")}</h3>
+                <p className="text-gray-600">{t("Panel Group Technical")}</p>
               </div>
               <div className="bg-blue-100 p-6 rounded-lg flex-1 shadow-sm">
                 <AccessTimeIcon fontSize="large" className="text-blue-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">24/7 Available</h3>
-                <p className="text-gray-600">Practice anytime any where</p>
+                <h3 className="text-xl font-semibold mb-2">{t("24/7 Available")}</h3>
+                <p className="text-gray-600">{t("Practice Anytime")}</p>
               </div>
             </div>
             <div className="flex space-x-4 gap-3">
@@ -64,17 +66,17 @@ const FeatureSection = () => {
                 onClick={() => navigate('/cv-templates')}
                 variant="contained" color="primary" endIcon={<span>→</span>} className="bg-blue-600 hover:bg-blue-700 px-6  py-3"
               >
-                Trt AI Interview
+                {t("Try AI Interview")}
               </Button>
               <Button variant="outlined" className="px-6 py-3 text-blue-600 border-blue-600 hover:bg-blue-50">
-                Learn more
+                {t("Learn More")}
               </Button>
             </div>
           </div>
 
           {/* Right Content (Interview Types Box) */}
           <div className="lg:w-1/2 bg-gradient-to-br from-gray-900 to-blue-900 text-white rounded-xl p-8 shadow-lg mt-8 lg:mt-0">
-            <h3 className="text-2xl font-bold mb-6">Interview Types Covered:</h3>
+            <h3 className="text-2xl font-bold mb-6">{t("Interview Types Covered")}</h3>
             <div className="grid grid-cols-2 gap-y-4">
               {interviewTypesFeatures.map((feature, index) => (
                 <div key={index} className="flex items-center">
@@ -93,8 +95,8 @@ const FeatureSection = () => {
             <div className="flex items-center mb-6">
               <BoltIcon fontSize="large" className="text-blue-400 mr-4" />
               <div>
-                <h3 className="text-2xl font-bold text-blue-600">AI Interview Practice</h3>
-                <p className="text-gray-600">Practice with our advanced AI interviewer anytime, anywhere</p>
+                <h3 className="text-2xl font-bold text-blue-600">{t("Interview Practice")}</h3>
+                <p className="text-gray-600">{t("Practice Anytime Anywhere")}</p>
               </div>
             </div>
             <List>
@@ -114,8 +116,8 @@ const FeatureSection = () => {
             <div className="flex items-center mb-6">
               <BoltIcon fontSize="large" className="text-blue-400 mr-4" />
               <div>
-                <h3 className="text-2xl font-bold text-blue-600">24/7 AI Support</h3>
-                <p className="text-gray-600">Call our AI assistant anytime for instant help and guidance</p>
+                <h3 className="text-2xl font-bold text-blue-600">{t("24/7 AI Support")}</h3>
+                <p className="text-gray-600">{t("Instant Help")}</p>
               </div>
             </div>
             <List>

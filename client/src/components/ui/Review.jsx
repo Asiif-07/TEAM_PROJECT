@@ -1,24 +1,6 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-const reviewData = [
-  // COLUMN 1
-  { rating: 5, title: "Improved drastically!", content: "The dashboard gives us a clear view of tasks and deadlines, helping us deliver projects on time.", author: "James P.", role: "Software Engineer", avatar: "https://i.pravatar.cc/150?u=james" },
-  { rating: 5, title: "The recurring task feature is a lifesaver!", content: "TaskHub takes care of the small details so we can focus on what matters most. Truly a productivity booster!", author: "Max", role: "Marketing Director", avatar: "https://i.pravatar.cc/150?u=max" },
-  { rating: 5, title: "Team sync is better than ever.", content: "We've tried every tool out there, but TaskHub is the only one that stuck with our engineers.", author: "Sarah L.", role: "Lead Dev", avatar: "https://i.pravatar.cc/150?u=sarah_l" },
-  { rating: 5, title: "Highly recommend!", content: "The best project management tool we've used in years. Simple yet powerful.", author: "David K.", role: "CTO", avatar: "https://i.pravatar.cc/150?u=david" },
-
-  // COLUMN 2
-  { rating: 5, title: "Simple and efficient.", content: "TaskHub's intuitive design makes managing projects faster and more efficient.", author: "Zara Wynn", role: "Marketing Director", avatar: "https://i.pravatar.cc/150?u=zara" },
-  { rating: 5, title: "A game-changer for efficiency.", content: "TaskHub streamlines task management, improving project timelines and communication.", author: "Jackson", role: "Marketing Director", avatar: "https://i.pravatar.cc/150?u=jackson" },
-  { rating: 5, title: "A must-have for every growing business.", content: "TaskHub streamlines management, boosting productivity with easy tracking.", author: "Jackson Ward", role: "Marketing Director", avatar: "https://i.pravatar.cc/150?u=ward" },
-  { rating: 5, title: "Effortless collaboration.", content: "TaskHub enhances team alignment with real-time updates and efficient task boards.", author: "Liam Grant", role: "Marketing Director", avatar: "https://i.pravatar.cc/150?u=liam" },
-
-  // COLUMN 3
-  { rating: 5, title: "Boosted our productivity!", content: "TaskHub streamlines workflows, making task delegation easy and boosting team output.", author: "Sienna Marlow", role: "Marketing Director", avatar: "https://i.pravatar.cc/150?u=sienna" },
-  { rating: 5, title: "The ultimate tool for remote teams.", content: "Ensures our remote team stays on track with real-time updates and task tracking.", author: "Jack", role: "Marketing Director", avatar: "https://i.pravatar.cc/150?u=jack" },
-  { rating: 5, title: "Task management made simple.", content: "Intuitive design makes managing tasks faster and way more efficient.", author: "Lily B.", role: "Project Lead", avatar: "https://i.pravatar.cc/150?u=lily" },
-  { rating: 5, title: "Outstanding Support", content: "Not only is the app great, but the support team is incredibly responsive.", author: "Emma S.", role: "Product Designer", avatar: "https://i.pravatar.cc/150?u=emma" }
-];
 
 const ReviewCard = ({ data }) => (
   <div 
@@ -57,6 +39,26 @@ const ReviewCard = ({ data }) => (
 );
 
 const Review = () => {
+  const { t } = useTranslation();
+  const reviewData = [
+    // COLUMN 1
+    { rating: 5, title: t("Rating 1.Title"), content: t("Rating 1.Content"), author: "James P.", role: t("Roles.VP Engineering"), avatar: "https://i.pravatar.cc/150?u=james" },
+    { rating: 5, title: t("Rating 2.Title"), content: t("Rating 2.Content"), author: "Max", role: t("Roles.VP Marketing"), avatar: "https://i.pravatar.cc/150?u=max" },
+    { rating: 5, title: t("Rating 3.Title"), content: t("Rating 3.Content"), author: "Sarah L.", role: "Lead Dev", avatar: "https://i.pravatar.cc/150?u=sarah_l" },
+    { rating: 5, title: t("Rating 4.Title"), content: t("Rating 4.Content"), author: "David K.", role: t("Roles.CTO"), avatar: "https://i.pravatar.cc/150?u=david" },
+  
+    // COLUMN 2
+    { rating: 5, title: t("Rating 5.Title"), content: t("Rating 5.Content"), author: "Zara Wynn", role: t("Roles.VP Marketing"), avatar: "https://i.pravatar.cc/150?u=zara" },
+    { rating: 5, title: t("Rating 6.Title"), content: t("Rating 6.Content"), author: "Jackson", role: t("Roles.VP Marketing"), avatar: "https://i.pravatar.cc/150?u=jackson" },
+    { rating: 5, title: t("Rating 7.Title"), content: t("Rating 7.Content"), author: "Jackson Ward", role: t("Roles.VP Marketing"), avatar: "https://i.pravatar.cc/150?u=ward" },
+    { rating: 5, title: t("Rating 8.Title"), content: t("Rating 8.Content"), author: "Liam Grant", role: t("Roles.VP Marketing"), avatar: "https://i.pravatar.cc/150?u=liam" },
+  
+    // COLUMN 3
+    { rating: 5, title: t("Rating 9.Title"), content: t("Rating 9.Content"), author: "Sienna Marlow", role: t("Roles.VP Marketing"), avatar: "https://i.pravatar.cc/150?u=sienna" },
+    { rating: 5, title: t("Rating 10.Title"), content: t("Rating 10.Content"), author: "Jack", role: t("Roles.VP Marketing"), avatar: "https://i.pravatar.cc/150?u=jack" },
+    { rating: 5, title: t("Rating 11.Title"), content: t("Rating 11.Content"), author: "Lily B.", role: "Project Lead", avatar: "https://i.pravatar.cc/150?u=lily" },
+    { rating: 5, title: t("Rating 12.Title"), content: t("Rating 12.Content"), author: "Emma S.", role: "Product Designer", avatar: "https://i.pravatar.cc/150?u=emma" }
+  ];
   const col1 = reviewData.slice(0, 4);
   const col2 = reviewData.slice(4, 8);
   const col3 = reviewData.slice(8, 12);
@@ -76,11 +78,10 @@ const Review = () => {
         
         <div className="relative z-10 text-center px-4">
           <h2 className="text-4xl md:text-5xl font-bold text-[#0F172A] mb-4">
-            What Our <span className="text-[#2563EB]">users say</span>
+            {t("What Our")} <span className="text-[#2563EB]">{t("users say")}</span>
           </h2>
           <p className="max-w-2xl mx-auto text-gray-500 text-base md:text-lg leading-relaxed">
-            We love when we get a feedback from our customers. This help us to work more 
-            hard to build a platform which can be used by not only artists but brands as well.
+            {t("Reviews Subtext")}
           </p>
         </div>
       </div>
@@ -115,7 +116,7 @@ const Review = () => {
         {/* Floating View All Button */}
         <div className="absolute bottom-47 left-1/2 -translate-x-1/2 z-[60]">
           <button className="bg-[#2563EB] text-white px-10 py-4 rounded-full font-bold shadow-2xl hover:bg-blue-700 transition-all hover:scale-105 active:scale-95">
-            View all reviews
+            {t("View All Reviews")}
           </button>
         </div>
       </div>

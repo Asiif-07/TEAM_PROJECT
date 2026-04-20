@@ -1,11 +1,13 @@
 import logos from "../../assets/images/logos.png";
+import { useTranslation } from "react-i18next";
 
 export default function Companies() {
+  const { t } = useTranslation();
   return (
     <section className="w-full bg-white ">
       {/* Trusted by text */}
       <p className="text-center text-[13px] text-gray-500 mb-8">
-        Trusted by professionals who landed jobs at
+        {t("Trusted By")}
       </p>
 
       {/* Company names */}

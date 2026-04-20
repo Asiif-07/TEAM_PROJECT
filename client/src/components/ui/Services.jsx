@@ -1,36 +1,39 @@
 import React from "react";
 import svgIcon from "../../assets/images/svg.png";
 
-const services = [
+const getServices = (t) => [
   {
-    title: "CV Writing",
-    price: "From $ 49",
-    desc: "Professional CV tailored to your industry and career level",
-    features: ["ATS-Optimized", "Industry-Specific", "24h Delivery", "Unlimited Revisions"],
+    title: t("CV Writing"),
+    price: `${t("From Price")} 49`,
+    desc: t("CV Writing Desc"),
+    features: [t("ATS-Optimized"), t("Industry-Specific"), t("24h Delivery"), t("Unlimited Revisions")],
     dark: false,
   },
   {
-    title: "LinkedIn Optimization",
-    price: "From $ 69",
-    desc: "Professional CV tailored to your industry and career level",
-    features: ["ATS-Optimized", "Industry-Specific", "24h Delivery", "Unlimited Revisions"],
+    title: t("LinkedIn Optimization"),
+    price: `${t("From Price")} 69`,
+    desc: t("CV Writing Desc"),
+    features: [t("ATS-Optimized"), t("Industry-Specific"), t("24h Delivery"), t("Unlimited Revisions")],
     dark: false,
   },
   {
-    title: "Cover Letter",
-    price: "From $ 89",
-    desc: "Professional CV tailored to your industry and career level",
+    title: t("Cover Letter Service"),
+    price: `${t("From Price")} 89`,
+    desc: t("CV Writing Desc"),
     features: [
-      "ATS-Optimized", "Industry-Specific", "24h Delivery", "Unlimited Revisions",
-      "Professional Formatting", "Custom Templates", "Interview Coaching", "Keyword Optimization"
+      t("ATS-Optimized"), t("Industry-Specific"), t("24h Delivery"), t("Unlimited Revisions"),
+      t("Professional Formatting"), t("Custom Templates"), t("Interview Coaching"), t("Keyword Optimization")
     ],
     dark: true,
   },
 ];
 
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Services() {
+  const { t } = useTranslation();
+  const services = getServices(t);
   const navigate = useNavigate();
   return (
     <section className="w-full flex flex-col items-center justify-center px-4 py-16 bg-[#F9FAFB]">
@@ -39,10 +42,10 @@ export default function Services() {
       {/* FIX: Increased mb-20 to ensure the card has room to "pop" upward without touching the text */}
       <div className="text-center max-w-xl mb-20">
         <h2 className="font-[Onest] font-bold text-[40px] tracking-tight text-[#101828]">
-          Our <span className="text-[#2E70FF]">Services</span>
+          {t("Our")} <span className="text-[#2E70FF]">{t("Services")}</span>
         </h2>
         <p className="mt-2 font-[Inter] text-[15px] text-[#475467]">
-          Choose from our range of AI-enhanced career services.
+          {t("Our Services Desc")}
         </p>
       </div>
 
@@ -110,7 +113,7 @@ export default function Services() {
               className={`w-full py-2.5 rounded-xl font-bold text-[13px] transition-all
               ${item.dark ? "bg-[#2E70FF] text-white hover:bg-blue-600" : "bg-[#1570EF] text-white hover:bg-blue-700"}
             `}>
-              Get started
+              {t("Get Started")}
             </button>
           </div>
         ))}

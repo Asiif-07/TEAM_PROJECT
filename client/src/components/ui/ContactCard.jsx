@@ -1,25 +1,27 @@
 import React from 'react';
 import { Mail, MessageSquare, Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const ContactCard = () => {
+  const { t } = useTranslation();
   const cardData = [
     {
       icon: <Mail className="w-5 h-5 text-slate-600" />,
-      title: "Email Us",
-      sub: "Quick response guaranteed",
+      title: t("Email Us"),
+      sub: t("Quick Response"),
       action: <a href="mailto:hello@curriculum.ai.com" className="text-[#1a73e8] text-xs font-bold hover:underline">hello@curriculum.ai.com</a>
     },
     {
       icon: <MessageSquare className="w-5 h-5 text-slate-600" />,
-      title: "Live Chat",
-      sub: "Instant Support available",
-      btn: "Start Chat"
+      title: t("Live Chat"),
+      sub: t("Instant Support Available"),
+      btn: t("Start Chat")
     },
     {
       icon: <Phone className="w-5 h-5 text-slate-600" />,
-      title: "Book a Call",
-      sub: "Free consultation to discuss your needs",
-      btn: "Schedule Call"
+      title: t("Book a Call"),
+      sub: t("Free Consultation"),
+      btn: t("Schedule Call")
     }
   ];
 

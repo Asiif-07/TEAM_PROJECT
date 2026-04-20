@@ -1,81 +1,73 @@
-import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
+import React from "react";
+import { Box, Typography, Divider } from "@mui/material";
+import { CVSection, ExperienceItem, EducationItem, SkillList } from "./TemplateComponents";
 
 export default function MinimalistTemplate({ data }) {
-    const { personalInfo = {}, experience = [], education = [], skills = [] } = data || {};
+    const personalInfo = data?.personalInfo || {};
+    const experience = data?.experience || [];
+    const education = data?.education || [];
+    const skills = data?.skills || [];
+
+    const profileImageUrl = React.useMemo(() => {
+        const img = personalInfo.profileImage;
+        if (personalInfo.profileImagePreview) return personalInfo.profileImagePreview;
+        if (!img) return null;
+        if (typeof img === 'string') return img;
+        if (img.secure_url) return img.secure_url;
+        if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
+        return null;
+    }, [personalInfo.profileImage, personalInfo.profileImagePreview]);
+
+    if (!data) return null;
 
     return (
-        <Box sx={{ minHeight: '297mm', width: '210mm', bgcolor: 'white', mx: 'auto', p: 8, fontFamily: '"Helvetica", "Arial", sans-serif', color: '#333' }}>
-            {/* Header */}
-            <Box sx={{ mb: 6, textAlign: 'center' }}>
-                <Typography variant="h3" fontWeight="300" sx={{ color: '#000', mb: 1, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                    {personalInfo.name || "Alex Rivera"}
-                </Typography>
-                <Typography variant="subtitle1" sx={{ color: '#666', mb: 2, letterSpacing: '1px' }}>
-                    {personalInfo.title || "Software Architect"}
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, opacity: 0.8, fontSize: '0.9rem' }}>
-                    {personalInfo.email && <Typography variant="body2">{personalInfo.email}</Typography>}
-                    {personalInfo.phone && <Typography variant="body2">{personalInfo.phone}</Typography>}
-                    {personalInfo.linkedin && <Typography variant="body2">LinkedIn</Typography>}
-                </Box>
-            </Box>
+        <Box sx={{ p: 8, bgcolor: "#fff", minHeight: "297mm", fontFamily: "'Inter', sans-serif", color: "#000" }}>
+            <Box sx={{ mb: 8, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <Box>
+                    <Typography variant="h3" sx={{ fontWeight: 300, letterSpacing: -1, mb: 1 }}>{personalInfo.name}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 600, letterSpacing: 1, color: "#666", mb: 3 }}>{personalInfo.title?.toUpperCase()}</Typography>
 
-            {/* Summary */}
-            <Box sx={{ mb: 5 }}>
-                <Typography variant="body2" sx={{ lineHeight: 1.8, color: '#555', fontStyle: 'italic', textAlign: 'center', maxWidth: '80%', mx: 'auto' }}>
-                    {personalInfo.about || "Focusing on clean code and scalable architecture with 10+ years of experience."}
-                </Typography>
-            </Box>
-
-            <Divider sx={{ mb: 5, borderColor: '#eee' }} />
-
-            {/* Experience */}
-            <Box sx={{ mb: 5 }}>
-                <Typography variant="caption" fontWeight="900" sx={{ display: 'block', mb: 3, letterSpacing: '2px', color: '#000', textTransform: 'uppercase' }}>
-                    Experience
-                </Typography>
-                {experience.map((exp, idx) => (
-                    <Box key={idx} sx={{ mb: 4 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                            <Typography variant="subtitle1" fontWeight="700">{exp.role}</Typography>
-                            <Typography variant="caption" sx={{ color: '#999' }}>{exp.duration}</Typography>
-                        </Box>
-                        <Typography variant="subtitle2" sx={{ color: '#666', mb: 1.5 }}>{exp.company}</Typography>
-                        <Typography variant="body2" sx={{ color: '#555', lineHeight: 1.7, pl: 2, borderLeft: '1px solid #eee' }}>
-                            {exp.description}
-                        </Typography>
+                    <Box sx={{ display: "flex", gap: 3, color: "#888" }}>
+                        <Typography variant="caption">{personalInfo.email}</Typography>
+                        <Typography variant="caption">{personalInfo.phone}</Typography>
+                        <Typography variant="caption">{personalInfo.address}</Typography>
                     </Box>
+                </Box>
+                {profileImageUrl && (
+                    <Box
+                        component="img"
+                        src={profileImageUrl}
+                        sx={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            filter: "grayscale(100%)",
+                            border: "1px solid #000"
+                        }}
+                    />
+                )}
+            </Box>
+
+            <Box sx={{ mb: 6 }}>
+                <Typography variant="body2" sx={{ lineHeight: 1.8, color: "#444" }}>{personalInfo.about}</Typography>
+            </Box>
+
+            <CVSection title="Experience" sx={{ border: "none", ".MuiDivider-root": { display: "none" } }}>
+                {experience?.map((exp, idx) => (
+                    <ExperienceItem key={idx} role={exp.role} company={exp.company} duration={exp.duration} description={exp.description} />
                 ))}
-            </Box>
+            </CVSection>
 
-            {/* Education & Skills Grid */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                <Box>
-                    <Typography variant="caption" fontWeight="900" sx={{ display: 'block', mb: 3, letterSpacing: '2px', color: '#000', textTransform: 'uppercase' }}>
-                        Education
-                    </Typography>
-                    {education.map((edu, idx) => (
-                        <Box key={idx} sx={{ mb: 2 }}>
-                            <Typography variant="subtitle2" fontWeight="700">{edu.degree}</Typography>
-                            <Typography variant="caption" sx={{ display: 'block', color: '#777' }}>{edu.institute}</Typography>
-                            <Typography variant="caption" sx={{ color: '#999' }}>{edu.year}</Typography>
-                        </Box>
-                    ))}
-                </Box>
-                <Box>
-                    <Typography variant="caption" fontWeight="900" sx={{ display: 'block', mb: 3, letterSpacing: '2px', color: '#000', textTransform: 'uppercase' }}>
-                        Expertise
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {skills.map((skill, idx) => (
-                            <Box key={idx} sx={{ px: 1.5, py: 0.5, border: '1px solid #eee', borderRadius: '4px' }}>
-                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600 }}>{skill}</Typography>
-                            </Box>
-                        ))}
-                    </Box>
-                </Box>
-            </Box>
+            <CVSection title="Education" sx={{ border: "none", ".MuiDivider-root": { display: "none" } }}>
+                {education?.map((edu, idx) => (
+                    <EducationItem key={idx} degree={edu.degree} institute={edu.institute} year={edu.year} />
+                ))}
+            </CVSection>
+
+            <CVSection title="Skills" sx={{ border: "none", ".MuiDivider-root": { display: "none" } }}>
+                <SkillList skills={skills} color="#000" />
+            </CVSection>
         </Box>
     );
 }

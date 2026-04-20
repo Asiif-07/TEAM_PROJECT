@@ -1,22 +1,23 @@
 import React from 'react';
 import { User, Mail, Building2, Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const ContactInput = () => {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col lg:flex-row gap-12 p-8 max-w-7xl mx-auto items-start">
       {/* Left Text Content */}
       <div className="flex-1 space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-medium">
           <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
-          AI Enhance Career Services
+          {t("AI Features")}
         </div>
         <h1 className="text-5xl font-bold text-slate-900 leading-tight">
-          Contact <br />
+          {t("Contact")} <br />
           <span className="text-blue-600">Curriculum.ai</span>
         </h1>
         <p className="text-slate-500 max-w-md leading-relaxed">
-          We're thrilled to connect! Contact us to learn about our products, 
-          get job search tips, or make corporate inquiries anytime.
+          {t("Contact Subtext")}
         </p>
       </div>
 
@@ -26,7 +27,7 @@ const ContactInput = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Full Name */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">Your Full Name</label>
+              <label className="text-sm font-semibold text-slate-700">{t("Your Full Name")}</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input 
@@ -38,7 +39,7 @@ const ContactInput = () => {
             </div>
             {/* Email */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">Email Address</label>
+              <label className="text-sm font-semibold text-slate-700">{t("Email Address")}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input 
@@ -53,7 +54,7 @@ const ContactInput = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Company */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">Company / School (optional)</label>
+              <label className="text-sm font-semibold text-slate-700">{t("Company Optional")}</label>
               <div className="relative">
                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input 
@@ -65,7 +66,7 @@ const ContactInput = () => {
             </div>
             {/* Phone */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">Phone (optional)</label>
+              <label className="text-sm font-semibold text-slate-700">{t("Phone Optional")}</label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input 
@@ -79,7 +80,7 @@ const ContactInput = () => {
 
           {/* Message */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">How can we help?</label>
+            <label className="text-sm font-semibold text-slate-700">{t("How Help")}</label>
             <textarea 
               placeholder="Enter Message Here"
               rows="4"
@@ -88,7 +89,7 @@ const ContactInput = () => {
           </div>
 
           <button className="bg-[#1a73e8] hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors shadow-lg shadow-blue-200">
-            Send Message
+            {t("Send Message")}
           </button>
         </form>
       </div>

@@ -1,10 +1,12 @@
 import { Box, Button, TextField, Typography, Paper, Checkbox, FormControlLabel, Fade } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
 import { useCallback, useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import GoogleSignInButton from "../components/auth/GoogleSignInButton";
 
 const Login = () => {
+    const { t } = useTranslation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const { login, loginWithGoogle } = useAuth();
@@ -97,7 +99,7 @@ const Login = () => {
                             letterSpacing: '-1px'
                         }}
                     >
-                        Welcome Back
+                        {t("Welcome Back")}
                     </Typography>
                     <Typography
                         sx={{
@@ -106,7 +108,7 @@ const Login = () => {
                             fontWeight: 500
                         }}
                     >
-                        Sign in to access your elite AI tools
+                        {t("Sign In Access")}
                     </Typography>
                 </Box>
 
@@ -132,7 +134,7 @@ const Login = () => {
                 <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                            Email Address
+                            {t("Email Address")}
                         </Typography>
                         <TextField
                             fullWidth
@@ -158,7 +160,7 @@ const Login = () => {
 
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                            Password
+                            {t("Password")}
                         </Typography>
                         <TextField
                             fullWidth
@@ -218,12 +220,12 @@ const Login = () => {
                             transition: 'all 0.3s ease'
                         }}
                     >
-                        Sign In
+                        {t("Sign In")}
                     </Button>
 
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
-                        <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: 'uppercase' }}>Secure Connect</Typography>
+                        <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: 'uppercase' }}>{t("Secure Connect")}</Typography>
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
                     </Box>
 
@@ -252,7 +254,7 @@ const Login = () => {
                                 gap: 1
                             }}
                         >
-                            Continue with Google
+                            {t("Continue with Google")}
                         </Button>
                         <GoogleSignInButton onCredential={handleGoogleCredential} />
                         <Button
@@ -276,7 +278,7 @@ const Login = () => {
 
                 <Box sx={{ textAlign: "center" }}>
                     <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500 }}>
-                        New to CurriculumVit.AI?{" "}
+                        {t("Login Help")}{" "}
                         <Box
                             component={Link}
                             to="/signup"
@@ -287,7 +289,7 @@ const Login = () => {
                                 "&:hover": { textDecoration: "underline" },
                             }}
                         >
-                            Create free account
+                            {t("Create Account Link")}
                         </Box>
                     </Typography>
                 </Box>

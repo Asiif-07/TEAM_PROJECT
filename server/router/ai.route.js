@@ -11,16 +11,16 @@ const aiRouter = Router();
 
 
 const allowedFileTypes = [
-  "application/pdf", 
+  "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-]; 
+];
 
 const uploadMiddleware = imageMulter(5, allowedFileTypes);
 
 
-aiRouter.route("/upload-and-extract").post(authMiddleWare, uploadMiddleware.single("resume_file"), parseUploadedCV);
+aiRouter.route("/upload-and-extract").post(authMiddleWare, uploadMiddleware.single("resumeFile"), parseUploadedCV);
 
 
-aiRouter.route("/ai-generate").post(validate(aiGenSchema),authMiddleWare, generateAIContent)
+aiRouter.route("/ai-generate").post(validate(aiGenSchema), authMiddleWare, generateAIContent)
 
 export default aiRouter;

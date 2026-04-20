@@ -1,17 +1,19 @@
+import { useTranslation } from 'react-i18next';
+
 export default function WhyChooseSection() {
+    const { t } = useTranslation();
     return (
       <div className="w-full bg-white">
         <section className="w-full max-w-7xl py-16 md:py-24 px-4 sm:px-6 lg:px-8 mx-auto">
           <div className="text-center">
             {/* Main Heading */}
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">
-              Why Choose{" "}
+              {t("Why Choose")}{" "}
               <span className="text-blue-600">CurriculumVit.AI</span>
             </h2>
   
             <p className="mt-4 mx-auto max-w-2xl text-base md:text-lg leading-relaxed text-gray-600 font-medium">
-              Experience the perfect blend of artificial intelligence and human
-              expertise for your career success.
+              {t("Why Choose Tagline")}
             </p>
   
             {/* Highlight Card */}
@@ -19,19 +21,16 @@ export default function WhyChooseSection() {
               
               {/* Card Hero Text */}
               <h3 className="text-2xl md:text-4xl lg:text-5xl font-black leading-[1.1] text-gray-900 mx-auto max-w-4xl">
-                "Combining AI with a Human touch, to create{" "}
+                {t("AI Human Quote Start")}
                 <span className="text-blue-600 block sm:inline">
-                  Kick ASS CVS
+                  {t("Kick Ass CVs")}
                 </span>
                 <span>"</span>
               </h3>
   
               {/* Subtext - Removed fixed padding for responsive flow */}
               <p className="mt-6 text-gray-500 text-sm md:text-lg lg:text-xl max-w-3xl mx-auto leading-relaxed">
-                Experience the perfect blend of artificial intelligence and human
-                expertise. Our proven process has helped over{" "}
-                <span className="font-bold text-gray-800">10,000 professionals</span>{" "}
-                accelerate their careers with industry-leading results.
+                {t("Why Choose Desc")}
               </p>
   
               {/* 🔥 Responsive Image Container */}

@@ -1,15 +1,17 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const SuccessStories = () => {
+  const { t } = useTranslation();
   const stories = [
-    { type: 'metric', color: 'bg-[#FEF9C3]', val: '94%', label: 'Success Rate' },
-    { type: 'metric', color: 'bg-[#DCFCE7]', val: '2.1 weeks', label: 'Avg. Time to Hire' },
+    { type: 'metric', color: 'bg-[#FEF9C3]', val: '94%', label: t("Metric Success Rate") },
+    { type: 'metric', color: 'bg-[#DCFCE7]', val: '2.1 weeks', label: t("Metric Time Hire") },
     { type: 'quote', color: 'bg-[#F9FAFB]', text: '"Amplemarket has helped revive our pipeline and create over €2M in business opportunities, with late six digits in wondeals. All in just 10 months!"', author: 'Giuseppe Colucci', role: 'Senior VP of Growth' },
     { type: 'quote', color: 'bg-[#F9FAFB]', text: '"Amplemarket has helped revive our pipeline and create over €2M in business opportunities..."', author: 'Giuseppe Colucci', role: 'Senior VP of Growth' },
-    { type: 'metric', color: 'bg-[#FEF08A]', val: '94%', label: 'Success Rate' },
-    { type: 'metric', color: 'bg-[#FCE7F3]', val: '2.1 weeks', label: 'Avg. Time to Hire' },
-    { type: 'metric', color: 'bg-[#E0E7FF]', val: '94%', label: 'Success Rate' },
-    { type: 'metric', color: 'bg-[#F3E8FF]', val: '2.1 weeks', label: 'Avg. Time to Hire' },
+    { type: 'metric', color: 'bg-[#FEF08A]', val: '94%', label: t("Metric Success Rate") },
+    { type: 'metric', color: 'bg-[#FCE7F3]', val: '2.1 weeks', label: t("Metric Time Hire") },
+    { type: 'metric', color: 'bg-[#E0E7FF]', val: '94%', label: t("Metric Success Rate") },
+    { type: 'metric', color: 'bg-[#F3E8FF]', val: '2.1 weeks', label: t("Metric Time Hire") },
     { type: 'quote', color: 'bg-[#F9FAFB]', text: '"Amplemarket has helped revive our pipeline and create over €2M in business opportunities..."', author: 'Giuseppe Colucci', role: 'Senior VP of Growth' },
   ];
 
@@ -25,10 +27,10 @@ const SuccessStories = () => {
         />
         
         <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 tracking-tight">
-          Success <span className="text-blue-600">Stories</span>
+          {t("Success")} <span className="text-blue-600">{t("Stories")}</span>
         </h2>
         <p className="text-slate-500 max-w-2xl mx-auto text-base">
-          Choose from our comprehensive range of AI-enhanced career services designed to accelerate your job search success.
+          {t("Success Subtext")}
         </p>
       </div>
 

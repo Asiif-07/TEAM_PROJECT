@@ -1,14 +1,17 @@
-const data = [
-  { title: "AI + Human Touch", text: "Advanced AI analysis combined with expert human refinement for perfect results." },
-  { title: "Fast Turnaround", text: "Get your professional documents delivered within 24–48 hours guaranteed." },
-  { title: "GDPR Compliant", text: "Your data is secure and protected with enterprise-grade security measures." },
-  { title: "ATS-Optimized", text: "Your resume and cover letter are optimized to pass Applicant Tracking Systems (ATS) and get noticed by recruiters." },
-  { title: "Quality Guarantee", text: "Enjoy unlimited revisions to ensure every detail meets your expectations—perfection is the only goal." },
+const getData = (t) => [
+  { title: t("AI Human Touch"), text: t("AI Human Touch Desc") },
+  { title: t("Fast Turnaround"), text: t("Fast Turnaround Desc") },
+  { title: t("GDPR Compliant"), text: t("GDPR Compliant Desc") },
+  { title: t("ATS-Optimized"), text: t("ATS-Optimized Desc") },
+  { title: t("Quality Guarantee"), text: t("Quality Guarantee Desc") },
 ];
 
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function Features() {
+  const { t } = useTranslation();
+  const data = getData(t);
   const navigate = useNavigate();
   return (
     <section className="max-w-[1293px] mx-auto p-8 ">
@@ -31,7 +34,7 @@ export default function Features() {
               onClick={() => navigate('/cv-templates')}
               className="mt-auto text-blue-500 text-sm font-semibold flex items-center hover:gap-2 transition-all"
             >
-              Learn more about all features <span className="ml-1">→</span>
+              {t("Learn More Features")} <span className="ml-1">→</span>
             </button>
           </div>
         ))}

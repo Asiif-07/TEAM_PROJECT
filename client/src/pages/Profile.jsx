@@ -4,8 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import { FileText, User, Mail, Calendar, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
 import { updateProfilePic } from "../api/user";
+import { useTranslation } from "react-i18next";
 
 export default function Profile() {
+    const { t } = useTranslation();
     const { user, setUser, accessToken, refreshAccessToken } = useAuth();
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef(null);
@@ -13,7 +15,7 @@ export default function Profile() {
     if (!user) {
         return (
             <Container maxWidth="sm" sx={{ py: 20, textAlign: "center" }}>
-                <Typography variant="h5">Please log in to view your profile.</Typography>
+                <Typography variant="h5">{t("Login To View Profile")}</Typography>
             </Container>
         );
     }
@@ -88,7 +90,7 @@ export default function Profile() {
                     </Box>
 
                     <Typography variant="h4" fontWeight="900" color="#111827">{user.name}</Typography>
-                    <Typography color="textSecondary" sx={{ mb: 4 }}>CurriculumVit.AI Member</Typography>
+                    <Typography color="textSecondary" sx={{ mb: 4 }}>{t("CV Member")}</Typography>
 
                     <Divider sx={{ mb: 4 }} />
 
@@ -96,7 +98,7 @@ export default function Profile() {
                         <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                             <Mail size={20} color="#6B7280" />
                             <Box>
-                                <Typography variant="caption" color="textSecondary" fontWeight="bold">EMAIL ADDRESS</Typography>
+                                <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Email Address")}</Typography>
                                 <Typography variant="body1" fontWeight="600">{user.email}</Typography>
                             </Box>
                         </Box>
@@ -104,7 +106,7 @@ export default function Profile() {
                         <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                             <User size={20} color="#6B7280" />
                             <Box>
-                                <Typography variant="caption" color="textSecondary" fontWeight="bold">USERNAME</Typography>
+                                <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Username")}</Typography>
                                 <Typography variant="body1" fontWeight="600">{user.username || user.email.split("@")[0]}</Typography>
                             </Box>
                         </Box>
@@ -112,7 +114,7 @@ export default function Profile() {
                         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                             <Calendar size={20} color="#6B7280" />
                             <Box>
-                                <Typography variant="caption" color="textSecondary" fontWeight="bold">MEMBER SINCE</Typography>
+                                <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Member Since")}</Typography>
                                 <Typography variant="body1" fontWeight="600">
                                     {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Active Member"}
                                 </Typography>
@@ -124,7 +126,7 @@ export default function Profile() {
 
                     <Link to="/my-cvs" style={{ textDecoration: "none" }}>
                         <Button variant="contained" fullWidth startIcon={<FileText size={18} />} sx={{ py: 1.5, borderRadius: "12px", textTransform: "none", fontWeight: 700, bgcolor: "#111827" }}>
-                            My CV Dashboard
+                            {t("My CV Dashboard")}
                         </Button>
                     </Link>
                 </Paper>

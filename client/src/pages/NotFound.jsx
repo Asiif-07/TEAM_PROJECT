@@ -1,9 +1,10 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, Ghost, Rocket } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const NotFound = () => {
+    const { t } = useTranslation();
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
@@ -152,13 +153,12 @@ const NotFound = () => {
                     {/* Typewriter Text */}
                     <div className="h-20 flex items-center justify-center text-center">
                         <p className="text-2xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-200 via-white to-red-200 animate-fade-in-up leading-relaxed">
-                            Houston, we have a problem.
+                            {t("404 Title")}
                         </p>
                     </div>
 
                     <p className="text-gray-400 text-lg max-w-xl text-center mb-12 animate-fade-in-up delay-100">
-                        The coordinates you entered led us to this uncharted sector of cyberspace.
-                        Engage warp drive to return to the known universe.
+                        {t("404 Desc")}
                     </p>
 
                     {/* Interactive Buttons */}
@@ -170,7 +170,7 @@ const NotFound = () => {
                             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
                             <div className="relative flex items-center gap-3">
                                 <Rocket className="w-6 h-6 group-hover:rotate-45 transition-transform duration-300" />
-                                <span>WARP HOME</span>
+                                <span>{t("Warp Home")}</span>
                             </div>
                             <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1s_infinite] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                         </Link>
@@ -180,7 +180,7 @@ const NotFound = () => {
                             className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 text-white font-semibold rounded-xl hover:bg-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 group"
                         >
                             <div className="w-2 h-2 rounded-full bg-red-500 group-hover:animate-ping"></div>
-                            <span>ABORT MISSION</span>
+                            <span>{t("Abort Mission")}</span>
                         </button>
                     </div>
 

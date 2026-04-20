@@ -1,96 +1,111 @@
-import React from 'react';
-import { Box, Typography, Divider, Avatar } from '@mui/material';
+import React from "react";
+import { Box, Typography, Grid, Avatar, Divider } from "@mui/material";
+import { Mail, Phone, MapPin, Linkedin, Github, Globe } from "lucide-react";
+import { CVSection, ExperienceItem, EducationItem, SkillProgress, SimpleList } from "./TemplateComponents";
 
 export default function CreativeTemplate({ data }) {
-    const { personalInfo = {}, experience = [], education = [], skills = [] } = data || {};
+    if (!data) return null;
+    const { personalInfo, experience, education, skills, languages, projects } = data;
 
-    const mainColor = "#6366F1"; // Indigo
+    const mainColor = "#ec4899"; // Pink-500
+    const secondaryColor = "#8b5cf6"; // Violet-500
+    const gradient = `linear-gradient(135deg, ${mainColor} 0%, ${secondaryColor} 100%)`;
 
     const profileImageUrl = React.useMemo(() => {
         const img = personalInfo.profileImage;
+        if (personalInfo.profileImagePreview) return personalInfo.profileImagePreview;
         if (!img) return null;
         if (typeof img === 'string') return img;
         if (img.secure_url) return img.secure_url;
         if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
         return null;
-    }, [personalInfo.profileImage]);
+    }, [personalInfo.profileImage, personalInfo.profileImagePreview]);
 
     return (
-        <Box sx={{ minHeight: '297mm', width: '210mm', bgcolor: '#F8FAFC', mx: 'auto', display: 'flex' }}>
+        <Box sx={{ minHeight: '297mm', bgcolor: '#fff', display: 'flex', fontFamily: "'Poppins', sans-serif" }}>
             {/* Sidebar */}
-            <Box sx={{ width: '70mm', bgcolor: mainColor, color: 'white', p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Avatar
-                    src={profileImageUrl}
-                    sx={{ width: 120, height: 120, mb: 4, border: '4px solid rgba(255,255,255,0.2)' }}
-                />
-
-                <Box sx={{ width: '100%', mb: 6 }}>
-                    <Typography variant="h6" fontWeight="900" sx={{ mb: 2, scale: '0.9', transformOrigin: 'left' }}>CONTACT</Typography>
-                    <Typography variant="body2" sx={{ mb: 1, opacity: 0.9 }}>📍 {personalInfo.phone || "Location"}</Typography>
-                    <Typography variant="body2" sx={{ mb: 1, opacity: 0.9 }}>📧 {personalInfo.email}</Typography>
-                    <Typography variant="body2" sx={{ mb: 1, opacity: 0.9 }}>🔗 {personalInfo.linkedin || "linkedin.com/..."}</Typography>
+            <Box sx={{ width: '80mm', background: gradient, color: 'white', p: 4 }}>
+                <Box sx={{ textAlign: "center", mb: 4 }}>
+                    <Avatar
+                        src={profileImageUrl}
+                        sx={{ width: 140, height: 140, mx: "auto", mb: 3, border: "6px solid rgba(255,255,255,0.2)", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.2)" }}
+                    >
+                        {personalInfo.name?.charAt(0)}
+                    </Avatar>
+                    <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: 1 }}>{personalInfo.name}</Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500 }}>{personalInfo.title}</Typography>
                 </Box>
 
-                <Box sx={{ width: '100%', mb: 6 }}>
-                    <Typography variant="h6" fontWeight="900" sx={{ mb: 2, scale: '0.9', transformOrigin: 'left' }}>EXPERTISE</Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                        {skills.map((skill, idx) => (
-                            <Box key={idx}>
-                                <Typography variant="caption" sx={{ display: 'block', mb: 0.5, fontWeight: 700 }}>{skill}</Typography>
-                                <Box sx={{ width: '100%', height: 4, bgcolor: 'rgba(255,255,255,0.2)', borderRadius: 2 }}>
-                                    <Box sx={{ width: '80%', height: '100%', bgcolor: 'white', borderRadius: 2 }} />
-                                </Box>
-                            </Box>
-                        ))}
+                <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)", mb: 4 }} />
+
+                <Box sx={{ mb: 4 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, mb: 2, textTransform: "uppercase", letterSpacing: 1.5 }}>Contact</Typography>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Mail size={16} />
+                            <Typography variant="caption" sx={{ fontWeight: 500 }}>{personalInfo.email}</Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Phone size={16} />
+                            <Typography variant="caption" sx={{ fontWeight: 500 }}>{personalInfo.phone}</Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <MapPin size={16} />
+                            <Typography variant="caption" sx={{ fontWeight: 500 }}>{personalInfo.address}</Typography>
+                        </Box>
                     </Box>
                 </Box>
 
-                <Box sx={{ width: '100%' }}>
-                    <Typography variant="h6" fontWeight="900" sx={{ mb: 2, scale: '0.9', transformOrigin: 'left' }}>EDUCATION</Typography>
-                    {education.map((edu, idx) => (
-                        <Box key={idx} sx={{ mb: 3 }}>
-                            <Typography variant="body2" fontWeight="700">{edu.degree}</Typography>
-                            <Typography variant="caption" sx={{ display: 'block', opacity: 0.8 }}>{edu.institute}</Typography>
-                            <Typography variant="caption" sx={{ opacity: 0.6 }}>{edu.year}</Typography>
-                        </Box>
+                <Box sx={{ mb: 4 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, mb: 2, textTransform: "uppercase", letterSpacing: 1.5 }}>Skills</Typography>
+                    {skills?.map((skill, index) => (
+                        <SkillProgress key={index} name={skill} level={85} color="#fff" />
                     ))}
+                </Box>
+
+                <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, mb: 2, textTransform: "uppercase", letterSpacing: 1.5 }}>Languages</Typography>
+                    <SimpleList data={languages} bullet={false} />
                 </Box>
             </Box>
 
             {/* Main Content */}
-            <Box sx={{ flex: 1, p: 6, bgcolor: 'white' }}>
-                <Box sx={{ mb: 6 }}>
-                    <Typography variant="h2" fontWeight="900" sx={{ color: mainColor, lineHeight: 1 }}>
-                        {personalInfo.name?.split(' ')[0] || "SAM"}<br />
-                        <span style={{ color: '#1E293B' }}>{personalInfo.name?.split(' ').slice(1).join(' ') || "WINCHESTER"}</span>
+            <Box sx={{ flex: 1, p: 5 }}>
+                <CVSection title="About Me" color={mainColor}>
+                    <Typography variant="body2" sx={{ color: "#4b5563", lineHeight: 1.8, fontSize: "1rem" }}>
+                        {personalInfo.about}
                     </Typography>
-                    <Typography variant="h5" fontWeight="700" sx={{ mt: 2, color: '#64748B', letterSpacing: 2 }}>
-                        {personalInfo.title || "CREATIVE DIRECTOR"}
-                    </Typography>
-                </Box>
+                </CVSection>
 
-                <Box sx={{ mb: 6 }}>
-                    <Typography variant="h6" fontWeight="900" sx={{ color: mainColor, mb: 2, borderBottom: '2px solid', borderColor: mainColor, display: 'inline-block' }}>PROFILE</Typography>
-                    <Typography variant="body2" sx={{ color: '#475569', lineHeight: 1.8, textAlign: 'justify' }}>
-                        {personalInfo.about || "Creative and results-driven professional with a passion for designing impactful user experiences and brand identities."}
-                    </Typography>
-                </Box>
-
-                <Box>
-                    <Typography variant="h6" fontWeight="900" sx={{ color: mainColor, mb: 3, borderBottom: '2px solid', borderColor: mainColor, display: 'inline-block' }}>WORK EXPERIENCE</Typography>
-                    {experience.map((exp, idx) => (
-                        <Box key={idx} sx={{ mb: 4, position: 'relative' }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                <Typography variant="subtitle1" fontWeight="800" sx={{ color: '#1E293B' }}>{exp.role}</Typography>
-                                <Typography variant="caption" fontWeight="700" sx={{ color: mainColor }}>{exp.duration}</Typography>
-                            </Box>
-                            <Typography variant="subtitle2" fontWeight="700" sx={{ color: '#64748B', mb: 2 }}>{exp.company}</Typography>
-                            <Typography variant="body2" sx={{ color: '#475569', lineHeight: 1.7 }}>
-                                {exp.description}
-                            </Typography>
-                        </Box>
+                <CVSection title="Work Experience" color={mainColor}>
+                    {experience?.map((exp, index) => (
+                        <ExperienceItem
+                            key={index}
+                            role={exp.role}
+                            company={exp.company}
+                            duration={exp.duration}
+                            description={exp.description}
+                            color={mainColor}
+                        />
                     ))}
-                </Box>
+                </CVSection>
+
+                <CVSection title="Education" color={mainColor}>
+                    {education?.map((edu, index) => (
+                        <EducationItem
+                            key={index}
+                            degree={edu.degree}
+                            institute={edu.institute}
+                            year={edu.year}
+                        />
+                    ))}
+                </CVSection>
+
+                {projects && (
+                    <CVSection title="Projects" color={mainColor}>
+                        <SimpleList data={projects} />
+                    </CVSection>
+                )}
             </Box>
         </Box>
     );
