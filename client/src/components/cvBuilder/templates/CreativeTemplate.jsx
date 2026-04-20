@@ -1,11 +1,69 @@
 import React from 'react';
-import { Box, Typography, Divider, Avatar } from '@mui/material';
+import { Box, Typography, Avatar } from '@mui/material';
+
+// Custom Header Component for the Right Side
+const RightHeader = ({ icon, title, mainColor }) => (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, mt: 4 }}>
+        <Typography variant="h5" sx={{ color: mainColor }}>{icon}</Typography>
+        <Typography variant="h6" fontWeight="bold" sx={{ color: mainColor }}>{title}</Typography>
+    </Box>
+);
 
 export default function CreativeTemplate({ data }) {
-    const { personalInfo = {}, experience = [], education = [], skills = [] } = data || {};
+    
 
-    const mainColor = "#6366F1"; // Indigo
+    const { 
+        personalInfo = {}, 
+        experience = [], 
+        education = [], 
+        skills = [], 
+        languages = [],
+        hobbies = [],
+        interests = [], 
+        certifications = [], 
+        certificates = [],
+        awards = [], // Maps to "Most proud of"
+        achievements = []
+    } = data || {};
 
+    const mainColor = "#1B629A"; // 
+    const parseArray = (item) => {
+        if (Array.isArray(item)) return item;
+        if (typeof item === 'string' && item.trim() !== '') return item.split(',').map(s => s.trim());
+        return [];
+    };
+
+    // ULTIMATE TEXT EXTRACTOR
+    const getDisplayText = (item) => {
+        if (!item) return "";
+        if (typeof item === 'string') return item;
+        
+        if (typeof item === 'object') {
+            const possibleKeys = ['name', 'title', 'label', 'value', 'certification', 'certName', 'hobby', 'interest', 'award', 'description', 'text', 'proficiency', 'authority'];
+            for (let key of possibleKeys) {
+                if (item[key]) return item[key];
+            }
+            const fallbackString = Object.values(item).find(v => typeof v === 'string');
+            if (fallbackString) return fallbackString;
+
+            return "• Invalid Format"; 
+        }
+        return String(item);
+    };
+
+    const safeExperience = Array.isArray(experience) ? experience : [];
+    const safeEducation = Array.isArray(education) ? education : [];
+    const safeSkills = parseArray(skills);
+    const safeLanguages = parseArray(languages);
+    const safeHobbies = parseArray(hobbies.length > 0 ? hobbies : interests);
+    const safeCertifications = parseArray(certifications.length > 0 ? certifications : certificates);
+    const safeAwards = parseArray(awards.length > 0 ? awards : achievements);
+
+    const displayPhone = personalInfo.phone || personalInfo.contactNo || personalInfo.contact;
+    const displayAddress = personalInfo.address || personalInfo.location;
+    const displayEmail = personalInfo.email;
+    const displayLinkedin = personalInfo.linkedin;
+    
     const profileImageUrl = React.useMemo(() => {
         const img = personalInfo.profileImage;
         if (!img) return null;
@@ -13,84 +71,186 @@ export default function CreativeTemplate({ data }) {
         if (img.secure_url) return img.secure_url;
         if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
         return null;
-    }, [personalInfo.profileImage]);
+    }, []);
+
+    // Custom Header Component for the Right Side
+    // Moved outside the component
 
     return (
-        <Box sx={{ minHeight: '297mm', width: '210mm', bgcolor: '#F8FAFC', mx: 'auto', display: 'flex' }}>
-            {/* Sidebar */}
-            <Box sx={{ width: '70mm', bgcolor: mainColor, color: 'white', p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Avatar
-                    src={profileImageUrl}
-                    sx={{ width: 120, height: 120, mb: 4, border: '4px solid rgba(255,255,255,0.2)' }}
-                />
-
-                <Box sx={{ width: '100%', mb: 6 }}>
-                    <Typography variant="h6" fontWeight="900" sx={{ mb: 2, scale: '0.9', transformOrigin: 'left' }}>CONTACT</Typography>
-                    <Typography variant="body2" sx={{ mb: 1, opacity: 0.9 }}>📍 {personalInfo.phone || "Location"}</Typography>
-                    <Typography variant="body2" sx={{ mb: 1, opacity: 0.9 }}>📧 {personalInfo.email}</Typography>
-                    <Typography variant="body2" sx={{ mb: 1, opacity: 0.9 }}>🔗 {personalInfo.linkedin || "linkedin.com/..."}</Typography>
+        <Box sx={{ display: 'flex', minHeight: '297mm', width: '210mm', mx: 'auto', fontFamily: '"Arial", sans-serif', boxShadow: 3, bgcolor: 'white' }}>
+            
+            {/* ---------------- LEFT SIDEBAR (Blue Theme) ---------------- */}
+            <Box sx={{ width: '35%', bgcolor: mainColor, color: 'white', p: 4, display: 'flex', flexDirection: 'column' }}>
+                
+                {/* Profile Picture & Header */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 4 }}>
+                    {profileImageUrl ? (
+                        <Avatar
+                            src={profileImageUrl}
+                            sx={{ width: 140, height: 140, mb: 2, border: '4px solid rgba(255,255,255,0.3)' }}
+                        />
+                    ) : (
+                        <Box sx={{ width: 140, height: 140, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.2)', border: '4px solid rgba(255,255,255,0.3)', mb: 2 }} />
+                    )}
+                    
+                    <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>
+                        {personalInfo.name}
+                    </Typography>
+                    <Typography variant="body1" sx={{ px: 2, lineHeight: 1.4 }}>
+                        {personalInfo.title}
+                    </Typography>
+                    
+                    {/* Small Divider */}
+                    <Box sx={{ width: '40px', height: '1px', bgcolor: 'white', opacity: 0.5, mt: 3, mb: 1 }} />
                 </Box>
 
-                <Box sx={{ width: '100%', mb: 6 }}>
-                    <Typography variant="h6" fontWeight="900" sx={{ mb: 2, scale: '0.9', transformOrigin: 'left' }}>EXPERTISE</Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                        {skills.map((skill, idx) => (
-                            <Box key={idx}>
-                                <Typography variant="caption" sx={{ display: 'block', mb: 0.5, fontWeight: 700 }}>{skill}</Typography>
-                                <Box sx={{ width: '100%', height: 4, bgcolor: 'rgba(255,255,255,0.2)', borderRadius: 2 }}>
-                                    <Box sx={{ width: '80%', height: '100%', bgcolor: 'white', borderRadius: 2 }} />
-                                </Box>
-                            </Box>
-                        ))}
+                {/* Details Section */}
+                <Box sx={{ mb: 4 }}>
+                    <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>Details</Typography>
+                    {displayAddress && <Typography variant="body2" sx={{ mb: 0.5 }}>{displayAddress}</Typography>}
+                    
+                    <Box sx={{ mt: 2 }}>
+                        {displayPhone && <Typography variant="body2" sx={{ mb: 0.5 }}>{displayPhone}</Typography>}
+                        {displayEmail && <Typography variant="body2" sx={{ mb: 0.5, wordBreak: 'break-all' }}>{displayEmail}</Typography>}
+                        {displayLinkedin && <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>in/ {displayLinkedin}</Typography>}
                     </Box>
                 </Box>
 
-                <Box sx={{ width: '100%' }}>
-                    <Typography variant="h6" fontWeight="900" sx={{ mb: 2, scale: '0.9', transformOrigin: 'left' }}>EDUCATION</Typography>
-                    {education.map((edu, idx) => (
-                        <Box key={idx} sx={{ mb: 3 }}>
-                            <Typography variant="body2" fontWeight="700">{edu.degree}</Typography>
-                            <Typography variant="caption" sx={{ display: 'block', opacity: 0.8 }}>{edu.institute}</Typography>
-                            <Typography variant="caption" sx={{ opacity: 0.6 }}>{edu.year}</Typography>
+                {/* Tools of the trade (Skills) */}
+                {safeSkills.length > 0 && (
+                    <Box sx={{ mb: 4 }}>
+                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>Tools of the trade</Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                            {safeSkills.map((skill, idx) => (
+                                <Typography key={idx} variant="body2" fontWeight="bold">{getDisplayText(skill)}</Typography>
+                            ))}
                         </Box>
-                    ))}
-                </Box>
+                    </Box>
+                )}
+
+                {/* Languages */}
+                {safeLanguages.length > 0 && (
+                    <Box sx={{ mb: 4 }}>
+                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>Languages</Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                            {safeLanguages.map((lang, idx) => (
+                                <Box key={idx}>
+                                    <Typography variant="body2" fontWeight="bold">{getDisplayText(lang)}</Typography>
+                                    {typeof lang === 'object' && lang.proficiency && (
+                                        <Typography variant="caption" sx={{ opacity: 0.8 }}>{lang.proficiency}</Typography>
+                                    )}
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                )}
+
+                {/* Hobbies */}
+                {safeHobbies.length > 0 && (
+                    <Box sx={{ mb: 4 }}>
+                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>Hobbies</Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                            {safeHobbies.map((hobby, idx) => (
+                                <Typography key={idx} variant="body2" sx={{ lineHeight: 1.4 }}>
+                                    {getDisplayText(hobby)}
+                                </Typography>
+                            ))}
+                        </Box>
+                    </Box>
+                )}
             </Box>
 
-            {/* Main Content */}
-            <Box sx={{ flex: 1, p: 6, bgcolor: 'white' }}>
-                <Box sx={{ mb: 6 }}>
-                    <Typography variant="h2" fontWeight="900" sx={{ color: mainColor, lineHeight: 1 }}>
-                        {personalInfo.name?.split(' ')[0] || "SAM"}<br />
-                        <span style={{ color: '#1E293B' }}>{personalInfo.name?.split(' ').slice(1).join(' ') || "WINCHESTER"}</span>
-                    </Typography>
-                    <Typography variant="h5" fontWeight="700" sx={{ mt: 2, color: '#64748B', letterSpacing: 2 }}>
-                        {personalInfo.title || "CREATIVE DIRECTOR"}
-                    </Typography>
-                </Box>
+            {/* ---------------- RIGHT MAIN CONTENT (White Theme) ---------------- */}
+            <Box sx={{ width: '65%', color: '#333', p: 5, pt: 3 }}>
+                
+                {/* Profile Summary */}
+                {(personalInfo.about || personalInfo.summary) && (
+                    <Box>
+                        <RightHeader icon="👤" title="Profile" mainColor={mainColor} />
+                        <Typography variant="body2" sx={{ lineHeight: 1.6, textAlign: 'justify', whiteSpace: 'pre-wrap' }}>
+                            {personalInfo.about || personalInfo.summary}
+                        </Typography>
+                    </Box>
+                )}
 
-                <Box sx={{ mb: 6 }}>
-                    <Typography variant="h6" fontWeight="900" sx={{ color: mainColor, mb: 2, borderBottom: '2px solid', borderColor: mainColor, display: 'inline-block' }}>PROFILE</Typography>
-                    <Typography variant="body2" sx={{ color: '#475569', lineHeight: 1.8, textAlign: 'justify' }}>
-                        {personalInfo.about || "Creative and results-driven professional with a passion for designing impactful user experiences and brand identities."}
-                    </Typography>
-                </Box>
-
-                <Box>
-                    <Typography variant="h6" fontWeight="900" sx={{ color: mainColor, mb: 3, borderBottom: '2px solid', borderColor: mainColor, display: 'inline-block' }}>WORK EXPERIENCE</Typography>
-                    {experience.map((exp, idx) => (
-                        <Box key={idx} sx={{ mb: 4, position: 'relative' }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                <Typography variant="subtitle1" fontWeight="800" sx={{ color: '#1E293B' }}>{exp.role}</Typography>
-                                <Typography variant="caption" fontWeight="700" sx={{ color: mainColor }}>{exp.duration}</Typography>
+                {/* Work Experience */}
+                {safeExperience.length > 0 && (
+                    <Box>
+                        <RightHeader icon="💻" title="Experience" mainColor={mainColor} />
+                        {safeExperience.map((exp, idx) => (
+                            <Box key={idx} sx={{ mb: 3 }}>
+                                <Typography variant="subtitle1" fontWeight="bold">
+                                    {getDisplayText(exp.role || exp.position)} {getDisplayText(exp.company || exp.organization) && `- ${getDisplayText(exp.company || exp.organization)}`}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#777', mb: 1, display: 'block' }}>
+                                    {getDisplayText(exp.duration || exp.date)}
+                                </Typography>
+                                <Typography variant="body2" sx={{ lineHeight: 1.6, whiteSpace: 'pre-wrap', ml: 1 }}>
+                                    {getDisplayText(exp.description || exp.summary)}
+                                </Typography>
                             </Box>
-                            <Typography variant="subtitle2" fontWeight="700" sx={{ color: '#64748B', mb: 2 }}>{exp.company}</Typography>
-                            <Typography variant="body2" sx={{ color: '#475569', lineHeight: 1.7 }}>
-                                {exp.description}
-                            </Typography>
-                        </Box>
-                    ))}
-                </Box>
+                        ))}
+                    </Box>
+                )}
+
+                {/* Education */}
+                {safeEducation.length > 0 && (
+                    <Box>
+                        <RightHeader icon="🎓" title="Education" mainColor={mainColor} />
+                        {safeEducation.map((edu, idx) => (
+                            <Box key={idx} sx={{ mb: 3 }}>
+                                <Typography variant="subtitle1" fontWeight="bold">
+                                    {getDisplayText(edu.degree || edu.course)} - {getDisplayText(edu.institute || edu.school)}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#777', mb: 0.5, display: 'block' }}>
+                                    {getDisplayText(edu.year || edu.date)}
+                                </Typography>
+                                {edu.description && (
+                                    <Typography variant="body2" sx={{ lineHeight: 1.6, whiteSpace: 'pre-wrap', ml: 1 }}>
+                                        • {getDisplayText(edu.description)}
+                                    </Typography>
+                                )}
+                            </Box>
+                        ))}
+                    </Box>
+                )}
+
+                {/* Certificates */}
+                {safeCertifications.length > 0 && (
+                    <Box>
+                        <RightHeader icon="➕" title="Certificates" mainColor={mainColor} />
+                        {safeCertifications.map((cert, idx) => (
+                            <Box key={idx} sx={{ mb: 2 }}>
+                                <Typography variant="subtitle2" fontWeight="bold">
+                                    {getDisplayText(cert)}
+                                </Typography>
+                                {typeof cert === 'object' && cert.authority && (
+                                    <Typography variant="body2" fontStyle="italic" sx={{ color: '#555' }}>
+                                        {cert.authority}
+                                    </Typography>
+                                )}
+                            </Box>
+                        ))}
+                    </Box>
+                )}
+
+                {/* Most proud of (Awards) */}
+                {safeAwards.length > 0 && (
+                    <Box>
+                        <RightHeader icon="➕" title="Most proud of" mainColor={mainColor} />
+                        {safeAwards.map((award, idx) => (
+                            <Box key={idx} sx={{ mb: 2 }}>
+                                <Typography variant="subtitle2" fontWeight="bold">
+                                    {typeof award === 'object' && award.title ? award.title : "Awarded"}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#333' }}>
+                                    - {getDisplayText(award)}
+                                </Typography>
+                            </Box>
+                        ))}
+                    </Box>
+                )}
+
             </Box>
         </Box>
     );
