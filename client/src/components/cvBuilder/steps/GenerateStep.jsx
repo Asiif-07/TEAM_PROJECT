@@ -1,8 +1,10 @@
 import React from "react";
 import { Box, Button, CircularProgress, Grow, Typography } from "@mui/material";
 import { ChevronRight, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function GenerateStep({ generateCV, loading }) {
+  const { t } = useTranslation();
   return (
     <Grow in={true}>
       <Box sx={{ textAlign: "center", py: 6 }}>
@@ -24,11 +26,11 @@ export default function GenerateStep({ generateCV, loading }) {
         </Box>
 
         <Typography variant="h4" fontWeight="900" sx={{ mb: 2, color: "#111827" }}>
-          The Magic is Ready!
+          {t("Magic Ready")}
         </Typography>
 
         <Typography variant="body1" color="textSecondary" sx={{ mb: 6, maxWidth: "400px", mx: "auto" }}>
-          Our AI is ready to transform your raw information into a high-impact, professional CV.
+          {t("Magic Ready Desc")}
         </Typography>
 
         <Button
@@ -51,11 +53,11 @@ export default function GenerateStep({ generateCV, loading }) {
           {loading ? (
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <CircularProgress size={24} color="inherit" />
-              <span>AI is thinking...</span>
+              <span>{t("AI Thinking")}</span>
             </Box>
           ) : (
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <span>Generate My CV</span>
+              <span>{t("Generate My CV")}</span>
               <ChevronRight size={20} />
             </Box>
           )}

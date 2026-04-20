@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   TextField, 
   InputAdornment, 
@@ -8,6 +9,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 const BlogHeroSection = () => {
+  const { t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState('All');
   const filters = ['All', 'CV Writing', 'Interview Tips', 'Career Advice', 'LinkedIn', 'Job Search'];
 
@@ -21,25 +23,24 @@ const BlogHeroSection = () => {
       {/* --- ICON: Sparkle Icon (AutoAwesome) --- */}
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-sm font-medium mb-6 z-10">
         <AutoAwesomeIcon fontSize="small" /> 
-        <span>AI-Enhance Career Services</span>
+        <span>{t("AI Features")}</span>
       </div>
 
       {/* HEADING */}
       <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 z-10">
-        Career <span className="text-blue-500">Resources</span> & <span className="text-blue-500">Tips</span>
+        {t("Career")} <span className="text-blue-500">{t("Resources")}</span> & <span className="text-blue-500">{t("Tips")}</span>
       </h1>
       
       {/* SUBTITLE */}
       <p className="text-gray-500 max-w-2xl mb-8 z-10">
-        Expert insights, practical advice, and proven strategies to accelerate your
-        career growth and job search success.
+        {t("Blog Subtitle")}
       </p>
 
       {/* SEARCH BAR */}
       <div className="w-full max-w-lg mb-8 z-10">
         <TextField
           fullWidth
-          placeholder="Search articles..."
+          placeholder={t("Search Articles")}
           variant="outlined"
           // Customizing MUI Input to match the rounded pill design
           sx={{
@@ -67,7 +68,7 @@ const BlogHeroSection = () => {
         {filters.map((filter) => (
           <Chip
             key={filter}
-            label={filter}
+            label={t(filter)}
             clickable
             onClick={() => setActiveFilter(filter)}
             sx={{

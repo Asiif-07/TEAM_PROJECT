@@ -4,11 +4,14 @@ import { CssBaseline } from "@mui/material";
 import { RouterProvider } from "react-router-dom";
 import router from "./router.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { Toaster } from "react-hot-toast";
 import "./index.css";
+import "./utils/i18n";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <CssBaseline />
+    <Toaster position="top-center" reverseOrder={false} />
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>

@@ -49,7 +49,10 @@ const FacebookIcon = () => (
   </svg>
 );
 
+import { useTranslation } from 'react-i18next';
+
 export default function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="bg-slate-800 text-gray-300 py-12 px-6">
       <div className="max-w-7xl mx-auto">
@@ -62,7 +65,7 @@ export default function Footer() {
               <h2 className="text-white text-2xl font-semibold">CurriculamVit.AI</h2>
             </div>
             <p className="text-gray-400 mb-6 max-w-md leading-relaxed">
-              AI-enhanced career services that help professionals land their dream jobs faster. Combining smart automation with expert human review.
+              {t("Footer Description")}
             </p>
             <div className="flex items-center mb-6">
               <div className="flex -space-x-2">
@@ -78,90 +81,90 @@ export default function Footer() {
             <div className="flex gap-3">
               <input
                 type="email"
-                placeholder="Enter your email to subscribe..."
+                placeholder={t("Enter Email")}
                 className="flex-1 bg-slate-700 text-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
               />
               <button className="bg-linear-to-r from-blue-400 to-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                Subscribe
+                {t("Subscribe")}
               </button>
             </div>
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Services</h3>
+            <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">{t("Services")}</h3>
             <nav>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">CV Writing</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("CV Writing")}</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Cover Letter</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Cover Letter")}</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Linked-In Optimization</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("LinkedIn Optimization")}</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Interview Coaching</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Interview Coaching")}</a>
                 </li>
               </ul>
             </nav>
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Company</h3>
+            <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">{t("Company")}</h3>
             <nav>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">About Us</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("About Us")}</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">How It Works</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("How It Works")}</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Success Stories</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Success Stories")}</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Blog")}</a>
                 </li>
               </ul>
             </nav>
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Support</h3>
+            <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">{t("Support")}</h3>
             <nav>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Help Center</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Help Center")}</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Contact Us</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Contact Us")}</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">FAQ</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("FAQ")}</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Live Chat</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Live Chat")}</a>
                 </li>
               </ul>
             </nav>
           </div>
 
           <div>
-  <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Legal</h3>
+  <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">{t("Legal")}</h3>
   <nav>
     <ul className="space-y-3">
       <li>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a>
+        <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Privacy Policy")}</a>
       </li>
       <li>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a>
+        <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Terms of Service")}</a>
       </li>
       <li>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">Cookie Policy</a>
+        <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Cookie Policy")}</a>
       </li>
       <li>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">GDPR</a>
+        <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("GDPR")}</a>
       </li>
     </ul>
   </nav>
@@ -192,7 +195,7 @@ export default function Footer() {
             </div>
 
             <div className="flex items-center gap-4">
-              <p className="text-gray-400 text-sm">© 2025® 2024 CurriculumVit.AI. All rights reserved.</p>
+              <p className="text-gray-400 text-sm">© 2025® 2024 CurriculumVit.AI. {t("All rights reserved")}.</p>
               <div className="flex gap-3">
                 <a href="#" className="text-gray-400 hover:text-white transition-colors">
                   <TwitterIcon />

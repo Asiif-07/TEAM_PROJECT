@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 
 const Vector = () => {
+  const { t } = useTranslation();
   const cards = [
-    { title: "Instant Support", desc: "Get immediate answer to your career questions" },
-    { title: "Video Call", desc: "Speak Directly with our AI assistant" },
-    { title: "Full Transcript", desc: "All Conversation are Record and transcribed" }
+    { title: t("Instant Support"), desc: t("Instant Support Desc") },
+    { title: t("Video Call"), desc: t("Video Call Desc") },
+    { title: t("Full Transcript"), desc: t("Full Transcript Desc") }
   ];
 
   return (
@@ -27,12 +29,11 @@ const Vector = () => {
         </div>
         
         <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
-          24/7 AI Career Assistant
+          {t("AI Career Assistant")}
         </h2>
         
         <p className="text-gray-400 text-lg md:text-xl leading-relaxed">
-          Have Questions about your CV? Need career Advice? Our AI assistant is <br className="hidden md:block" /> 
-          available around the clock to Provide instant support and guidance.
+          {t("AI Career Assistant Desc")}
         </p>
       </div>
 
@@ -55,7 +56,7 @@ const Vector = () => {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5">
              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
           </svg>
-          Call Now: 1-800-AI-CAREER
+          {t("Call Now")}
         </button>
       </div>
     </section>

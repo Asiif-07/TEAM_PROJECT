@@ -439,7 +439,7 @@ const RefreshToken = AsyncHandler(async (req, res, next) => {
   const newAccessToken = generateAccessToken(isTokenValid)
   const newRefreshToken = generateRefreshToken(isTokenValid)
 
-  // Use update query to avoid Mongoose optimistic concurrency conflicts.
+
   const updatedUser = await User.findOneAndUpdate(
     { _id: isTokenValid._id, "refreshToken.token": incomingRefreshToken },
     {

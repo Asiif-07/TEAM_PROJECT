@@ -1,17 +1,52 @@
-import { AppBar, Toolbar, Box, Button, Typography, Menu, MenuItem, IconButton, Drawer, List, ListItem, ListItemText, Avatar } from "@mui/material";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import MenuIcon from "@mui/icons-material/Menu";
-import logo from "../../assets/images/logo.png";
-import { useState } from "react";
+import { useState, } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import {
+  AppBar,
+  Toolbar,
+  Box,
+  Typography,
+  Button,
+  Menu,
+  MenuItem,
+  Avatar,
+  Drawer,
+  List,
+  ListItem
+} from "@mui/material";
+import LanguageIcon from "@mui/icons-material/Language";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useAuth } from "../../context/AuthContext";
+import logo from "../../assets/images/logo.png";
+
+
+const languages = [
+  { name: "English", flag: "🇺🇸", code: "en" },
+  { name: "Spanish", flag: "🇪🇸", code: "es" },
+  { name: "French", flag: "🇫🇷", code: "fr" },
+  { name: "German", flag: "🇩🇪", code: "de" }
+];
+
+const navLinks = [
+  { pageName: "How It Work", path: "/how-it-works" },
+  { pageName: "Services", path: "/services" },
+  { pageName: "About", path: "/about" },
+  { pageName: "Contact Us", path: "/contact-us" },
+  { pageName: "Blog", path: "/blog" }
+];
 
 const Header = () => {
+  const { t, i18n } = useTranslation();
   const [anchorEl, setAnchorEl] = useState(null);
   const [userAnchorEl, setUserAnchorEl] = useState(null);
-  const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
+
+  // Derive selected language from i18n.language
+  const displayLangCode = i18n.language?.includes('-') ? i18n.language.split('-')[0] : i18n.language;
+  const currentLangObj = languages.find(l => l.code === displayLangCode) || languages[0];
+  const selectedLanguage = currentLangObj.name;
+  const currentFlag = currentLangObj.flag;
 
   const handleLanguageClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -21,8 +56,8 @@ const Header = () => {
     setAnchorEl(null);
   };
 
-  const handleLanguageSelect = (language) => {
-    setSelectedLanguage(language);
+  const handleLanguageSelect = (lang) => {
+    i18n.changeLanguage(lang.code);
     setAnchorEl(null);
   };
 
@@ -38,13 +73,6 @@ const Header = () => {
     setUserAnchorEl(null);
   };
 
-  const navLinks = [
-    { pageName: "How It Work", path: "/how-it-works" },
-    { pageName: "Services", path: "/services" },
-    { pageName: "About", path: "/about" },
-    { pageName: "Contact Us", path: "/contact-us" },
-    { pageName: "Blog", path: "/blog" }
-  ];
 
   return (
     <AppBar
@@ -109,27 +137,40 @@ const Header = () => {
                   whiteSpace: "nowrap",
                 }}
               >
-                {item.pageName}
+                {t(item.pageName)}
               </Typography>
             </Link>
           ))}
 
-          {/* Language */}
-          <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={handleLanguageClick}>
-            <Typography
-              sx={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "14px",
-                fontWeight: 500,
-                color: "#1F2937",
-                whiteSpace: "nowrap",
-              }}
-            >
+          {/* Language Selector Trigger */}
+          <Button
+            onClick={handleLanguageClick}
+            startIcon={<LanguageIcon sx={{ fontSize: 20 }} />}
+            endIcon={<ArrowDropDownIcon />}
+            sx={{
+              textTransform: "none",
+              color: "#1F2937",
+              fontFamily: "Inter, sans-serif",
+              fontSize: "14px",
+              fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              px: "12px",
+              py: "6px",
+              borderRadius: "20px",
+              transition: "all 0.2s",
+              "&:hover": {
+                backgroundColor: "rgba(37, 99, 235, 0.08)",
+                color: "#2563EB",
+              }
+            }}
+          >
+            <Box component="span" sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ fontSize: "16px" }}>{currentFlag}</span>
               {selectedLanguage}
-            </Typography>
-            <ArrowDropDownIcon
-              sx={{ color: "#1F2937", fontSize: 20 }} />
-          </Box>
+            </Box>
+          </Button>
 
           <Menu
             anchorEl={anchorEl}
@@ -137,52 +178,38 @@ const Header = () => {
             onClose={handleLanguageClose}
             sx={{
               "& .MuiPaper-root": {
-                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
-                borderRadius: "8px",
-                mt: 1,
+                boxShadow: "0px 10px 25px rgba(0, 0, 0, 0.1)",
+                borderRadius: "12px",
+                mt: 1.5,
+                minWidth: "160px",
+                border: "1px solid #F3F4F6",
               },
             }}
           >
-            <MenuItem
-              onClick={() => handleLanguageSelect("English")}
-              sx={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "14px",
-                backgroundColor: selectedLanguage === "English" ? "#EFF6FF" : "transparent",
-              }}
-            >
-              English
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleLanguageSelect("Spanish")}
-              sx={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "14px",
-                backgroundColor: selectedLanguage === "Spanish" ? "#EFF6FF" : "transparent",
-              }}
-            >
-              Spanish
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleLanguageSelect("French")}
-              sx={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "14px",
-                backgroundColor: selectedLanguage === "French" ? "#EFF6FF" : "transparent",
-              }}
-            >
-              French
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleLanguageSelect("German")}
-              sx={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "14px",
-                backgroundColor: selectedLanguage === "German" ? "#EFF6FF" : "transparent",
-              }}
-            >
-              German
-            </MenuItem>
+            {languages.map((lang) => (
+              <MenuItem
+                key={lang.name}
+                onClick={() => handleLanguageSelect(lang)}
+                sx={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "14px",
+                  fontWeight: selectedLanguage === lang.name ? 600 : 400,
+                  py: 1.5,
+                  px: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  backgroundColor: selectedLanguage === lang.name ? "rgba(37, 99, 235, 0.04)" : "transparent",
+                  color: selectedLanguage === lang.name ? "#2563EB" : "#374151",
+                  "&:hover": {
+                    backgroundColor: "rgba(37, 99, 235, 0.08)",
+                  },
+                }}
+              >
+                <span style={{ fontSize: "18px" }}>{lang.flag}</span>
+                {lang.name}
+              </MenuItem>
+            ))}
           </Menu>
         </Box>
 
@@ -233,7 +260,7 @@ const Header = () => {
                   {!user.profileImage?.secure_url && user.name?.charAt(0).toUpperCase()}
                 </Avatar>
                 <Typography sx={{ display: { xs: "none", sm: "block" }, fontSize: "14px", fontWeight: 600 }}>
-                  Hi, {user?.name?.split(" ")[0] || "User"}
+                  {t("Hi")}, {user?.name?.split(" ")[0] || "User"}
                 </Typography>
               </Button>
               <Menu
@@ -278,7 +305,7 @@ const Header = () => {
                     "&:hover": { textDecoration: "underline" },
                   }}
                 >
-                  Log In
+                  {t("Log In")}
                 </Typography>
               </Link>
 
@@ -390,9 +417,9 @@ const Header = () => {
               Language
             </Typography>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-              {["English", "Spanish", "French", "German"].map((lang) => (
+              {languages.map((lang) => (
                 <Box
-                  key={lang}
+                  key={lang.name}
                   onClick={() => {
                     handleLanguageSelect(lang);
                     handleDrawerToggle(); // Optional: close on select
@@ -401,16 +428,20 @@ const Header = () => {
                     px: 2,
                     py: 1,
                     borderRadius: "20px",
-                    backgroundColor: selectedLanguage === lang ? "#EFF6FF" : "#F3F4F6",
-                    color: selectedLanguage === lang ? "#2563EB" : "#4B5563",
+                    backgroundColor: selectedLanguage === lang.name ? "#EFF6FF" : "#F3F4F6",
+                    color: selectedLanguage === lang.name ? "#2563EB" : "#4B5563",
                     fontSize: "14px",
                     fontWeight: 500,
                     cursor: "pointer",
-                    border: selectedLanguage === lang ? "1px solid #BFDBFE" : "1px solid transparent",
+                    border: selectedLanguage === lang.name ? "1px solid #BFDBFE" : "1px solid transparent",
                     transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
                   }}
                 >
-                  {lang}
+                  <span style={{ fontSize: "16px" }}>{lang.flag}</span>
+                  {lang.name}
                 </Box>
               ))}
             </Box>

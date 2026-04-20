@@ -3,51 +3,53 @@ import frame1 from "../../assets/aboutpic/Frame 72 (1).png";
 import frame2 from "../../assets/aboutpic/Frame 72 (2).png";
 import frame3 from "../../assets/aboutpic/Frame 72 (3).png";
 import frame4 from "../../assets/aboutpic/Frame 75.png";
+import { useTranslation } from "react-i18next";
 
-const stats = [
+const getStats = (t) => [
   {
-    label: "CVs Created",
+    label: t("CVs Created"),
     value: "10,000+",
-    subLabel: "CVs Created",
+    subLabel: t("CVs Created"),
     bg: "bg-[#F9EEA5]",
     icon: frame1,
   },
   {
-    label: "Success Rate",
+    label: t("Success Rate"),
     value: "94%",
-    subLabel: "Success Rate",
+    subLabel: t("Success Rate"),
     bg: "bg-[#E1DEFA]",
     icon: frame2,
   },
   {
-    label: "Delivery Time",
+    label: t("Delivery Time"),
     value: "24–48h",
-    subLabel: "Delivery Time",
+    subLabel: t("Delivery Time"),
     bg: "bg-[#CAEDB8]",
     icon: frame3,
   },
   {
-    label: "Customer Rating",
+    label: t("Customer Rating"),
     value: "4.9",
-    subLabel: "Customer Rating",
+    subLabel: t("Customer Rating"),
     bg: "bg-[#C9FF85]",
     icon: frame4,
   },
 ];
 
 const SuccessByNumbers = () => {
+  const { t } = useTranslation();
+  const stats = getStats(t);
   return (
     <section className="w-full py-16 bg-gradient-to-b from-white to-[#E0F2FE]/60">
       <div className="max-w-6xl mx-auto px-4">
         {/* Heading */}
         <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
-            Our <span className="text-[#2563EB]">success</span> by the{" "}
-            <span className="text-[#2563EB]">numbers</span>
+            {t("Our")} <span className="text-[#2563EB]">{t("success")}</span> {t("by the")}{" "}
+            <span className="text-[#2563EB]">{t("numbers")}</span>
           </h2>
           <p className="mt-2 text-sm md:text-base text-slate-500">
-            Measurable impact, proven results — a quick look at what sets us
-            apart.
+            {t("Success Numbers Desc")}
           </p>
         </div>
 

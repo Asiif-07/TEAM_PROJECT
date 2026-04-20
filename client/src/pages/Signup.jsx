@@ -1,10 +1,12 @@
 import { Box, Button, TextField, Typography, Paper, Fade, MenuItem } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useCallback, useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import GoogleSignInButton from "../components/auth/GoogleSignInButton";
 
 const Signup = () => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -135,7 +137,7 @@ const Signup = () => {
                             letterSpacing: '-1px'
                         }}
                     >
-                        Join CurriculumVit.AI
+                        {t("Sign Up")}
                     </Typography>
                     <Typography
                         sx={{
@@ -144,7 +146,7 @@ const Signup = () => {
                             fontWeight: 500
                         }}
                     >
-                        Start your journey with elite AI career tools
+                        {t("Join Journey")}
                     </Typography>
                 </Box>
 
@@ -189,7 +191,7 @@ const Signup = () => {
                 <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                            Full Name
+                            {t("Full Name")}
                         </Typography>
                         <TextField
                             fullWidth
@@ -215,7 +217,7 @@ const Signup = () => {
 
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                            Email Address
+                            {t("Email Address")}
                         </Typography>
                         <TextField
                             fullWidth
@@ -243,7 +245,7 @@ const Signup = () => {
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <Box sx={{ flex: 1 }}>
                             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                                Password
+                                {t("Password")}
                             </Typography>
                             <TextField
                                 fullWidth
@@ -269,7 +271,7 @@ const Signup = () => {
                         </Box>
                         <Box sx={{ flex: 1 }}>
                             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                                Confirm
+                                {t("Confirm")}
                             </Typography>
                             <TextField
                                 fullWidth
@@ -343,12 +345,12 @@ const Signup = () => {
                             transition: 'all 0.3s ease'
                         }}
                     >
-                        {isSubmitting ? "Creating account..." : "Create Elite Account"}
+                        {isSubmitting ? t("Signing Up") : t("Create Elite Account")}
                     </Button>
 
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
-                        <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: 'uppercase' }}>Social Entry</Typography>
+                        <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: 'uppercase' }}>{t("Social Entry")}</Typography>
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
                     </Box>
 
@@ -401,7 +403,7 @@ const Signup = () => {
 
                 <Box sx={{ textAlign: "center" }}>
                     <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500 }}>
-                        Already have an account?{" "}
+                        {t("Already have an account?")}{" "}
                         <Box
                             component={Link}
                             to="/login"
@@ -412,7 +414,7 @@ const Signup = () => {
                                 "&:hover": { textDecoration: "underline" },
                             }}
                         >
-                            Log in here
+                            {t("Log in here")}
                         </Box>
                     </Typography>
                 </Box>

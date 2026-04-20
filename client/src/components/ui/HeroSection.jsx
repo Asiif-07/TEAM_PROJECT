@@ -1,10 +1,11 @@
-import React from 'react';
-import { Clock, FileText, Sparkles, Play, ChevronRight } from 'lucide-react';
+import { Sparkles, Play, ChevronRight } from 'lucide-react';
 import CvPreviewImage from '../../assets/images/heroImg.png';
+import { useTranslation } from 'react-i18next';
 
 import { useNavigate } from 'react-router-dom';
 
 export default function HeroSection() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -20,16 +21,16 @@ export default function HeroSection() {
           <div className="space-y-8 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 font-bold text-xs uppercase tracking-widest animate-fade-in">
               <Sparkles size={14} />
-              AI-Powered Career Evolution
+              {t("AI-Powered Career Evolution")}
             </div>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight text-slate-900">
-              Land Your <span className="premium-text-gradient">Dream Role</span> <br />
-              With Precision.
+              {t("Land Your")} <span className="premium-text-gradient">{t("Dream Role")}</span> <br />
+              {t("With Precision")}.
             </h1>
 
             <p className="text-slate-600 text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 font-medium">
-              Join 1.4M+ professionals using our elite AI to build ATS-optimized CVs, cover letters, and LinkedIn profiles that demand attention.
+              {t("Hero Description")}
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 pt-4">
@@ -37,12 +38,12 @@ export default function HeroSection() {
                 onClick={() => navigate('/cv-templates')}
                 className="group relative flex items-center justify-center gap-3 px-10 py-5 text-white bg-slate-900 rounded-2xl font-black hover:bg-slate-800 transition-all shadow-2xl shadow-blue-200/50"
               >
-                <span>Get Started Free</span>
+                <span>{t("Get Started Free")}</span>
                 <ChevronRight className="group-hover:translate-x-1 transition-transform" />
               </button>
               <button className="flex items-center justify-center gap-2 px-10 py-5 text-slate-700 bg-white/70 backdrop-blur-md border border-white/50 rounded-2xl font-black hover:bg-white transition-all shadow-lg">
                 <Play className="fill-slate-700" size={18} />
-                Watch Demo
+                {t("Watch Demo")}
               </button>
             </div>
 
@@ -50,15 +51,15 @@ export default function HeroSection() {
             <div className="grid grid-cols-3 gap-8 pt-10 border-t border-slate-200/50">
               <div>
                 <div className="text-2xl font-black text-slate-900">48h</div>
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Fast Delivery</div>
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("Fast Delivery")}</div>
               </div>
               <div>
                 <div className="text-2xl font-black text-slate-900">100%</div>
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">ATS Ready</div>
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("ATS Ready")}</div>
               </div>
               <div>
                 <div className="text-2xl font-black text-slate-900">4.9/5</div>
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">User Rating</div>
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("User Rating")}</div>
               </div>
             </div>
           </div>

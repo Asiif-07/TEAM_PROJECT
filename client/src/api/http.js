@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
 function buildUrl(path) {
@@ -77,10 +78,26 @@ export async function apiRequest(path, options = {}) {
         ? String(Object.values(data.errors)[0])
         : "";
 
-    const message =
+    let message =
       validationMessage ||
       (data && (data.message || data.error)) ||
       `Request failed (${res.status})`;
+
+    // Sanitize technical jargon for a premium "human" experience
+    message = message
+      .replace(/\[?GoogleGenerativeAI Error\]?:?/gi, "")
+      .replace(/Error fetching from https:\/\/\S+/gi, "")
+      .replace(/\[\d{3} [^\]]+\]/gi, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (!message || message.length < 5) {
+        message = "AI service is momentarily unavailable. Retrying...";
+    }
+    
+    // Global Toasting: Make errors "pop" as requested by user
+    toast.error(message);
+    
     const err = new Error(message);
     err.status = res.status;
     err.data = data;

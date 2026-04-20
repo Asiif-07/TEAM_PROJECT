@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { User, Briefcase, GraduationCap, Wand2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const steps = [
   { label: "Personal Info", icon: <User size={20} /> },
@@ -10,6 +11,7 @@ const steps = [
 ];
 
 export default function CustomStepper({ activeStep, onStepClick }) {
+  const { t } = useTranslation();
   return (
     <Box sx={{ mb: 10 }}>
       <Box
@@ -104,7 +106,7 @@ export default function CustomStepper({ activeStep, onStepClick }) {
                   transition: "all 0.4s ease",
                 }}
               >
-                {step.label}
+                {t(step.label)}
               </Typography>
             </Box>
           );

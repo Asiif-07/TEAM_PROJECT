@@ -66,6 +66,7 @@ export default function CreativeTemplate({ data }) {
     
     const profileImageUrl = React.useMemo(() => {
         const img = personalInfo.profileImage;
+        if (personalInfo.profileImagePreview) return personalInfo.profileImagePreview;
         if (!img) return null;
         if (typeof img === 'string') return img;
         if (img.secure_url) return img.secure_url;

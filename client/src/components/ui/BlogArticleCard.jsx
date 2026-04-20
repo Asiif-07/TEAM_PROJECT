@@ -2,12 +2,14 @@ import {
   Button, 
   Avatar, 
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import blogimg from "../../assets/blogsPics/img1.png";
 
 const BlogArticleCard = () => {
+  const { t } = useTranslation();
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       <div className="flex flex-col lg:flex-row gap-8 items-center">
@@ -28,19 +30,17 @@ const BlogArticleCard = () => {
           
           {/* Category Tag */}
           <div className="px-3 py-1 rounded-md bg-blue-50 text-blue-600 text-xs font-bold tracking-wide uppercase mb-4">
-            CV Writing
+            {t("CV Writing")}
           </div>
 
           {/* Title */}
           <h2 className="text-3xl font-bold text-gray-900 mb-4 leading-tight">
-            10 CV Mistakes That Are Killing Your Job Applications
+            {t("Blog Featured Title")}
           </h2>
 
           {/* Description */}
           <p className="text-gray-500 text-lg mb-6 leading-relaxed">
-            Discover the most common CV mistakes that recruiters see every day and learn
-            how to avoid them to increase your interview chances. Stand out from the crowd
-            with expert-backed tips for a polished, professional resume.
+            {t("Blog Featured Desc")}
           </p>
 
           {/* Meta Data (Author, Date, Time) */}
@@ -64,7 +64,7 @@ const BlogArticleCard = () => {
             {/* Read Time - ICON: Clock Icon */}
             <div className="flex items-center gap-1.5">
               <AccessTimeIcon fontSize="inherit" />
-              <span>5 min read</span>
+              <span>{t("5 min read")}</span>
             </div>
           </div>
 
@@ -86,7 +86,7 @@ const BlogArticleCard = () => {
               }
             }}
           >
-            Read Article
+            {t("Read Article")}
           </Button>
 
         </div>

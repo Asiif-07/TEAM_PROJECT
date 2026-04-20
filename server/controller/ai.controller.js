@@ -1,24 +1,21 @@
 import AsyncHandler from '../handler/AsyncHandler.js'
-import { genAI } from '../config/gemini.js' // Apne path ke hisaab se check kar lena
+import { genAI } from '../config/gemini.js'
 import CustomError from '../handler/CustomError.js'
+
+
 
 const generateAIContent = AsyncHandler(async (req, res) => {
     console.log("[DEBUG] AI Request body:", JSON.stringify(req.body, null, 2));
     const { type, data } = req.body;
 
-    // 🔥 FIX: Error check mein bhi 'type'
+
     if (!type || !data) {
         throw new CustomError(400, "Type and data are required to generate content");
     }
 
-    const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash", // Use 1.5-flash as 2.5 is invalid/unstable
-        generationConfig: { responseMimeType: "application/json" }
-    });
-
     let prompt = "";
 
-    // 🔥 FIX: Switch statement mein bhi 'type'
+
     switch (type) {
         case "summary":
             prompt = `
@@ -75,20 +72,36 @@ const generateAIContent = AsyncHandler(async (req, res) => {
 
     console.log("[DEBUG] Sending prompt to Gemini...");
     let text = "";
-    try {
-        const result = await model.generateContent(prompt);
-        text = result.response.text();
-        console.log("[DEBUG] AI Raw Output:", text);
-    } catch (aiErr) {
-        console.error("[ERROR] Gemini API Error:", aiErr);
-        throw new CustomError(500, `Gemini API Error: ${aiErr.message}`);
+    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+    let lastError = null;
+
+    for (const modelName of modelsToTry) {
+        try {
+            console.log(`[DEBUG] Attempting generation with model: ${modelName}`);
+            const currentModel = genAI.getGenerativeModel({
+                model: modelName,
+                generationConfig: { responseMimeType: "application/json" }
+            });
+            const result = await currentModel.generateContent(prompt);
+            text = result.response.text();
+            console.log(`[DEBUG] AI Output Success using ${modelName}`);
+            break; 
+        } catch (aiErr) {
+            console.error(`[WARN] Model ${modelName} failed:`, aiErr.message);
+            lastError = aiErr;
+            // Continue to next model
+        }
+    }
+
+    if (!text) {
+        throw new CustomError(503, "AI Service is temporarily busy. Please try again in 30 seconds.");
     }
 
     let parsedData;
     try {
         parsedData = JSON.parse(text);
     } catch (err) {
-        // Fallback for when Gemini adds markdown blocks even with responseMimeType
+
         const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
         try {
             parsedData = JSON.parse(cleanedText);

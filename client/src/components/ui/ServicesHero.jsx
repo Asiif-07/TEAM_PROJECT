@@ -1,7 +1,9 @@
 import React from 'react';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { useTranslation } from 'react-i18next';
 
 const ServicesHero = () => {
+  const { t } = useTranslation();
   return (
     <section className="relative w-full bg-white py-24 overflow-hidden font-sans">
       
@@ -24,19 +26,19 @@ const ServicesHero = () => {
             
             <AutoAwesomeIcon className="text-blue-500 text-sm" fontSize="small" />
             <span className="text-sm font-medium text-blue-500 tracking-wide">
-              AI-Enhance Career Services
+              {t("AI Features")}
             </span>
           </div>
         </div>
 
         {/* --- Main Heading --- */}
         <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
-          Choose Your <span className="text-blue-600">Career Package</span>
+          {t("Choose Your")} <span className="text-blue-600">{t("Career Package")}</span>
         </h2>
 
         {/* --- Subheading --- */}
         <p className="max-w-2xl mx-auto text-gray-600 text-lg mb-16 leading-relaxed">
-          From individual services to complete career transformation packages. Select what you need to land your dream job faster.
+          {t("Career Package Subtext")}
         </p>
 
         {/* --- Stats Grid --- */}
@@ -45,25 +47,25 @@ const ServicesHero = () => {
           {/* Item 1 */}
           <div className="flex flex-col items-center">
             <span className="text-4xl font-bold text-blue-600 mb-2">10K+</span>
-            <span className="text-gray-600 font-medium">Happy Clients</span>
+            <span className="text-gray-600 font-medium">{t("Happy Clients")}</span>
           </div>
 
           {/* Item 2 */}
           <div className="flex flex-col items-center">
             <span className="text-4xl font-bold text-green-500 mb-2">95%</span>
-            <span className="text-gray-600 font-medium">Success Rate</span>
+            <span className="text-gray-600 font-medium">{t("Success Rate")}</span>
           </div>
 
           {/* Item 3 */}
           <div className="flex flex-col items-center">
             <span className="text-4xl font-bold text-orange-500 mb-2">35%</span>
-            <span className="text-gray-600 font-medium">Avg. Salary Boost</span>
+            <span className="text-gray-600 font-medium">{t("Avg Salary Boost")}</span>
           </div>
 
           {/* Item 4 */}
           <div className="flex flex-col items-center">
             <span className="text-4xl font-bold text-purple-600 mb-2">4.9</span>
-            <span className="text-gray-600 font-medium">Rating</span>
+            <span className="text-gray-600 font-medium">{t("Rating")}</span>
           </div>
 
         </div>

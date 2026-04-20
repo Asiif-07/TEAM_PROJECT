@@ -1,51 +1,58 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { Box, Button, Typography, Paper, Container } from "@mui/material";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from "react-i18next";
 import * as cvApi from "../api/cv";
-import PreviewCV from "../components/cvBuilder/PreviewCV";
-import { buildCvPayload as buildCvPayloadUtil } from "../utils/cvBuilder/cvBuilderUtils";
+import * as aiApi from "../api/ai";
+import { mapParsedDataToTemplate } from "../utils/cvBuilder/dataMapper";
+
+import CustomStepper from "../components/cvBuilder/CustomStepper";
+import LivePreview from "../components/cvBuilder/LivePreview";
 import PersonalInfoStep from "../components/cvBuilder/steps/PersonalInfoStep";
 import ExperienceStep from "../components/cvBuilder/steps/ExperienceStep";
 import SkillsEducationStep from "../components/cvBuilder/steps/SkillsEducationStep";
 import GenerateStep from "../components/cvBuilder/steps/GenerateStep";
-import CustomStepper from "../components/cvBuilder/CustomStepper";
-import LivePreview from "../components/cvBuilder/LivePreview";
+import PreviewCV from "../components/cvBuilder/PreviewCV";
 
 export default function CVBuilder() {
-    const navigate = useNavigate();
-
+    const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const selectedCategory = searchParams.get("category");
-    const selectedTemplate = searchParams.get("template");
+    const selectedTemplate = searchParams.get("template") || "classic-red";
     const cvId = searchParams.get("cvId");
 
-    const { accessToken, refreshAccessToken, isAuthenticated } = useAuth();
+    const { accessToken, refreshAccessToken } = useAuth();
     const [activeStep, setActiveStep] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [cvContent, setCvContent] = useState("");
+    const [isExtracting, setIsExtracting] = useState(false);
+    const [cvContent] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [skillInput, setSkillInput] = useState("");
 
     const [formData, setFormData] = useState({
-        personalInfo: { name: "", title: "", about: "", email: "", phone: "", github: "", linkedin: "", address: "", dob: "", profileImage: null },
-        experience: [{ role: "", company: "", startDate: "", endDate: "", description: "" }],
+        personalInfo: {
+            name: "",
+            title: "",
+            about: "",
+            email: "",
+            phone: "",
+            github: "",
+            linkedin: "",
+            address: "",
+            dob: "",
+            profileImage: null
+        },
+        experience: [{ role: "", company: "", startDate: "", endDate: "", current: false, description: "" }],
+        education: [{ degree: "", institute: "", startDate: "", endDate: "", current: false, description: "" }],
         skills: [],
-        education: [{ degree: "", institute: "", startDate: "", endDate: "", year: "" }],
         projects: "",
         languages: "",
         certifications: ""
     });
 
-    // If they bypass the templates page, kick them back (unless editing an existing CV)
-    useEffect(() => {
-        if (!cvId && (!selectedTemplate || !selectedCategory)) {
-            navigate("/cv-templates");
-        }
-    }, [selectedTemplate, selectedCategory, cvId, navigate]);
-
-    // Fetch CV data if editing
     useEffect(() => {
         const fetchCvData = async () => {
             if (!cvId || !accessToken) return;
@@ -54,196 +61,160 @@ export default function CVBuilder() {
                 const response = await cvApi.getCvById({ accessToken, refreshAccessToken, id: cvId });
                 if (response.success && response.data) {
                     const cv = response.data;
-
-                    // Map projects back to string format
-                    const projectsString = (cv.projects || []).map(p =>
-                        `${p.title} | ${p.description} | ${p.githubLink || ""} | ${p.liveLink || ""}`
-                    ).join("\n");
-
-                    setFormData({
+                    setFormData(prev => ({
+                        ...prev,
                         personalInfo: {
+                            ...prev.personalInfo,
                             name: cv.name || "",
-                            title: cv.title || "", // if backend has title
-                            about: cv.summary || "",
+                            title: cv.title || "",
                             email: cv.email || "",
                             phone: cv.phone || "",
-                            github: cv.github || "",
+                            address: cv.address || "",
+                            about: cv.summary || "",
                             linkedin: cv.linkedin || "",
-                            profileImage: cv.profileImage?.secure_url || null
+                            github: cv.github || ""
                         },
-                        experience: cv.experience?.length ? cv.experience.map(x => ({
-                            role: x.role || "",
-                            company: x.company || "",
-                            duration: x.duration || "", // We store as duration in backend, might need to handle dates if we want more granularity
-                            description: x.description || ""
-                        })) : [{ role: "", company: "", startDate: "", endDate: "", description: "" }],
+                        experience: cv.experience?.length ? cv.experience : [{ role: "", company: "", startDate: "", endDate: "", current: false, description: "" }],
+                        education: cv.education?.length ? cv.education : [{ degree: "", institute: "", startDate: "", endDate: "", current: false, description: "" }],
                         skills: cv.skills || [],
-                        education: cv.education?.length ? cv.education.map(e => ({
-                            degree: e.degree || "",
-                            institute: e.institute || "",
-                            year: e.year || ""
-                        })) : [{ degree: "", institute: "", startDate: "", endDate: "", year: "" }],
-                        projects: projectsString,
+                        projects: (cv.projects || []).map(p => `${p.title} | ${p.description}`).join("\n"),
                         languages: cv.languages || "",
                         certifications: cv.certifications || ""
-                    });
+                    }));
                 }
             } catch {
-                setErrorMessage("Failed to load CV data.");
+                setErrorMessage(t("Failed CVs"));
             } finally {
                 setLoading(false);
             }
         };
-
         fetchCvData();
     }, [cvId, accessToken, refreshAccessToken]);
+
+    const handleChange = (e, section = null) => {
+        const { name, value, files } = e.target;
+        if (section) {
+            setFormData((prev) => {
+                const nextValue = files ? files[0] : value;
+                const updates = { [name]: nextValue };
+
+                // Handle profile image preview
+                if (name === "profileImage" && files?.[0]) {
+                    if (prev[section].profileImagePreview) {
+                        URL.revokeObjectURL(prev[section].profileImagePreview);
+                    }
+                    updates.profileImagePreview = URL.createObjectURL(files[0]);
+                }
+
+                return {
+                    ...prev,
+                    [section]: {
+                        ...prev[section],
+                        ...updates,
+                    },
+                };
+            });
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
+    };
+
+    const handleMagicImport = async (file) => {
+        if (!file) return;
+        setIsExtracting(true);
+    let loadingToast = null;
+    try {
+      loadingToast = toast.loading(t("AI Extraction"));
+      const res = await aiApi.extractFromPdf({ accessToken, refreshAccessToken, file });
+      if (res.success && res.data) {
+        const mappedData = mapParsedDataToTemplate(res.data);
+        setFormData(prev => ({
+          ...prev,
+          ...mappedData,
+          personalInfo: { ...prev.personalInfo, ...mappedData.personalInfo }
+        }));
+        toast.success(t("CV Extracted"), { id: loadingToast });
+      } else {
+        toast.dismiss(loadingToast);
+      }
+    } catch (err) {
+      if (loadingToast) toast.dismiss(loadingToast);
+      // Handled globally in http.js
+    } finally {
+            setIsExtracting(false);
+        }
+    };
 
     const handleNext = () => setActiveStep((prev) => prev + 1);
     const handleBack = () => setActiveStep((prev) => prev - 1);
 
-    const handleChange = (e, section) => {
-        setErrorMessage("");
-        if (section === 'personalInfo') {
-            if (e.target.name === 'profileImage') {
-                setFormData({ ...formData, personalInfo: { ...formData.personalInfo, profileImage: e.target.files[0] } });
-            } else {
-                setFormData({ ...formData, personalInfo: { ...formData.personalInfo, [e.target.name]: e.target.value } });
-            }
-        } else {
-            setFormData({ ...formData, [e.target.name]: e.target.value });
-        }
-    };
-
-    const buildCvPayload = () => buildCvPayloadUtil(formData, selectedTemplate, selectedCategory);
-
-    const generateCV = async () => {
-        setErrorMessage("");
-
-        // Prevent generation if minimum required data is missing
-        if (!formData.personalInfo.name?.trim() || !formData.personalInfo.email?.trim()) {
-            setErrorMessage("Please go back and provide at least your name and email to generate the CV.");
-            return;
-        }
-
-        // Optimistic transition: Move to preview instantly
-        setCvContent("success");
-        handleNext();
-
-        // Perform the save in the background to 'decrease' perceived time
-        (async () => {
-            setLoading(true);
-            try {
-                if (!isAuthenticated || !accessToken) {
-                    setErrorMessage("Please log in first to save your CV.");
-                    return;
-                }
-
-                const payload = buildCvPayload();
-                const hasNewImage = formData.personalInfo.profileImage instanceof File;
-
-                if (hasNewImage) {
-                    const form = new FormData();
-                    Object.keys(payload).forEach(key => {
-                        if (typeof payload[key] === 'object' && payload[key] !== null) {
-                            form.append(key, JSON.stringify(payload[key]));
-                        } else {
-                            form.append(key, payload[key]);
-                        }
-                    });
-                    form.append("profileImage", formData.personalInfo.profileImage);
-
-                    if (cvId) {
-                        await cvApi.updateCv({ accessToken, refreshAccessToken, id: cvId, cvData: form });
-                    } else {
-                        await cvApi.createCv({ accessToken, refreshAccessToken, cv: form });
-                    }
-                } else {
-                    if (cvId) {
-                        await cvApi.updateCv({ accessToken, refreshAccessToken, id: cvId, cvData: payload });
-                    } else {
-                        await cvApi.createCv({ accessToken, refreshAccessToken, cv: payload });
-                    }
-                }
-            } catch (error) {
-                console.error("Delayed save failed:", error);
-                setErrorMessage("Your changes were not saved to the cloud. Please try again.");
-            } finally {
-                setLoading(false);
-            }
-        })();
-    };
-
     const renderStepContent = (step) => {
-        const stepProps = {
-            formData,
-            setFormData,
-            handleChange,
-            selectedTemplate,
-            selectedCategory
-        };
-
         switch (step) {
-            case 0: return <PersonalInfoStep {...stepProps} />;
-            case 1: return <ExperienceStep {...stepProps} />;
-            case 2: return <SkillsEducationStep {...stepProps} skillInput={skillInput} setSkillInput={setSkillInput} />;
-            case 3: return <GenerateStep generateCV={generateCV} loading={loading} />;
-            default: return null;
+            case 0:
+                return (
+                    <PersonalInfoStep
+                        formData={formData}
+                        handleChange={handleChange}
+                        selectedTemplate={selectedTemplate}
+                        handleMagicImport={handleMagicImport}
+                        isExtracting={isExtracting}
+                    />
+                );
+            case 1:
+                return (
+                    <ExperienceStep
+                        formData={formData}
+                        setFormData={setFormData}
+                        handleChange={handleChange}
+                    />
+                );
+            case 2:
+                return (
+                    <SkillsEducationStep
+                        formData={formData}
+                        setFormData={setFormData}
+                        skillInput={skillInput}
+                        setSkillInput={setSkillInput}
+                        handleChange={handleChange}
+                    />
+                );
+            case 3:
+                return <GenerateStep generateCV={() => setActiveStep(4)} loading={loading} />;
+            default:
+                return null;
         }
     };
-
 
     if (cvContent && activeStep === 4) {
-        return (
-            <PreviewCV
-                formData={formData}
-                selectedTemplate={selectedTemplate}
-                selectedCategory={selectedCategory}
-                cvContent={cvContent}
-                setCvContent={setCvContent}
-                setActiveStep={setActiveStep}
-            />
-        );
+        return <PreviewCV formData={formData} selectedTemplate={selectedTemplate} selectedCategory={selectedCategory} />;
     }
 
     return (
-        <Box sx={{ minHeight: '100vh', py: 12, position: 'relative', overflow: 'hidden' }} className="bg-mesh">
+        <Box sx={{ minHeight: '100vh', py: 12 }} className="bg-mesh">
             <Container maxWidth="xl">
                 <Box sx={{ textAlign: 'center', mb: 10 }}>
-                    <Typography variant="h2" fontWeight="900" sx={{ mb: 2 }}>Create Your Future</Typography>
-                    <Typography variant="h6" color="textSecondary">Selected Template: {selectedCategory} / {selectedTemplate}</Typography>
+                    <Typography variant="h2" fontWeight="900" sx={{ mb: 2 }}>{cvId ? t('Edit Your CV') : t('Create Your Future')}</Typography>
+                    <Typography variant="h6" color="textSecondary">{t("Active Template")}: {selectedTemplate.toUpperCase()}</Typography>
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 4, justifyContent: 'center', alignItems: 'flex-start' }}>
-                    <Paper
-                        className="glass"
-                        elevation={0}
-                        sx={{
-                            p: { xs: 4, md: 8 },
-                            borderRadius: '32px',
-                            flex: { lg: '0 1 800px' },
-                            width: '100%',
-                            boxShadow: "0 20px 40px rgba(0,0,0,0.05)"
-                        }}
-                    >
+                    <Paper className="glass" sx={{ p: 6, borderRadius: '32px', flex: '0 1 800px', width: '100%' }}>
                         <CustomStepper activeStep={activeStep} onStepClick={setActiveStep} />
-                        {errorMessage && <Typography sx={{ mb: 3, color: "#B91C1C", fontWeight: 700, textAlign: "center" }}>{errorMessage}</Typography>}
 
-                        <Box sx={{ minHeight: 400 }}>{renderStepContent(activeStep)}</Box>
+                        <Box sx={{ minHeight: 400, mt: 4 }}>
+                            {renderStepContent(activeStep)}
+                        </Box>
 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 8, pt: 4, borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-                            <Button disabled={activeStep === 0 || loading} onClick={handleBack} startIcon={<ChevronLeft size={20} />}>Previous Step</Button>
-                            {activeStep < 3 && <Button variant="contained" onClick={handleNext} endIcon={<ChevronRight size={20} />}>Next Step</Button>}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 8 }}>
+                            <Button disabled={activeStep === 0} onClick={handleBack} startIcon={<ChevronLeft size={20} />}>{t("Back")}</Button>
+                            {activeStep < 3 && <Button variant="contained" onClick={handleNext} endIcon={<ChevronRight size={20} />}>{t("Next Step")}</Button>}
                         </Box>
                     </Paper>
 
-                    {/* LIVE PREVIEW SIDEBAR */}
-                    {activeStep < 3 && (
-                        <LivePreview
-                            formData={formData}
-                            selectedTemplate={selectedTemplate}
-                            selectedCategory={selectedCategory}
-                        />
-                    )}
+                    <LivePreview formData={formData} selectedTemplate={selectedTemplate} selectedCategory={selectedCategory} />
                 </Box>
             </Container>
         </Box>

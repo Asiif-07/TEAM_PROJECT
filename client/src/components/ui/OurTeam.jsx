@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 // Image Imports based on your provided files
 import sarahImg from "../../assets/aboutpic/Team Image.png"; //
 import emilyImg from "../../assets/aboutpic/Image Wrapper.png"; //
@@ -9,18 +10,18 @@ import davidPImg from "../../assets/aboutpic/Team Image (2).png"; //
 import noahImg from "../../assets/aboutpic/Image Wrapper (3).png"; //
 import ethanCImg from "../../assets/aboutpic/Image Wrapper (4).png"; //
 
-const teamMembers = [
-  { name: "Sarah Johnson", role: "CEO and Co‑Founder", avatar: sarahImg },
-  { name: "Emily Kim", role: "VP of Product", avatar: emilyImg },
-  { name: "David Lee", role: "CTO and Co‑Founder", avatar: davidLImg },
-  { name: "Ethan Johnson", role: "VP of Marketing", avatar: ethanJImg },
-  { name: "Michael Brown", role: "VP of Engineering", avatar: michaelImg },
-  { name: "David Patel", role: "Head of Design", avatar: davidPImg },
-  { name: "Noah Martinez", role: "VP of Sales", avatar: noahImg },
-  { name: "Ethan Chen", role: "Head of Customer Success", avatar: ethanCImg },
-];
-
 const OurTeam = () => {
+  const { t } = useTranslation();
+  const teamMembers = [
+    { name: "Sarah Johnson", role: t("Roles.CEO"), avatar: sarahImg },
+    { name: "Emily Kim", role: t("Roles.VP Product"), avatar: emilyImg },
+    { name: "David Lee", role: t("Roles.CTO"), avatar: davidLImg },
+    { name: "Ethan Johnson", role: t("Roles.VP Marketing"), avatar: ethanJImg },
+    { name: "Michael Brown", role: t("Roles.VP Engineering"), avatar: michaelImg },
+    { name: "David Patel", role: t("Roles.Head Design"), avatar: davidPImg },
+    { name: "Noah Martinez", role: t("Roles.VP Sales"), avatar: noahImg },
+    { name: "Ethan Chen", role: t("Roles.Head Success"), avatar: ethanCImg },
+  ];
   return (
     <section className="w-full bg-white py-24 relative overflow-hidden">
       {/* Figma-specific Dot Background Pattern */}
@@ -36,11 +37,10 @@ const OurTeam = () => {
         {/* Heading Section */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-[42px] font-[900] tracking-tight text-slate-900 mb-4">
-            Meet our <span className="text-[#2563EB]">team</span>
+            {t("Meet our")} <span className="text-[#2563EB]">{t("team")}</span>
           </h2>
           <p className="text-slate-500 max-w-xl mx-auto text-base font-medium leading-relaxed">
-            Our platform is designed to empower businesses of all sizes to work
-            smarter and achieve their goals with confidence.
+            {t("Team Subtext")}
           </p>
         </div>
 
