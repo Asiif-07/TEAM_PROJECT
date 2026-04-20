@@ -1,5 +1,5 @@
 import { Box, Button, Container, Paper, Typography, TextField } from "@mui/material";
-import { CheckCircle2, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -37,6 +37,71 @@ const templates = [
     highlights: ["Sidebar header", "Readable typography", "Modern section dividers"],
     image: "src/assets/images/modern cv.webp"
   },
+  {
+    id: "minimalist-clean",
+    category: "Minimalist",
+    title: "Minimalist Zen",
+    description: "Ultra-clean design that focuses on typography and whitespace.",
+    highlights: ["High whitespace", "Elegant serif font", "Focused structure"],
+    image: "src/assets/images/minimalist .png"
+  },
+  {
+    id: "creative-indigo",
+    category: "Creative",
+    title: "Creative Spark",
+    description: "Dynamic and bold layout with colorful accents for a standout CV.",
+    highlights: ["Colorful accents", "Modern avatar", "High impact"],
+    image: "src/assets/images/creative cv.png"
+  },
+
+  {
+    id: "black-pro",
+    category: "Professional",
+    title: "Black Pro",
+    description: "A sleek, high-contrast professional template designed for modern corporate roles.",
+    highlights: ["Dark theme elements", "High contrast", "Executive feel"],
+    image: "src/assets/images/Black Pro.PNg" 
+  },
+  {
+    id: "black-white",
+    category: "Minimalist",
+    title: "Black & White",
+    description: "A classic greyscale design focusing entirely on content and clean typography.",
+    highlights: ["Printer friendly", "Greyscale", "Distraction-free"],
+    image: "src/assets/images/blackk.PNG"
+  },
+  {
+    id: "monochrome-simple",
+    category: "Minimalist",
+    title: "Monochrome Simple",
+    description: "A straightforward, single-color layout for a highly readable and elegant presentation.",
+    highlights: ["Single tone", "Simple structure", "Easy to scan"],
+    image: "src/assets/images/Monochrome simple.PNG"
+  },
+  {
+    id: "orange-white",
+    category: "Creative",
+    title: "Orange White",
+    description: "Vibrant orange accents mixed with clean white spacing to show off your energetic side.",
+    highlights: ["Vibrant accents", "Energetic feel", "High visibility"],
+    image: "src/assets/images/orange n white.PNG"
+  },
+  {
+    id: "royal-blue",
+    category: "Modern CV",
+    title: "Royal Blue",
+    description: "A deeply professional layout featuring rich royal blue elements for corporate readiness.",
+    highlights: ["Rich color palette", "Corporate ready", "Elegant headers"],
+    image: "src/assets/images/royal blue.PNG"
+  },
+  {
+    id: "royal-brown",
+    category: "Classic CV",
+    title: "Royal Brown",
+    description: "A warm, classic design with earthy brown tones that stand out from the standard blue and black.",
+    highlights: ["Warm tones", "Classic elegance", "Distinctive style"],
+    image: "src/assets/images/royal brown.PNG"
+  }
 ];
 
 export default function CVTemplates() {
@@ -55,7 +120,7 @@ export default function CVTemplates() {
     });
   }, [activeCategory, query]);
 
-  // 👉 THE CRITICAL ROUTING FUNCTION
+  
   // It sends the user to /cv-builder and attaches the template ID to the URL!
   const onSelectTemplate = (template) => {
     navigate(`/cv-builder?category=${encodeURIComponent(template.category)}&template=${encodeURIComponent(template.id)}`);

@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Paper, Typography, useMediaQuery, useTheme, GlobalStyles } from "@mui/material";
+
 import ClassicTemplate from "./templates/ClassicTemplate";
 import EuropassTemplate from "./templates/EuropassTemplate";
 import KoreanTemplate from "./templates/KoreanTemplate";
@@ -9,6 +10,13 @@ import CreativeTemplate from "./templates/CreativeTemplate";
 import ExecutiveTemplate from "./templates/ExecutiveTemplate";
 import GradientWaveTemplate from "./templates/GradientWaveTemplate";
 import TechPremiumTemplate from "./templates/TechPremiumTemplate";
+
+import BlackPro from "./templates/BlackPro";
+import BlackWhite from "./templates/BlackWhite";
+import MonochromeSimple from "./templates/MonochromeSimple";
+import OrangeWhite from "./templates/OrangeWhite";
+import RoyalBlue from "./templates/RoyalBlue";
+import RoyalBrown from "./templates/RoyalBrown";
 
 export default function LivePreview({ formData, selectedTemplate, selectedCategory }) {
     const theme = useTheme();
@@ -55,6 +63,14 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
         const tId = String(selectedTemplate || "").toLowerCase();
         const tCat = String(selectedCategory || "").toLowerCase();
 
+  
+        if (tId === 'black-pro' || tId.includes('black-pro')) return <BlackPro data={normalizedData} />;
+        if (tId === 'black-white' || tId.includes('black-white')) return <BlackWhite data={normalizedData} />;
+        if (tId === 'monochrome-simple' || tId.includes('monochrome')) return <MonochromeSimple data={normalizedData} />;
+        if (tId === 'orange-white' || tId.includes('orange')) return <OrangeWhite data={normalizedData} />;
+        if (tId === 'royal-blue' || tId.includes('royal-blue')) return <RoyalBlue data={normalizedData} />;
+        if (tId === 'royal-brown' || tId.includes('royal-brown')) return <RoyalBrown data={normalizedData} />;
+
         if (tId.includes('euro') || tCat.includes('euro')) return <EuropassTemplate data={normalizedData} />;
         if (tId.includes('korean') || tCat.includes('korean')) return <KoreanTemplate data={normalizedData} />;
         if (tId.includes('modern') || tCat.includes('modern')) return <ModernTemplate data={normalizedData} />;
@@ -64,6 +80,7 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
         if (tId.includes('wave') || tCat.includes('wave')) return <GradientWaveTemplate data={normalizedData} />;
         if (tId.includes('tech') || tCat.includes('tech')) return <TechPremiumTemplate data={normalizedData} />;
 
+        // Fallback default
         return <ClassicTemplate data={normalizedData} />;
     };
 
