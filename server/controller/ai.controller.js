@@ -72,10 +72,10 @@ const generateAIContent = AsyncHandler(async (req, res) => {
 
     console.log("[DEBUG] Sending prompt to Gemini...");
     let text = "";
-    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+    const modelToTry = ["gemini-2.5-flash"];
     let lastError = null;
 
-    for (const modelName of modelsToTry) {
+    for (const modelName of modelToTry) {
         try {
             console.log(`[DEBUG] Attempting generation with model: ${modelName}`);
             const currentModel = genAI.getGenerativeModel({

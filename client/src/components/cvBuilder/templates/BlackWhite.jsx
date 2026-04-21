@@ -3,8 +3,8 @@ import { Box, Typography, Avatar } from '@mui/material';
 
 // The full-width grey section banner
 const SectionBanner = ({ title }) => (
-    <Box sx={{ width: '100%', bgcolor: '#F3F4F6', py: 1.2, mb: 3, textAlign: 'center' }}>
-        <Typography variant="subtitle1" fontWeight="900" sx={{ letterSpacing: '4px', color: '#111', textTransform: 'uppercase' }}>
+    <Box sx={{ width: '100%', bgcolor: '#F0F0F0', py: 1.5, mb: 3, textAlign: 'center', borderTop: '1px solid #ddd', borderBottom: '1px solid #ddd' }}>
+        <Typography variant="subtitle1" fontWeight="900" sx={{ letterSpacing: '5px', color: '#111', textTransform: 'uppercase', fontSize: '0.82rem' }}>
             {title}
         </Typography>
     </Box>
@@ -12,21 +12,21 @@ const SectionBanner = ({ title }) => (
 
 // The two-column row for Education and Work Experience
 const DateRowItem = ({ dates, title, subtitle, description }) => (
-    <Box sx={{ display: 'flex', mb: 4, px: 6 }}>
-        {/* Left Column: Dates (approx 25% width) */}
-        <Box sx={{ width: '25%', flexShrink: 0, pr: 3 }}>
-            <Typography variant="body2" sx={{ color: '#555', mt: 0.2 }}>
+    <Box sx={{ display: 'flex', mb: 3.5, px: 6 }}>
+        {/* Left Column: Dates */}
+        <Box sx={{ width: '22%', flexShrink: 0, pr: 3 }}>
+            <Typography variant="body2" sx={{ color: '#666', mt: 0.2, fontSize: '0.85rem' }}>
                 {dates}
             </Typography>
         </Box>
         
         {/* Right Column: Content */}
         <Box sx={{ flex: 1 }}>
-            <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', mb: 1, textTransform: 'uppercase' }}>
-                {title} {subtitle && <span style={{ color: '#111', margin: '0 4px' }}>|</span>} {subtitle}
+            <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', mb: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.85rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                {title}{subtitle && <span style={{ color: '#999', margin: '0 6px', fontWeight: 400 }}>|</span>}{subtitle && <span style={{ fontWeight: 600, color: '#333' }}>{subtitle}</span>}
             </Typography>
             {description && (
-                <Typography variant="body2" sx={{ color: '#555', lineHeight: 1.7, textAlign: 'justify' }}>
+                <Typography variant="body2" sx={{ color: '#555', lineHeight: 1.75, textAlign: 'justify', fontSize: '0.87rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                     {description}
                 </Typography>
             )}
@@ -96,38 +96,40 @@ export default function BlackWhite({ data }) {
                 {/* Profile Picture */}
                 <Box>
                     {profileImageUrl ? (
-                        <Avatar src={profileImageUrl} sx={{ width: 110, height: 110 }} />
+                        <Avatar src={profileImageUrl} sx={{ width: 120, height: 120, border: '2px solid #e0e0e0' }} />
                     ) : (
-                        <Box sx={{ width: 110, height: 110, borderRadius: '50%', bgcolor: '#f0f0f0', border: '1px solid #ccc' }} />
+                        <Box sx={{ width: 120, height: 120, borderRadius: '50%', bgcolor: '#f0f0f0', border: '2px solid #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Typography variant="h3" sx={{ color: '#bbb', fontWeight: 900 }}>{personalInfo.name?.charAt(0) || "U"}</Typography>
+                        </Box>
                     )}
                 </Box>
 
                 {/* Name, Title & Contact Info */}
                 <Box sx={{ flex: 1 }}>
-                    <Typography variant="h3" fontWeight="900" sx={{ color: '#111', mb: 0.5 }}>
+                    <Typography variant="h3" fontWeight="900" sx={{ color: '#111', mb: 0.5, letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1.1, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                         {personalInfo.name}
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#555', mb: 1 }}>
+                    <Typography variant="body1" sx={{ color: '#666', mb: 1, letterSpacing: '1px', fontWeight: 500, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                         {personalInfo.title}
                     </Typography>
                     
                     {/* Short line under title */}
-                    <Box sx={{ width: '60px', height: '2px', bgcolor: '#888', mb: 1.5 }} />
+                    <Box sx={{ width: '50px', height: '2px', bgcolor: '#999', mb: 1.5 }} />
 
                     {/* Contact Row (Inline) */}
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'center' }}>
                         {displayPhone && (
-                            <Typography variant="caption" sx={{ color: '#333', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 600 }}>
+                            <Typography variant="caption" sx={{ color: '#333', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 600, fontSize: '0.78rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                 📞 {displayPhone}
                             </Typography>
                         )}
                         {displayEmail && (
-                            <Typography variant="caption" sx={{ color: '#333', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 600 }}>
+                            <Typography variant="caption" sx={{ color: '#333', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 600, fontSize: '0.78rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                 ✉️ {displayEmail}
                             </Typography>
                         )}
                         {displayAddress && (
-                            <Typography variant="caption" sx={{ color: '#333', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 600 }}>
+                            <Typography variant="caption" sx={{ color: '#333', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 600, fontSize: '0.78rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                 📍 {displayAddress}
                             </Typography>
                         )}
@@ -140,7 +142,7 @@ export default function BlackWhite({ data }) {
                 <Box>
                     <SectionBanner title="ABOUT ME" />
                     <Box sx={{ px: 6, mb: 4 }}>
-                        <Typography variant="body2" sx={{ color: '#555', lineHeight: 1.7, textAlign: 'justify' }}>
+                        <Typography variant="body2" sx={{ color: '#555', lineHeight: 1.8, textAlign: 'justify', fontSize: '0.9rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                             {personalInfo.about || personalInfo.summary}
                         </Typography>
                     </Box>
@@ -190,7 +192,7 @@ export default function BlackWhite({ data }) {
                     <Box sx={{ px: 6, pb: 6 }}>
                         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5 }}>
                             {safeSkills.map((skill, idx) => (
-                                <Typography key={idx} variant="body2" sx={{ color: '#333', fontWeight: 500 }}>
+                                <Typography key={idx} variant="body2" sx={{ color: '#333', fontWeight: 500, fontSize: '0.87rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                     • {getDisplayText(skill)}
                                 </Typography>
                             ))}

@@ -29,52 +29,72 @@ export const parseUploadedCV = AsyncHandler(async (req, res, next) => {
     }
 
 
-    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+    const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
     let model;
     let result;
 
+    // Retry config: 3 attempts per model with exponential backoff
+    const MAX_RETRIES = 3;
+    const BASE_DELAY = 1000; // 1 second
+
     for (const modelName of modelsToTry) {
-      try {
-        console.log(`[DEBUG] Attempting CV extraction with model: ${modelName}`);
-        const currentModel = genAI.getGenerativeModel({ model: modelName });
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          console.log(`[DEBUG] Attempt ${attempt}/${MAX_RETRIES} with model: ${modelName}`);
+          const currentModel = genAI.getGenerativeModel({ model: modelName });
 
-        const prompt = `
-                You are an expert CV parser. Read the following raw text from a resume.
-                Extract the information strictly into the provided JSON structure.
-                Do NOT add markdown, conversational text, or backticks (\`\`\`). Return ONLY valid JSON.
-                If a field is not found in the text, leave it as an empty string "".
-                
-                Required JSON Structure:
-                {
-                    "name": "",
-                    "email": "",
-                    "phone": "",
-                    "github": "",
-                    "linkedin": "",
-                    "summary": "Write a 2-line professional summary based on the text if not provided",
-                    "education": [
-                    { "degree": "", "institute": "", "year": "" }
-                    ],
-                    "skills": ["skill1", "skill2"],
-                    "projects": [
-                    { "title": "", "description": "", "githubLink": "", "liveLink": "" }
-                    ],
-                    "experience": [
-                    { "role": "", "company": "", "duration": "", "description": "" }
-                    ]
-                }
+          const prompt = `
+                  You are an expert CV parser. Read the following raw text from a resume.
+                  Extract the information strictly into the provided JSON structure.
+                  Do NOT add markdown, conversational text, or backticks (\`\`\`). Return ONLY valid JSON.
+                  If a field is not found in the text, leave it as an empty string "".
 
-                Raw Text:
-                ${rawText}
-                `;
+                  Required JSON Structure:
+                  {
+                      "name": "",
+                      "email": "",
+                      "phone": "",
+                      "github": "",
+                      "linkedin": "",
+                      "summary": "Write a 2-line professional summary based on the text if not provided",
+                      "education": [
+                      { "degree": "", "institute": "", "year": "" }
+                      ],
+                      "skills": ["skill1", "skill2"],
+                      "projects": [
+                      { "title": "", "description": "", "githubLink": "", "liveLink": "" }
+                      ],
+                      "experience": [
+                      { "role": "", "company": "", "duration": "", "description": "" }
+                      ]
+                  }
 
-        result = await currentModel.generateContent(prompt);
-        model = currentModel;
-        console.log(`[DEBUG] Successfully used model: ${modelName}`);
-        break;
-      } catch (err) {
-        console.warn(`[WARN] Model ${modelName} failed: ${err.message}`);
+                  Raw Text:
+                  ${rawText}
+                  `;
+
+          result = await currentModel.generateContent(prompt);
+          model = currentModel;
+          console.log(`[DEBUG] Successfully used model: ${modelName}`);
+          break;
+        } catch (err) {
+          console.warn(`[WARN] Model ${modelName} attempt ${attempt} failed: ${err.message}`);
+
+          // If it's a 503 error, wait and retry
+          if (err.message?.includes("503") || err.message?.toLowerCase().includes("unavailable")) {
+            if (attempt < MAX_RETRIES) {
+              const delay = BASE_DELAY * Math.pow(2, attempt - 1); // Exponential backoff: 1s, 2s, 4s
+              console.log(`[DEBUG] Waiting ${delay}ms before retry...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
+          } else {
+            // Non-503 error, don't retry this model
+            break;
+          }
+        }
       }
+      if (result) break; // Success, move to next model
     }
 
     if (!result) {

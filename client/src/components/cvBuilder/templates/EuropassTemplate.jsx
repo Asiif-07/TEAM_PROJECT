@@ -23,7 +23,7 @@ const EuropassSection = (props) => {
       <Grid item xs={3.5} sx={{ textAlign: "right", pr: 4 }}>
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
             {SectionIcon && <SectionIcon size={22} color="#0055a4" strokeWidth={1.5} />}
-            <Typography variant="body2" sx={{ fontWeight: 800, color: "#0055a4", textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: 0.5, lineHeight: 1.2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 800, color: "#0055a4", textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: 0.5, lineHeight: 1.2, wordBreak: "break-word", overflowWrap: "break-word" }}>
             {title}
             </Typography>
         </Box>
@@ -64,7 +64,9 @@ const ContactItem = (props) => {
           fontWeight: 500,
           m: 0,
           p: 0,
-          display: "block"
+          display: "block",
+          wordBreak: "break-word",
+          overflowWrap: "break-word"
         }}
       >
         {text}
@@ -122,10 +124,10 @@ export default function EuropassTemplate({ data }) {
           </Grid>
           <Grid item xs={8.5}>
             <Box sx={{ mb: 4 }}>
-                <Typography variant="h3" sx={{ fontWeight: 900, color: "#111827", mb: 1, letterSpacing: -1.5, lineHeight: 1 }}>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: "#111827", mb: 1, letterSpacing: -1.5, lineHeight: 1, wordBreak: "break-word", overflowWrap: "break-word" }}>
                 {personalInfo.name || "YOUR NAME"}
                 </Typography>
-                <Typography variant="h6" sx={{ color: accentColor, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>
+                <Typography variant="h6" sx={{ color: accentColor, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", wordBreak: "break-word", overflowWrap: "break-word" }}>
                 {personalInfo.title || "PROFESSIONAL TITLE"}
                 </Typography>
             </Box>
@@ -169,9 +171,9 @@ export default function EuropassTemplate({ data }) {
                 <Calendar size={14} color={accentColor} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, color: accentColor }}>{exp.duration}</Typography>
               </Box>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: "#111827", mb: 0.5 }}>{exp.role}</Typography>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#4B5563", mb: 1.5, fontStyle: "italic" }}>{exp.company}</Typography>
-              <Typography variant="body2" sx={{ whiteSpace: "pre-line", color: "#374151", lineHeight: 1.6 }}>{exp.description}</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 900, color: "#111827", mb: 0.5, wordBreak: "break-word", overflowWrap: "break-word" }}>{exp.role}</Typography>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#4B5563", mb: 1.5, fontStyle: "italic", wordBreak: "break-word", overflowWrap: "break-word" }}>{exp.company}</Typography>
+              <Typography variant="body2" sx={{ whiteSpace: "pre-line", color: "#374151", lineHeight: 1.6, wordBreak: "break-word", overflowWrap: "break-word" }}>{exp.description}</Typography>
               {idx !== experience.length - 1 && <Divider sx={{ mt: 3, opacity: 0.3 }} />}
             </Box>
           ))}
@@ -182,8 +184,8 @@ export default function EuropassTemplate({ data }) {
           {education?.map((edu, idx) => (
             <Box key={idx} sx={{ mb: 3 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: accentColor, mb: 0.5 }}>{edu.year}</Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 0.5 }}>{edu.degree}</Typography>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#4B5563" }}>{edu.institute}</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 0.5, wordBreak: "break-word", overflowWrap: "break-word" }}>{edu.degree}</Typography>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#4B5563", wordBreak: "break-word", overflowWrap: "break-word" }}>{edu.institute}</Typography>
               {idx !== education.length - 1 && <Divider sx={{ mt: 2, borderStyle: "dashed", opacity: 0.3 }} />}
             </Box>
           ))}
@@ -210,13 +212,13 @@ export default function EuropassTemplate({ data }) {
 
         {languages && (
           <EuropassSection title="Language Skills" icon={User}>
-            <Typography variant="body1" sx={{ fontWeight: 700, color: "#1F2937", borderLeft: "4px solid #E2E8F0", pl: 2 }}>{languages}</Typography>
+            <Typography variant="body1" sx={{ fontWeight: 700, color: "#1F2937", borderLeft: "4px solid #E2E8F0", pl: 2, wordBreak: "break-word", overflowWrap: "break-word" }}>{languages}</Typography>
           </EuropassSection>
         )}
 
         {projects && (
           <EuropassSection title="Honours and awards" icon={Award}>
-            <Typography variant="body2" sx={{ whiteSpace: "pre-line", color: "#374151", lineHeight: 1.8 }}>
+            <Typography variant="body2" sx={{ whiteSpace: "pre-line", color: "#374151", lineHeight: 1.8, wordBreak: "break-word", overflowWrap: "break-word" }}>
               {projects}
             </Typography>
           </EuropassSection>

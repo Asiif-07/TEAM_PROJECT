@@ -27,7 +27,7 @@ export default function PersonalInfoStep({ formData, handleChange, selectedTempl
     try {
       setIsGenerating(true);
       loadingToast = toast.loading(t("AI Crafting Summary"));
-      
+
       const res = await aiApi.generateContent({
         accessToken, refreshAccessToken,
         type: 'summary',
@@ -100,20 +100,22 @@ export default function PersonalInfoStep({ formData, handleChange, selectedTempl
             />
           </Button>
         </Box>
-        <Box sx={{ mb: 3, p: 2, border: "1px dashed #CBD5E1", borderRadius: "12px", textAlign: "center", bgcolor: "#F8FAFC" }}>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: "#334155" }}>
-            {t("Profile Picture")}
-          </Typography>
-          <Button variant="outlined" component="label" sx={{ textTransform: "none", borderRadius: "8px" }}>
-            {t("Upload Image")}
-            <input type="file" name="profileImage" hidden accept="image/png, image/jpeg, image/jpg" onChange={(e) => handleChange(e, "personalInfo")} />
-          </Button>
-          {formData.personalInfo?.profileImage && (
-            <Typography variant="caption" display="block" sx={{ mt: 1, color: "#16A34A", fontWeight: 700 }}>
-              {formData.personalInfo.profileImage.name || "Image"} {t("Selected")}
+        {config.usePhoto && (
+          <Box sx={{ mb: 3, p: 2, border: "1px dashed #CBD5E1", borderRadius: "12px", textAlign: "center", bgcolor: "#F8FAFC" }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: "#334155" }}>
+              {t("Profile Picture")}
             </Typography>
-          )}
-        </Box>
+            <Button variant="outlined" component="label" sx={{ textTransform: "none", borderRadius: "8px" }}>
+              {t("Upload Image")}
+              <input type="file" name="profileImage" hidden accept="image/png, image/jpeg, image/jpg" onChange={(e) => handleChange(e, "personalInfo")} />
+            </Button>
+            {formData.personalInfo?.profileImage && (
+              <Typography variant="caption" display="block" sx={{ mt: 1, color: "#16A34A", fontWeight: 700 }}>
+                {formData.personalInfo.profileImage.name || "Image"} {t("Selected")}
+              </Typography>
+            )}
+          </Box>
+        )}
 
         {fields.map((field) => (
           <PremiumInput

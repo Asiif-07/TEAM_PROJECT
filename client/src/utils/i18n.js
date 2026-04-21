@@ -3,7 +3,7 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
 const resources = {
-  English: {
+  en: {
     translation: {
       "How It Work": "How It Works",
       "Services": "Services",
@@ -381,7 +381,7 @@ const resources = {
       "Schedule Call": "Schedule Call"
     }
   },
-  Spanish: {
+  es: {
     translation: {
       "How It Work": "Cómo funciona",
       "Services": "Servicios",
@@ -759,7 +759,7 @@ const resources = {
       "Schedule Call": "Programar llamada"
     }
   },
-  French: {
+  fr: {
     translation: {
       "How It Work": "Comment ça marche",
       "Services": "Services",
@@ -1137,7 +1137,7 @@ const resources = {
       "Schedule Call": "Planifier l'appel"
     }
   },
-  German: {
+  de: {
     translation: {
       "How It Work": "Wie es funktioniert",
       "Services": "Dienstleistungen",
@@ -1522,7 +1522,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: "English",
+    fallbackLng: "en",
     interpolation: {
       escapeValue: false
     }

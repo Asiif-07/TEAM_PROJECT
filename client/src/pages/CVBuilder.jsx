@@ -17,6 +17,8 @@ import SkillsEducationStep from "../components/cvBuilder/steps/SkillsEducationSt
 import GenerateStep from "../components/cvBuilder/steps/GenerateStep";
 import PreviewCV from "../components/cvBuilder/PreviewCV";
 
+const DRAFT_KEY = 'cv_draft';
+
 export default function CVBuilder() {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
@@ -32,7 +34,7 @@ export default function CVBuilder() {
     const [errorMessage, setErrorMessage] = useState("");
     const [skillInput, setSkillInput] = useState("");
 
-    const [formData, setFormData] = useState({
+    const defaultFormData = {
         personalInfo: {
             name: "",
             title: "",
@@ -51,7 +53,143 @@ export default function CVBuilder() {
         projects: "",
         languages: "",
         certifications: ""
+    };
+
+    const [formData, setFormData] = useState(() => {
+        // Restore draft only if not editing existing CV
+        if (!cvId) {
+            try {
+                const saved = localStorage.getItem(DRAFT_KEY);
+                if (saved) {
+                    const draft = JSON.parse(saved);
+                    // Only restore if template matches
+                    if (draft.template === selectedTemplate) {
+                        toast.success(t("Draft restored"), { duration: 2000 });
+                        return { ...defaultFormData, ...draft.formData };
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to restore draft:', e);
+            }
+        }
+        return defaultFormData;
     });
+
+    // Auto-save draft to localStorage every 10 seconds
+    useEffect(() => {
+        if (cvId) return;
+
+        const interval = setInterval(() => {
+            try {
+                const draftData = {
+                    template: selectedTemplate,
+                    formData: {
+                        ...formData,
+                        personalInfo: {
+                            ...formData.personalInfo,
+                            profileImage: null,
+                            profileImagePreview: null
+                        }
+                    },
+                    savedAt: new Date().toISOString()
+                };
+                localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+            } catch (e) {
+                console.error('Failed to save draft:', e);
+            }
+        }, 10000);
+
+        return () => clearInterval(interval);
+    }, [formData, selectedTemplate, cvId]);
+
+    // Auto-save to My CVs when user leaves the page
+    useEffect(() => {
+        if (cvId || !accessToken) return;
+
+        const saveToMyCVs = async () => {
+            try {
+                // Only save if there's actual data (not empty)
+                const hasData = formData.personalInfo?.name?.trim() || 
+                                formData.experience?.some(e => e.role?.trim()) ||
+                                formData.skills?.length > 0;
+                if (!hasData) return;
+
+                const projectsArray = formData.projects
+                    ? formData.projects.split("\n").filter(p => p.trim()).map(p => {
+                        const parts = p.split("|");
+                        return {
+                            title: parts[0]?.trim() || "Project",
+                            description: parts[1]?.trim() || p.trim(),
+                            githubLink: "",
+                            liveLink: ""
+                        };
+                    })
+                    : [];
+
+                const cvData = {
+                    name: formData.personalInfo.name || "Untitled CV",
+                    title: formData.personalInfo.title || "",
+                    email: formData.personalInfo.email || "",
+                    phone: formData.personalInfo.phone || "",
+                    address: formData.personalInfo.address || "",
+                    summary: formData.personalInfo.about || "",
+                    linkedin: formData.personalInfo.linkedin || "",
+                    github: formData.personalInfo.github || "",
+                    template: selectedTemplate,
+                    experience: formData.experience || [],
+                    education: formData.education || [],
+                    skills: formData.skills || [],
+                    projects: projectsArray,
+                    languages: formData.languages || "",
+                    certifications: formData.certifications || ""
+                };
+
+                await cvApi.createCv({ accessToken, refreshAccessToken, cv: cvData });
+                localStorage.removeItem(DRAFT_KEY);
+            } catch (err) {
+                console.error('Auto-save to My CVs failed:', err);
+            }
+        };
+
+        const handleBeforeUnload = (e) => {
+            // Save synchronously to localStorage first
+            try {
+                const draftData = {
+                    template: selectedTemplate,
+                    formData: { ...formData, personalInfo: { ...formData.personalInfo, profileImage: null, profileImagePreview: null } },
+                    savedAt: new Date().toISOString(),
+                    pendingSave: true
+                };
+                localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        // Also save when visibility changes (tab switch, minimize)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                saveToMyCVs();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [formData, selectedTemplate, accessToken, refreshAccessToken, cvId]);
+
+    // Clear draft when component unmounts if on preview step
+    useEffect(() => {
+        return () => {
+            if (activeStep === 4) {
+                localStorage.removeItem(DRAFT_KEY);
+            }
+        };
+    }, [activeStep]);
 
     useEffect(() => {
         const fetchCvData = async () => {
@@ -81,6 +219,8 @@ export default function CVBuilder() {
                         languages: cv.languages || "",
                         certifications: cv.certifications || ""
                     }));
+                    // Clear draft when loading existing CV
+                    localStorage.removeItem(DRAFT_KEY);
                 }
             } catch {
                 setErrorMessage(t("Failed CVs"));
@@ -125,25 +265,25 @@ export default function CVBuilder() {
     const handleMagicImport = async (file) => {
         if (!file) return;
         setIsExtracting(true);
-    let loadingToast = null;
-    try {
-      loadingToast = toast.loading(t("AI Extraction"));
-      const res = await aiApi.extractFromPdf({ accessToken, refreshAccessToken, file });
-      if (res.success && res.data) {
-        const mappedData = mapParsedDataToTemplate(res.data);
-        setFormData(prev => ({
-          ...prev,
-          ...mappedData,
-          personalInfo: { ...prev.personalInfo, ...mappedData.personalInfo }
-        }));
-        toast.success(t("CV Extracted"), { id: loadingToast });
-      } else {
-        toast.dismiss(loadingToast);
-      }
-    } catch (err) {
-      if (loadingToast) toast.dismiss(loadingToast);
-      // Handled globally in http.js
-    } finally {
+        let loadingToast = null;
+        try {
+            loadingToast = toast.loading(t("AI Extraction"));
+            const res = await aiApi.extractFromPdf({ accessToken, refreshAccessToken, file });
+            if (res.success && res.data) {
+                const mappedData = mapParsedDataToTemplate(res.data);
+                setFormData(prev => ({
+                    ...prev,
+                    ...mappedData,
+                    personalInfo: { ...prev.personalInfo, ...mappedData.personalInfo }
+                }));
+                toast.success(t("CV Extracted"), { id: loadingToast });
+            } else {
+                toast.dismiss(loadingToast);
+            }
+        } catch (err) {
+            if (loadingToast) toast.dismiss(loadingToast);
+            // Handled globally in http.js
+        } finally {
             setIsExtracting(false);
         }
     };
@@ -169,6 +309,7 @@ export default function CVBuilder() {
                         formData={formData}
                         setFormData={setFormData}
                         handleChange={handleChange}
+                        selectedTemplate={selectedTemplate}
                     />
                 );
             case 2:
@@ -179,6 +320,7 @@ export default function CVBuilder() {
                         skillInput={skillInput}
                         setSkillInput={setSkillInput}
                         handleChange={handleChange}
+                        selectedTemplate={selectedTemplate}
                     />
                 );
             case 3:
@@ -188,20 +330,74 @@ export default function CVBuilder() {
         }
     };
 
-    if (cvContent && activeStep === 4) {
-        return <PreviewCV formData={formData} selectedTemplate={selectedTemplate} selectedCategory={selectedCategory} />;
+    const handleSaveCV = async () => {
+        setLoading(true);
+        const loadingToast = toast.loading(t("Saving CV..."));
+        try {
+            // Convert projects string to array format
+            const projectsArray = formData.projects
+                ? formData.projects.split("\n").filter(p => p.trim()).map(p => {
+                    const parts = p.split("|");
+                    return {
+                        title: parts[0]?.trim() || "Project",
+                        description: parts[1]?.trim() || p.trim(),
+                        githubLink: "",
+                        liveLink: ""
+                    };
+                })
+                : [];
+
+            const cvData = {
+                name: formData.personalInfo.name,
+                title: formData.personalInfo.title,
+                email: formData.personalInfo.email,
+                phone: formData.personalInfo.phone,
+                address: formData.personalInfo.address,
+                summary: formData.personalInfo.about,
+                linkedin: formData.personalInfo.linkedin,
+                github: formData.personalInfo.github,
+                template: selectedTemplate,
+                experience: formData.experience,
+                education: formData.education,
+                skills: formData.skills,
+                projects: projectsArray,
+                languages: formData.languages,
+                certifications: formData.certifications
+            };
+
+            const res = await cvApi.createCv({ accessToken, refreshAccessToken, cv: cvData });
+            if (res.success) {
+                toast.success(t("CV saved successfully!"), { id: loadingToast });
+                localStorage.removeItem(DRAFT_KEY); // Clear draft after saving
+            } else {
+                toast.error(t("Failed to save CV"), { id: loadingToast });
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error(t("Failed to save CV"), { id: loadingToast });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (activeStep === 4) {
+        return <PreviewCV formData={formData} selectedTemplate={selectedTemplate} selectedCategory={selectedCategory} setCvContent={() => {}} setActiveStep={setActiveStep} onSaveCV={handleSaveCV} isSaving={loading} />;
     }
 
     return (
-        <Box sx={{ minHeight: '100vh', py: 12 }} className="bg-mesh">
+        <Box sx={{ minHeight: '100vh', py: 12, bgcolor: 'background.default' }}>
             <Container maxWidth="xl">
                 <Box sx={{ textAlign: 'center', mb: 10 }}>
-                    <Typography variant="h2" fontWeight="900" sx={{ mb: 2 }}>{cvId ? t('Edit Your CV') : t('Create Your Future')}</Typography>
-                    <Typography variant="h6" color="textSecondary">{t("Active Template")}: {selectedTemplate.toUpperCase()}</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                        <Box></Box>
+                        <Typography variant="h2" fontWeight="900" sx={{ color: 'text.primary' }}>{cvId ? t('Edit Your CV') : t('Create Your Future')}</Typography>
+                        <Box></Box>
+                    </Box>
+                    <Typography variant="h6" color="text.secondary">{t("Active Template")}: {selectedTemplate.toUpperCase()}</Typography>
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 4, justifyContent: 'center', alignItems: 'flex-start' }}>
-                    <Paper className="glass" sx={{ p: 6, borderRadius: '32px', flex: '0 1 800px', width: '100%' }}>
+                    <Paper className='glass' sx={{ p: 6, borderRadius: '32px', flex: '0 1 800px', width: '100%', bgcolor: 'background.paper' }}>
                         <CustomStepper activeStep={activeStep} onStepClick={setActiveStep} />
 
                         <Box sx={{ minHeight: 400, mt: 4 }}>
