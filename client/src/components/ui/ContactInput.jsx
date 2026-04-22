@@ -14,7 +14,7 @@ const ContactInput = () => {
         </div>
         <h1 className="text-5xl font-bold text-slate-900 leading-tight">
           {t("Contact")} <br />
-          <span className="text-blue-600">Curriculum.ai</span>
+          <span className="text-blue-600">CareerForge.AI</span>
         </h1>
         <p className="text-slate-500 max-w-md leading-relaxed">
           {t("Contact Subtext")}

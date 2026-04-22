@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
 import { GraduationCap, Settings } from 'lucide-react';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const royalBlue = "#1A3F7B";
@@ -263,6 +264,7 @@ export default function RoyalBlue({ data }) {
                         ))}
                     </Box>
                 )}
+                <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={royalBlue} />
             </Box>
         </Box>
     );

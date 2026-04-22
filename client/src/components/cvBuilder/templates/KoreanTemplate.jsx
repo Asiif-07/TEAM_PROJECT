@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 export default function KoreanTemplate({ data }) {
   const personalInfo = data?.personalInfo || {};
@@ -89,6 +90,7 @@ export default function KoreanTemplate({ data }) {
           </tr>
         </tbody>
       </table>
+      <AdditionalSectionsBlock sections={data?.additionalSections} accentColor="#111827" />
     </Box>
   );
 }

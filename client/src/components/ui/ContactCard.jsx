@@ -9,7 +9,7 @@ const ContactCard = () => {
       icon: <Mail className="w-5 h-5 text-slate-600" />,
       title: t("Email Us"),
       sub: t("Quick Response"),
-      action: <a href="mailto:hello@curriculum.ai.com" className="text-[#1a73e8] text-xs font-bold hover:underline">hello@curriculum.ai.com</a>
+      action: <a href="mailto:hello@careerForge.ai" className="text-[#1a73e8] text-xs font-bold hover:underline">hello@careerForge.ai</a>
     },
     {
       icon: <MessageSquare className="w-5 h-5 text-slate-600" />,

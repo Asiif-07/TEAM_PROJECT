@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 // The full-width grey section banner
 const SectionBanner = ({ title }) => (
@@ -200,6 +201,9 @@ export default function BlackWhite({ data }) {
                     </Box>
                 </Box>
             )}
+            <Box sx={{ px: 6, pb: 4 }}>
+              <AdditionalSectionsBlock sections={data?.additionalSections} accentColor="#111827" />
+            </Box>
 
         </Box>
     );

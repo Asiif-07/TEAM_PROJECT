@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
 import { Phone, Mail, MapPin, Globe } from 'lucide-react';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const brownHeaderBg = "#5C4F46";
@@ -264,6 +265,7 @@ export default function RoyalBrown({ data }) {
                             </Box>
                         </Box>
                     )}
+                    <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={brownHeaderBg} />
                 </Box>
             </Box>
         </Box>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 // 🎨 CUSTOM DESIGN COMPONENTS FOR MONOCHROME LAYOUT
 
@@ -303,6 +304,7 @@ export default function MonochromeSimple({ data }) {
                             </Box>
                         </Box>
                     )}
+                    <AdditionalSectionsBlock sections={data?.additionalSections} accentColor="#111827" />
 
                 </Box>
             </Box>

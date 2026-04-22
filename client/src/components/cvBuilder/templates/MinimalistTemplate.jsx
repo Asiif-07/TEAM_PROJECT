@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 const SidebarSection = ({ title, children }) => (
     <Box sx={{ mb: 4 }}>
@@ -235,6 +236,7 @@ export default function MinimalistTemplate({ data }) {
                         ))}
                     </MainSection>
                 )}
+                <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={accentColor} />
             </Box>
         </Box>
     );

@@ -61,6 +61,14 @@ const cvSchema = new mongoose.Schema({
     default: ""
   },
 
+  additionalSections: [
+    {
+      id: { type: String, default: "" },
+      title: { type: String, default: "" },
+      content: { type: String, default: "" },
+    }
+  ],
+
   education: [
     {
       degree: {

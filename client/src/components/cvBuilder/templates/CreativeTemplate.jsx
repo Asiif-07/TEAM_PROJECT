@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { User, Briefcase, GraduationCap, Plus, Award, Wrench, Languages } from 'lucide-react';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 const SectionIcon = ({ icon: Icon, color }) => (
     <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: `${color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -231,6 +232,7 @@ export default function CreativeTemplate({ data }) {
                         ))}
                     </>
                 )}
+                <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={mainColor} />
             </Box>
         </Box>
     );

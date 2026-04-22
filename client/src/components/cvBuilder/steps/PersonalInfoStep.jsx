@@ -165,6 +165,7 @@ export default function PersonalInfoStep({ formData, handleChange, selectedTempl
             />
           </>
         )}
+
       </Box>
     </Grow>
   );

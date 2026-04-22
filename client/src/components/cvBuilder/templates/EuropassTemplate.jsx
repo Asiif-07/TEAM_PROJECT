@@ -13,6 +13,7 @@ import {
   Calendar,
   User
 } from "lucide-react";
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 // Official Europass Section Component
 const EuropassSection = (props) => {
@@ -223,6 +224,7 @@ export default function EuropassTemplate({ data }) {
             </Typography>
           </EuropassSection>
         )}
+        <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={accentColor} />
 
       </Box>
 

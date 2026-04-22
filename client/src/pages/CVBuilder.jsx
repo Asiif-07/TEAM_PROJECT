@@ -54,7 +54,8 @@ export default function CVBuilder() {
         skills: [],
         projects: "",
         languages: "",
-        certifications: ""
+        certifications: "",
+        additionalSections: []
     };
 
     const [formData, setFormData] = useState(defaultFormData);
@@ -85,7 +86,8 @@ export default function CVBuilder() {
                         skills: cv.skills || [],
                         projects: (cv.projects || []).map(p => `${p.title} | ${p.description}`).join("\n"),
                         languages: cv.languages || "",
-                        certifications: cv.certifications || ""
+                        certifications: cv.certifications || "",
+                        additionalSections: Array.isArray(cv.additionalSections) ? cv.additionalSections : []
                     }));
                     setDraftId(cv._id);
                     setLastSavedAt(cv.lastSavedAt || cv.updatedAt || "");
@@ -161,6 +163,7 @@ export default function CVBuilder() {
         projects: buildProjectsArray(),
         languages: formData.languages || "",
         certifications: formData.certifications || "",
+        additionalSections: Array.isArray(formData.additionalSections) ? formData.additionalSections : [],
         status,
     }), [formData, selectedTemplate, selectedCategory]);
 

@@ -245,6 +245,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange, se
             onChange={handleChange}
           />
         )}
+
       </Box>
     </Grow>
   );

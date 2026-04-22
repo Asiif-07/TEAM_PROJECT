@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Grid, Link } from "@mui/material";
 import { Mail, Phone, Linkedin, Github, MapPin } from "lucide-react";
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 // Inlined from TemplateComponents
 const CVSection = ({ title, icon: Icon, children, color = "#1e293b", sx = {} }) => {
@@ -223,6 +224,7 @@ export default function ModernTemplate({ data }) {
           <CVSection title="Projects" color={accentColor}>
             <SimpleList data={projects} color="#475569" />
           </CVSection>
+          <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={accentColor} />
         </Grid>
       </Grid>
     </Box>

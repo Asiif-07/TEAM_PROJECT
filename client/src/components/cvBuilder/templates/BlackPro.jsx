@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { Mail, Phone, Globe, Home, Briefcase, GraduationCap } from 'lucide-react';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 const SectionHeader = ({ title }) => (
     <Box sx={{ position: 'relative', mb: 2.5, mt: 4, display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -179,6 +180,7 @@ export default function BlackPro({ data }) {
                             </Box>
                         </Box>
                     )}
+                    <AdditionalSectionsBlock sections={data?.additionalSections} accentColor="#111827" />
                 </Box>
             </Box>
         </Box>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Divider } from '@mui/material';
 import { Mail, Phone, Home, Linkedin } from 'lucide-react';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 // ─── Module-level constants ───────────────────────────────────────────────────
 const primaryOrange = "#E8612D";
@@ -215,6 +216,7 @@ export default function OrangeWhite({ data }) {
                     </Box>
                 </Box>
             )}
+            <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={primaryOrange} />
         </Box>
     );
 }

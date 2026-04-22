@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Grid, Link, Divider } from "@mui/material";
 import { Mail, Phone, MapPin, Linkedin, Github } from "lucide-react";
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 const accentRed = "#DC2626";
 
@@ -176,6 +177,7 @@ export default function ClassicTemplate({ data }) {
           </ClassicSection>
         </Box>
       </Box>
+      <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={accentRed} />
     </Box>
   );
 }

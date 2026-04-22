@@ -13,7 +13,7 @@ const CreateCv = AsyncHandler(async (req, res, next) => {
     const userId = req.userId;
     const {
         name, email, phone, github, linkedin,
-        summary, education, skills, projects, experience, templateId
+        summary, education, skills, projects, experience, additionalSections, templateId
     } = req.body;
 
     const findId = await User.findById(userId)
@@ -46,6 +46,7 @@ const CreateCv = AsyncHandler(async (req, res, next) => {
         skills,
         projects,
         experience,
+        additionalSections,
         profileImage,
         templateId
     });
@@ -159,6 +160,7 @@ const buildDraftPayload = (body = {}, userId) => ({
     experience: Array.isArray(body?.experience) ? body.experience : [],
     languages: body?.languages || "",
     certifications: body?.certifications || "",
+    additionalSections: Array.isArray(body?.additionalSections) ? body.additionalSections : [],
     templateId: body?.templateId || body?.template || "classic-red",
     templateCategory: body?.templateCategory || "saved",
     status: body?.status === "completed" ? "completed" : "draft",
