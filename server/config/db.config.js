@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 async function connectDB() {
 
     try {
-        const connectionInstance = await mongoose.connect(process.env.DB_URL)
+        const connectionInstance = await mongoose.connect(process.env.ATLAS_URI)
         console.log(`DataBase connected: ${connectionInstance.connection.name} on ${connectionInstance.connection.host}:${connectionInstance.connection.port}`)
 
     } catch (error) {
