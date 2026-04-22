@@ -12,7 +12,7 @@ import sanitizeUser from "../utils/sanitizeUser.js"
 
 const getAppUrlFromRequest = (req) => {
   const origin = req?.headers?.origin;
-  return origin || process.env.APP_URL || "http://localhost:5173";
+  return origin || process.env.APP_URL || "https://team-project-frontend.onrender.com";
 }
 
 const RegisterUser = AsyncHandler(async (req, res, next) => {

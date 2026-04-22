@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:2000",
+        target: "https://team-project-backend-vxsk.onrender.com",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path,
