@@ -12,8 +12,7 @@ import aiRouter from "./router/ai.route.js";
 
 const app = express();
 
-const FRONTEND_URL = process.env.FRONTEND_URL;
-const isAllowed = FRONTEND_URL ? [FRONTEND_URL] : [];
+const isAllowed = ['http://localhost:5174'];
 const localhostPortPattern = /^http:\/\/localhost:\d+$/;
 
 const corsOptions = (req, cb) => {
