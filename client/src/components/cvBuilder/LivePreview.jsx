@@ -7,9 +7,6 @@ import KoreanTemplate from "./templates/KoreanTemplate";
 import ModernTemplate from "./templates/ModernTemplate";
 import MinimalistTemplate from "./templates/MinimalistTemplate";
 import CreativeTemplate from "./templates/CreativeTemplate";
-import ExecutiveTemplate from "./templates/ExecutiveTemplate";
-import GradientWaveTemplate from "./templates/GradientWaveTemplate";
-import TechPremiumTemplate from "./templates/TechPremiumTemplate";
 
 import BlackPro from "./templates/BlackPro";
 import BlackWhite from "./templates/BlackWhite";

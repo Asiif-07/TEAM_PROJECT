@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Box, Button, Typography, Paper, Container } from "@mui/material";
 import { ChevronRight, ChevronLeft } from "lucide-react";
@@ -17,8 +17,6 @@ import SkillsEducationStep from "../components/cvBuilder/steps/SkillsEducationSt
 import GenerateStep from "../components/cvBuilder/steps/GenerateStep";
 import PreviewCV from "../components/cvBuilder/PreviewCV";
 
-const DRAFT_KEY = 'cv_draft';
-
 export default function CVBuilder() {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
@@ -33,6 +31,10 @@ export default function CVBuilder() {
     const [cvContent] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [skillInput, setSkillInput] = useState("");
+    const [draftId, setDraftId] = useState(cvId || "");
+    const [lastSavedAt, setLastSavedAt] = useState("");
+    const autosaveTimerRef = useRef(null);
+    const skipAutosaveRef = useRef(true);
 
     const defaultFormData = {
         personalInfo: {
@@ -55,141 +57,7 @@ export default function CVBuilder() {
         certifications: ""
     };
 
-    const [formData, setFormData] = useState(() => {
-        // Restore draft only if not editing existing CV
-        if (!cvId) {
-            try {
-                const saved = localStorage.getItem(DRAFT_KEY);
-                if (saved) {
-                    const draft = JSON.parse(saved);
-                    // Only restore if template matches
-                    if (draft.template === selectedTemplate) {
-                        toast.success(t("Draft restored"), { duration: 2000 });
-                        return { ...defaultFormData, ...draft.formData };
-                    }
-                }
-            } catch (e) {
-                console.error('Failed to restore draft:', e);
-            }
-        }
-        return defaultFormData;
-    });
-
-    // Auto-save draft to localStorage every 10 seconds
-    useEffect(() => {
-        if (cvId) return;
-
-        const interval = setInterval(() => {
-            try {
-                const draftData = {
-                    template: selectedTemplate,
-                    formData: {
-                        ...formData,
-                        personalInfo: {
-                            ...formData.personalInfo,
-                            profileImage: null,
-                            profileImagePreview: null
-                        }
-                    },
-                    savedAt: new Date().toISOString()
-                };
-                localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
-            } catch (e) {
-                console.error('Failed to save draft:', e);
-            }
-        }, 10000);
-
-        return () => clearInterval(interval);
-    }, [formData, selectedTemplate, cvId]);
-
-    // Auto-save to My CVs when user leaves the page
-    useEffect(() => {
-        if (cvId || !accessToken) return;
-
-        const saveToMyCVs = async () => {
-            try {
-                // Only save if there's actual data (not empty)
-                const hasData = formData.personalInfo?.name?.trim() || 
-                                formData.experience?.some(e => e.role?.trim()) ||
-                                formData.skills?.length > 0;
-                if (!hasData) return;
-
-                const projectsArray = formData.projects
-                    ? formData.projects.split("\n").filter(p => p.trim()).map(p => {
-                        const parts = p.split("|");
-                        return {
-                            title: parts[0]?.trim() || "Project",
-                            description: parts[1]?.trim() || p.trim(),
-                            githubLink: "",
-                            liveLink: ""
-                        };
-                    })
-                    : [];
-
-                const cvData = {
-                    name: formData.personalInfo.name || "Untitled CV",
-                    title: formData.personalInfo.title || "",
-                    email: formData.personalInfo.email || "",
-                    phone: formData.personalInfo.phone || "",
-                    address: formData.personalInfo.address || "",
-                    summary: formData.personalInfo.about || "",
-                    linkedin: formData.personalInfo.linkedin || "",
-                    github: formData.personalInfo.github || "",
-                    template: selectedTemplate,
-                    experience: formData.experience || [],
-                    education: formData.education || [],
-                    skills: formData.skills || [],
-                    projects: projectsArray,
-                    languages: formData.languages || "",
-                    certifications: formData.certifications || ""
-                };
-
-                await cvApi.createCv({ accessToken, refreshAccessToken, cv: cvData });
-                localStorage.removeItem(DRAFT_KEY);
-            } catch (err) {
-                console.error('Auto-save to My CVs failed:', err);
-            }
-        };
-
-        const handleBeforeUnload = (e) => {
-            // Save synchronously to localStorage first
-            try {
-                const draftData = {
-                    template: selectedTemplate,
-                    formData: { ...formData, personalInfo: { ...formData.personalInfo, profileImage: null, profileImagePreview: null } },
-                    savedAt: new Date().toISOString(),
-                    pendingSave: true
-                };
-                localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
-            } catch (e) {
-                console.error(e);
-            }
-        };
-
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        
-        // Also save when visibility changes (tab switch, minimize)
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'hidden') {
-                saveToMyCVs();
-            }
-        };
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, [formData, selectedTemplate, accessToken, refreshAccessToken, cvId]);
-
-    // Clear draft when component unmounts if on preview step
-    useEffect(() => {
-        return () => {
-            if (activeStep === 4) {
-                localStorage.removeItem(DRAFT_KEY);
-            }
-        };
-    }, [activeStep]);
+    const [formData, setFormData] = useState(defaultFormData);
 
     useEffect(() => {
         const fetchCvData = async () => {
@@ -219,8 +87,8 @@ export default function CVBuilder() {
                         languages: cv.languages || "",
                         certifications: cv.certifications || ""
                     }));
-                    // Clear draft when loading existing CV
-                    localStorage.removeItem(DRAFT_KEY);
+                    setDraftId(cv._id);
+                    setLastSavedAt(cv.lastSavedAt || cv.updatedAt || "");
                 }
             } catch {
                 setErrorMessage(t("Failed CVs"));
@@ -261,6 +129,77 @@ export default function CVBuilder() {
             }));
         }
     };
+
+    const buildProjectsArray = () =>
+        formData.projects
+            ? formData.projects.split("\n").filter((p) => p.trim()).map((p) => {
+                const parts = p.split("|");
+                return {
+                    title: parts[0]?.trim() || "Project",
+                    description: parts[1]?.trim() || p.trim(),
+                    githubLink: parts[2]?.trim() || "",
+                    liveLink: parts[3]?.trim() || "",
+                };
+            })
+            : [];
+
+    const buildCvData = useCallback((status = "draft") => ({
+        name: formData.personalInfo.name || "Untitled Draft",
+        title: formData.personalInfo.title || "",
+        email: formData.personalInfo.email || "",
+        phone: formData.personalInfo.phone || "",
+        address: formData.personalInfo.address || "",
+        dob: formData.personalInfo.dob || "",
+        summary: formData.personalInfo.about || "",
+        linkedin: formData.personalInfo.linkedin || "",
+        github: formData.personalInfo.github || "",
+        templateId: selectedTemplate,
+        templateCategory: selectedCategory || "saved",
+        experience: formData.experience || [],
+        education: formData.education || [],
+        skills: formData.skills || [],
+        projects: buildProjectsArray(),
+        languages: formData.languages || "",
+        certifications: formData.certifications || "",
+        status,
+    }), [formData, selectedTemplate, selectedCategory]);
+
+    const persistDraft = useCallback(async (isAuto = false) => {
+        if (!accessToken) return null;
+        const cvData = buildCvData("draft");
+        try {
+            const res = await cvApi.saveDraft({
+                accessToken,
+                refreshAccessToken,
+                cv: {
+                    ...cvData,
+                    draftId: draftId || undefined,
+                },
+            });
+            if (res?.data?._id) {
+                setDraftId(res.data._id);
+                setLastSavedAt(res.data.lastSavedAt || new Date().toISOString());
+            }
+            return res?.data?._id || null;
+        } catch (err) {
+            return null;
+        }
+    }, [accessToken, refreshAccessToken, buildCvData, draftId, t]);
+
+    useEffect(() => {
+        if (!accessToken) return;
+        if (skipAutosaveRef.current) {
+            skipAutosaveRef.current = false;
+            return;
+        }
+        if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+        autosaveTimerRef.current = setTimeout(() => {
+            persistDraft(true);
+        }, 3000);
+        return () => {
+            if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+        };
+    }, [formData, persistDraft, accessToken]);
 
     const handleMagicImport = async (file) => {
         if (!file) return;
@@ -334,41 +273,18 @@ export default function CVBuilder() {
         setLoading(true);
         const loadingToast = toast.loading(t("Saving CV..."));
         try {
-            // Convert projects string to array format
-            const projectsArray = formData.projects
-                ? formData.projects.split("\n").filter(p => p.trim()).map(p => {
-                    const parts = p.split("|");
-                    return {
-                        title: parts[0]?.trim() || "Project",
-                        description: parts[1]?.trim() || p.trim(),
-                        githubLink: "",
-                        liveLink: ""
-                    };
-                })
-                : [];
+            let targetId = draftId;
+            if (!targetId) {
+                targetId = await persistDraft(true);
+            }
+            if (!targetId) {
+                throw new Error("Draft save failed before finalize.");
+            }
 
-            const cvData = {
-                name: formData.personalInfo.name,
-                title: formData.personalInfo.title,
-                email: formData.personalInfo.email,
-                phone: formData.personalInfo.phone,
-                address: formData.personalInfo.address,
-                summary: formData.personalInfo.about,
-                linkedin: formData.personalInfo.linkedin,
-                github: formData.personalInfo.github,
-                template: selectedTemplate,
-                experience: formData.experience,
-                education: formData.education,
-                skills: formData.skills,
-                projects: projectsArray,
-                languages: formData.languages,
-                certifications: formData.certifications
-            };
-
-            const res = await cvApi.createCv({ accessToken, refreshAccessToken, cv: cvData });
+            const res = await cvApi.finalizeCV({ accessToken, refreshAccessToken, id: targetId });
             if (res.success) {
                 toast.success(t("CV saved successfully!"), { id: loadingToast });
-                localStorage.removeItem(DRAFT_KEY); // Clear draft after saving
+                setLastSavedAt(res?.data?.updatedAt || new Date().toISOString());
             } else {
                 toast.error(t("Failed to save CV"), { id: loadingToast });
             }
@@ -404,8 +320,16 @@ export default function CVBuilder() {
                             {renderStepContent(activeStep)}
                         </Box>
 
+                        {lastSavedAt && (
+                            <Typography variant="caption" sx={{ color: "#6B7280", mt: 2, display: "block" }}>
+                                {t("Last saved at")}: {new Date(lastSavedAt).toLocaleString()}
+                            </Typography>
+                        )}
+
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 8 }}>
-                            <Button disabled={activeStep === 0} onClick={handleBack} startIcon={<ChevronLeft size={20} />}>{t("Back")}</Button>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Button disabled={activeStep === 0} onClick={handleBack} startIcon={<ChevronLeft size={20} />}>{t("Back")}</Button>
+                            </Box>
                             {activeStep < 3 && <Button variant="contained" onClick={handleNext} endIcon={<ChevronRight size={20} />}>{t("Next Step")}</Button>}
                         </Box>
                     </Paper>
