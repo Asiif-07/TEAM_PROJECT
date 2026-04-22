@@ -84,7 +84,7 @@ const updateCv = AsyncHandler(async (req, res, next) => {
         updateData.profileImage = result.secure_url;
     }
 
-    const updatedCv = await Cv.findByIdAndUpdate(id, updateData, { new: true });
+    const updatedCv = await Cv.findByIdAndUpdate(id, updateData, { returnDocument: 'after' });
 
     res.status(200).json({
         success: true,
@@ -182,7 +182,7 @@ const saveDraft = AsyncHandler(async (req, res, next) => {
         if (existing.userId.toString() !== userId.toString()) {
             throw new CustomError(403, "Not authorized to update this draft");
         }
-        cv = await Cv.findByIdAndUpdate(targetId, payload, { new: true, runValidators: true });
+        cv = await Cv.findByIdAndUpdate(targetId, payload, { returnDocument: 'after', runValidators: true });
     } else {
         cv = await Cv.create(payload);
     }
@@ -228,7 +228,7 @@ const updateDraft = AsyncHandler(async (req, res, next) => {
         throw new CustomError(400, "Cannot update - CV is already finalized");
     }
 
-    const updatedCv = await Cv.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+    const updatedCv = await Cv.findByIdAndUpdate(id, updateData, { returnDocument: 'after', runValidators: true });
 
     res.status(200).json({
         success: true,
@@ -257,7 +257,7 @@ const finalizeCV = AsyncHandler(async (req, res, next) => {
         throw new CustomError(400, "Please fill all required fields before finalizing");
     }
 
-    const finalizedCv = await Cv.findByIdAndUpdate(id, { status: 'completed', lastSavedAt: new Date() }, { new: true });
+    const finalizedCv = await Cv.findByIdAndUpdate(id, { status: 'completed', lastSavedAt: new Date() }, { returnDocument: 'after' });
 
     res.status(200).json({
         success: true,

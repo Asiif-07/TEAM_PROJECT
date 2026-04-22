@@ -151,7 +151,7 @@ const UpdateProfilePic = AsyncHandler(async (req, res, next) => {
                     }
                 }
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         res.status(200).json({
