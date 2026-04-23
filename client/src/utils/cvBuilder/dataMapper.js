@@ -31,6 +31,7 @@ export const mapParsedDataToTemplate = (data) => {
 
         skills: Array.isArray(data.skills) ? data.skills : [],
         languages: data.languages || "",
+        customFields: data.customFields || {},
         projects: Array.isArray(data.projects)
             ? data.projects.map(p => `${p.title} | ${p.description}`).join("\n")
             : data.projects || ""

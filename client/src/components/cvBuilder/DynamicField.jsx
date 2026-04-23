@@ -2,7 +2,7 @@ import React from "react";
 import { TextField, Checkbox, FormControlLabel, Grid } from "@mui/material";
 
 export default function DynamicField({ field, value, onChange }) {
-    const { type, label, name, required, grid = 12 } = field;
+    const { type, label, name, required, placeholder, grid = 12 } = field;
 
     const handleChange = (e) => {
         const val = type === "checkbox" ? e.target.checked : e.target.value;
@@ -14,6 +14,7 @@ export default function DynamicField({ field, value, onChange }) {
         label,
         name,
         required,
+        placeholder: placeholder || "",
         value: value || "",
         onChange: handleChange,
         size: "small",

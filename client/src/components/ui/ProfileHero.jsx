@@ -40,7 +40,7 @@ const ProfileHero = () => {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">
           About{" "}
           <span className="bg-linear-to-r from-[#2563EB] to-[#38BDF8] bg-clip-text text-transparent">
-            Curriculum.ai
+            CareerForge.AI
           </span>
         </h1>
 

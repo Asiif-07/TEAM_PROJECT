@@ -60,7 +60,7 @@ export function deleteCv({ accessToken, refreshAccessToken, id }) {
 }
 
 export function getCvById({ accessToken, refreshAccessToken, id }) {
-  return apiRequest(`/api/v1/cv/cv/${id}`, {
+  return apiRequest(`/api/v1/cv/${id}`, {
     method: "GET",
     accessToken,
     refreshAccessToken,
@@ -68,9 +68,62 @@ export function getCvById({ accessToken, refreshAccessToken, id }) {
 }
 
 export function updateCv({ accessToken, refreshAccessToken, id, cvData }) {
-  return apiRequest(`/api/v1/cv/cv/${id}`, {
+  return apiRequest(`/api/v1/cv/${id}`, {
     method: "PUT",
     body: cvData,
+    accessToken,
+    refreshAccessToken,
+  });
+}
+
+async function withRetry(requestFn, retries = 2, delayMs = 900) {
+  let lastErr;
+  for (let i = 0; i <= retries; i += 1) {
+    try {
+      return await requestFn();
+    } catch (err) {
+      lastErr = err;
+      if (i === retries) break;
+      await new Promise((resolve) => setTimeout(resolve, delayMs * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
+
+// Draft API Functions
+export function saveDraft({ accessToken, refreshAccessToken, cv }) {
+  return withRetry(() =>
+    apiRequest("/api/v1/cv/save-draft", {
+      method: "POST",
+      body: cv,
+      accessToken,
+      refreshAccessToken,
+    })
+  );
+}
+
+export function getMyDrafts({ accessToken, refreshAccessToken }) {
+  return apiRequest("/api/v1/cv/my-drafts", {
+    method: "GET",
+    accessToken,
+    refreshAccessToken,
+  });
+}
+
+export function updateDraft({ accessToken, refreshAccessToken, id, cvData }) {
+  return withRetry(() =>
+    apiRequest(`/api/v1/cv/${id}`, {
+      method: "PUT",
+      body: cvData,
+      accessToken,
+      refreshAccessToken,
+    })
+  );
+}
+
+export function finalizeCV({ accessToken, refreshAccessToken, id }) {
+  return apiRequest(`/api/v1/cv/finalize/${id}`, {
+    method: "PUT",
     accessToken,
     refreshAccessToken,
   });

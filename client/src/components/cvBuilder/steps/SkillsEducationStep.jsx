@@ -7,6 +7,7 @@ import { useAuth } from "../../../context/AuthContext";
 import * as aiApi from "../../../api/ai";
 import PremiumInput from "../PremiumInput";
 import { getTemplateConfig } from "../../../utils/cvBuilder/templateConfig";
+import AdditionalSectionsEditor from "../AdditionalSectionsEditor";
 
 export default function SkillsEducationStep({
   formData,
@@ -304,6 +305,7 @@ export default function SkillsEducationStep({
             onChange={handleChange}
           />
         )}
+        <AdditionalSectionsEditor formData={formData} setFormData={setFormData} />
       </Box>
     </Grow>
   );

@@ -447,7 +447,7 @@ const RefreshToken = AsyncHandler(async (req, res, next) => {
         refreshToken: [{ token: newRefreshToken, createdAt: Date.now() }],
       },
     },
-    { new: true }
+    { returnDocument: 'after' }
   )
 
   if (!updatedUser) {

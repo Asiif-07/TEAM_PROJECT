@@ -9,68 +9,117 @@ const cvSchema = new mongoose.Schema({
 
   email: {
     type: String,
-    required: true
+    required: function() {
+      return this.status === 'completed';
+    }
   },
 
   phone: {
     type: String,
-    required: true
+    required: function() {
+      return this.status === 'completed';
+    }
+  },
+
+  title: {
+    type: String,
+    default: ""
+  },
+
+  address: {
+    type: String,
+    default: ""
+  },
+
+  dob: {
+    type: String,
+    default: ""
+  },
+
+  languages: {
+    type: String,
+    default: ""
+  },
+
+  certifications: {
+    type: String,
+    default: ""
   },
 
   github: {
     type: String,
-    required: false
+    default: ""
   },
 
   linkedin: {
     type: String,
-    required: false
+    default: ""
   },
 
   summary: {
     type: String,
-    required: true
+    default: ""
   },
+
+  additionalSections: [
+    {
+      id: { type: String, default: "" },
+      title: { type: String, default: "" },
+      content: { type: String, default: "" },
+    }
+  ],
 
   education: [
     {
       degree: {
         type: String,
-        required: true
+        default: ""
       },
       institute: {
         type: String,
-        required: true
+        default: ""
       },
-      year: {
+      startDate: {
         type: String,
-        required: true
+        default: ""
+      },
+      endDate: {
+        type: String,
+        default: ""
+      },
+      current: {
+        type: Boolean,
+        default: false
+      },
+      description: {
+        type: String,
+        default: ""
       }
     }
   ],
 
   skills: {
     type: [String],
-    required: true
+    default: []
   },
 
   projects: [
     {
       title: {
         type: String,
-        required: true
+        default: ""
       },
       description: {
         type: String,
-        required: true
+        default: ""
       },
       githubLink: {
         type: String,
-        required: false
+        default: ""
       },
       liveLink: {
         type: String,
-        required: false // optional
+        default: ""
       }
     }
   ],
@@ -79,31 +128,58 @@ const cvSchema = new mongoose.Schema({
     {
       role: {
         type: String,
-        required: true
+        default: ""
       },
       company: {
         type: String,
-        required: true
+        default: ""
       },
-      duration: {
+      startDate: {
         type: String,
-        required: true
+        default: ""
+      },
+      endDate: {
+        type: String,
+        default: ""
+      },
+      current: {
+        type: Boolean,
+        default: false
       },
       description: {
         type: String,
-        required: true
+        default: ""
       }
     }
   ],
+
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
+
   templateId: {
     type: String,
-    default: "american-style"
+    default: "classic-red"
   },
+
+  templateCategory: {
+    type: String,
+    default: "saved"
+  },
+
+  status: {
+    type: String,
+    enum: ['draft', 'completed'],
+    default: 'draft'
+  },
+
+  lastSavedAt: {
+    type: Date,
+    default: Date.now
+  },
+
   profileImage: {
     secure_url: { type: String },
     public_id: { type: String }
