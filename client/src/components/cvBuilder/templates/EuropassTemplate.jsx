@@ -13,7 +13,7 @@ import {
   Calendar,
   User
 } from "lucide-react";
-import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
+import europassLogo from "../../../assets/images/euro poass.png";
 
 // Official Europass Section Component
 const EuropassSection = (props) => {
@@ -124,6 +124,9 @@ export default function EuropassTemplate({ data }) {
              </Box>
           </Grid>
           <Grid item xs={8.5}>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+              <Box component="img" src={europassLogo} alt="Europass Logo" sx={{ height: 60, objectFit: "contain" }} />
+            </Box>
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h3" sx={{ fontWeight: 900, color: "#111827", mb: 1, letterSpacing: -1.5, lineHeight: 1, wordBreak: "break-word", overflowWrap: "break-word" }}>
                 {personalInfo.name || "YOUR NAME"}
