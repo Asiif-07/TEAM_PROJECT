@@ -34,6 +34,11 @@ const CvSchema = z.object({
     duration: z.string().min(1, "Duration is required"),
     description: z.string().min(1, "Description is required")
   })),
+  additionalSections: z.array(z.object({
+    id: z.string().optional(),
+    title: z.string().min(1, "Section title is required"),
+    content: z.string().min(1, "Section content is required")
+  })).optional(),
   templateId: z.string().optional(),
 });
 

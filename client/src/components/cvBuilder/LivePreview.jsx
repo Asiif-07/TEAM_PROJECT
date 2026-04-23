@@ -7,9 +7,6 @@ import KoreanTemplate from "./templates/KoreanTemplate";
 import ModernTemplate from "./templates/ModernTemplate";
 import MinimalistTemplate from "./templates/MinimalistTemplate";
 import CreativeTemplate from "./templates/CreativeTemplate";
-import ExecutiveTemplate from "./templates/ExecutiveTemplate";
-import GradientWaveTemplate from "./templates/GradientWaveTemplate";
-import TechPremiumTemplate from "./templates/TechPremiumTemplate";
 
 import BlackPro from "./templates/BlackPro";
 import BlackWhite from "./templates/BlackWhite";
@@ -32,6 +29,7 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
             education: formData.education ? formData.education.map(edu => ({ ...edu })) : [],
             skills: formData.skills ? [...formData.skills] : []
         };
+        d.customFields = formData.customFields || {};
 
         const formatDate = (dateStr) => {
             if (!dateStr) return '';
@@ -58,6 +56,7 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
 
         return d;
     }, [formData]);
+
 
     const renderTemplate = () => {
         const tId = String(selectedTemplate || "").toLowerCase();

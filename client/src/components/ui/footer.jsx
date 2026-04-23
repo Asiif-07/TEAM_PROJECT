@@ -195,7 +195,7 @@ export default function Footer() {
             </div>
 
             <div className="flex items-center gap-4">
-              <p className="text-gray-400 text-sm">© 2025® 2024 CurriculumVit.AI. {t("All rights reserved")}.</p>
+              <p className="text-gray-400 text-sm">© 2026 CareerForge.AI. {t("All rights reserved")}.</p>
               <div className="flex gap-3">
                 <a href="#" className="text-gray-400 hover:text-white transition-colors">
                   <TwitterIcon />

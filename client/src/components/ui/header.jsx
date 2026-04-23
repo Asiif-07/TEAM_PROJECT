@@ -17,7 +17,7 @@ import {
 import LanguageIcon from "@mui/icons-material/Language";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useAuth } from "../../context/AuthContext";
-import logo from "../../assets/images/logo.png";
+import logo from "../../assets/images/newlogo.png";
 
 
 const languages = [
@@ -99,8 +99,8 @@ const Header = () => {
         }}
       >
         {/* Logo (clickable, goes to home) */}
-        <Box component={Link} to="/" sx={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0, textDecoration: "none" }}>
-          <Box component="img" src={logo} alt="Logo" sx={{ width: 36, height: 36 }} />
+        <Box component={Link} to="/" sx={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0, textDecoration: "none" }}>
+          <Box component="img" src={logo} alt="Logo" sx={{ width: 54, height: 54, objectFit: "contain" ,marginTop: "10px",marginLeft: "5px"}} />
           <Typography
             sx={{
               fontFamily: "Inter, sans-serif",
@@ -110,7 +110,7 @@ const Header = () => {
               whiteSpace: "nowrap",
             }}
           >
-            CurriculumVit.AI
+            CareerForge.AI
           </Typography>
         </Box>
 
@@ -353,8 +353,8 @@ const Header = () => {
           },
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 4 }}>
-          <Box component="img" src={logo} alt="Logo" sx={{ width: 36, height: 36 }} />
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "2px", mb: 4 }}>
+          <Box component="img" src={logo} alt="Logo" sx={{ width: 44, height: 44, objectFit: "contain" ,marginTop: "20px"}} />
           <Typography
             sx={{
               fontFamily: "Inter, sans-serif",
@@ -363,7 +363,7 @@ const Header = () => {
               color: "#1E3A8A",
             }}
           >
-            CurriculumVit.AI
+            CareerForge.AI
           </Typography>
         </Box>
 
