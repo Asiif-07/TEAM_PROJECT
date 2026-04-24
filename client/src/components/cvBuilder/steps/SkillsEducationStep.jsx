@@ -216,7 +216,8 @@ export default function SkillsEducationStep({
                   />
                   <TextField
                     label={t("Start Date")}
-                    placeholder="e.g. 2019"
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
                     value={item.startDate || ''}
                     onChange={(e) => {
                       const v = e.target.value;
@@ -230,7 +231,8 @@ export default function SkillsEducationStep({
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     <TextField
                       label={item.current ? t("Present") : t("End Date")}
-                      placeholder="e.g. 2021"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
                       value={item.endDate || ''}
                       disabled={item.current}
                       onChange={(e) => {

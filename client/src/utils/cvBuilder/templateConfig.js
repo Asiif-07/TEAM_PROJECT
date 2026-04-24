@@ -150,7 +150,7 @@ export const templateConfigs = {
     },
     "monochrome-simple": {
         usePhoto: true,
-        sections: ["personalInfo","about", "experience", "education", "skills"],
+        sections: ["personalInfo", "about", "experience", "education", "skills"],
         customFields: {
             personalInfo: [
                 { name: "name", label: "Name", placeholder: "e.g. Marcus Lee", required: true },

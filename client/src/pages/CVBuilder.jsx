@@ -54,6 +54,11 @@ export default function CVBuilder() {
         projects: "",
         languages: "",
         certifications: "",
+        volunteer: [],
+        awards: [],
+        publications: [],
+        interests: [],
+        references: [],
         additionalSections: []
     };
 
@@ -67,26 +72,14 @@ export default function CVBuilder() {
                 const response = await cvApi.getCvById({ accessToken, refreshAccessToken, id: cvId });
                 if (response.success && response.data) {
                     const cv = response.data;
+                    const mappedData = mapParsedDataToTemplate(cv);
                     setFormData(prev => ({
                         ...prev,
+                        ...mappedData,
                         personalInfo: {
                             ...prev.personalInfo,
-                            name: cv.name || "",
-                            title: cv.title || "",
-                            email: cv.email || "",
-                            phone: cv.phone || "",
-                            address: cv.address || "",
-                            about: cv.summary || "",
-                            linkedin: cv.linkedin || "",
-                            github: cv.github || ""
-                        },
-                        experience: cv.experience?.length ? cv.experience : [{ role: "", company: "", startDate: "", endDate: "", current: false, description: "" }],
-                        education: cv.education?.length ? cv.education : [{ degree: "", institute: "", startDate: "", endDate: "", current: false, description: "" }],
-                        skills: cv.skills || [],
-                        projects: (cv.projects || []).map(p => `${p.title} | ${p.description}`).join("\n"),
-                        languages: cv.languages || "",
-                        certifications: cv.certifications || "",
-                        additionalSections: Array.isArray(cv.additionalSections) ? cv.additionalSections : []
+                            ...mappedData.personalInfo,
+                        }
                     }));
                     setDraftId(cv._id);
                     setLastSavedAt(cv.lastSavedAt || cv.updatedAt || "");
@@ -144,27 +137,54 @@ export default function CVBuilder() {
             })
             : [], [formData.projects]);
 
-    const buildCvData = useCallback((status = "draft") => ({
-        name: formData.personalInfo.name || "Untitled Draft",
-        title: formData.personalInfo.title || "",
-        email: formData.personalInfo.email || "",
-        phone: formData.personalInfo.phone || "",
-        address: formData.personalInfo.address || "",
-        dob: formData.personalInfo.dob || "",
-        summary: formData.personalInfo.about || "",
-        linkedin: formData.personalInfo.linkedin || "",
-        github: formData.personalInfo.github || "",
-        templateId: selectedTemplate,
-        templateCategory: selectedCategory || "saved",
-        experience: formData.experience || [],
-        education: formData.education || [],
-        skills: formData.skills || [],
-        projects: buildProjectsArray(),
-        languages: formData.languages || "",
-        certifications: formData.certifications || "",
-        additionalSections: Array.isArray(formData.additionalSections) ? formData.additionalSections : [],
-        status,
-    }), [formData, selectedTemplate, selectedCategory, buildProjectsArray]);
+    const buildCvData = useCallback((status = "draft") => {
+        // Transformations for Backend
+        const languagesArray = formData.languages
+            ? formData.languages.split(",").map(l => ({ language: l.trim(), fluency: "" })).filter(l => l.language)
+            : [];
+
+        const certificatesArray = formData.certifications
+            ? formData.certifications.split("\n").map(c => ({ name: c.trim(), date: null, issuer: "", url: "" })).filter(c => c.name)
+            : [];
+
+        return {
+            name: formData.personalInfo.name || "Untitled Draft",
+            title: formData.personalInfo.title || "",
+            label: formData.personalInfo.title || "", // New field
+            email: formData.personalInfo.email || "",
+            phone: formData.personalInfo.phone || "",
+            url: "", // Personal Website placeholder
+            github: formData.personalInfo.github || "",
+            linkedin: formData.personalInfo.linkedin || "",
+            location: {
+                address: formData.personalInfo.address || "",
+                city: "",
+                region: "",
+                countryCode: "",
+                postalCode: ""
+            },
+            summary: formData.personalInfo.about || "",
+            templateId: selectedTemplate,
+            templateCategory: selectedCategory || "saved",
+            experience: (formData.experience || [])
+                .filter(exp => exp.role?.trim() || exp.company?.trim() || exp.description?.trim())
+                .map(exp => ({ ...exp, isCurrent: !!exp.current })),
+            education: (formData.education || [])
+                .filter(edu => edu.degree?.trim() || edu.institute?.trim())
+                .map(edu => ({ ...edu, isCurrent: !!edu.current })),
+            skills: formData.skills || [],
+            projects: buildProjectsArray(),
+            languages: languagesArray,
+            certificates: certificatesArray,
+            volunteer: formData.volunteer || [],
+            awards: formData.awards || [],
+            publications: formData.publications || [],
+            interests: formData.interests || [],
+            references: formData.references || [],
+            additionalSections: Array.isArray(formData.additionalSections) ? formData.additionalSections : [],
+            status,
+        };
+    }, [formData, selectedTemplate, selectedCategory, buildProjectsArray]);
 
     const persistDraft = useCallback(async () => {
         if (!accessToken) return null;
@@ -294,7 +314,8 @@ export default function CVBuilder() {
             } else {
                 toast.dismiss(loadingToast);
             }
-        } catch {
+        } catch (err) {
+            console.error("Extraction error:", err);
             if (loadingToast) toast.dismiss(loadingToast);
         } finally {
             setIsExtracting(false);

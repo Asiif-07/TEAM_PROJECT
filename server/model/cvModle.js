@@ -1,17 +1,15 @@
 import mongoose from "mongoose";
 
 const cvSchema = new mongoose.Schema({
-  // --- ORIGINAL FIELDS ---
-  name: { type: String, required: true, trim: true },
-  email: { type: String, required: true, trim: true, lowercase: true },
-  phone: { type: String, required: true, trim: true },
+  // --- PERSONAL INFO (Mostly Optional for Drafts) ---
+  name: { type: String, trim: true },
+  email: { type: String, trim: true, lowercase: true },
+  phone: { type: String, trim: true },
   github: { type: String, trim: true },
   linkedin: { type: String, trim: true },
-  summary: { type: String, required: true },
-  
-  // --- NEW BASIC FIELDS (Flattened, No 'basics' wrapper) ---
-  label: { type: String, trim: true }, // e.g., "Programmer"
-  url: { type: String, trim: true },   // Personal Website
+  summary: { type: String },
+  label: { type: String, trim: true },
+  url: { type: String, trim: true },
   location: {
     address: { type: String, trim: true },
     postalCode: { type: String, trim: true },
@@ -20,62 +18,61 @@ const cvSchema = new mongoose.Schema({
     region: { type: String, trim: true }
   },
 
-  // --- ORIGINAL ARRAYS ---
+  // --- ARRAYS (Strings for Dates to support free typing) ---
   education: [
     {
-      degree: { type: String, required: true },
-      institute: { type: String, required: true },
-      startDate: { type: Date, required: true },
-      endDate: { type: Date }, 
+      degree: { type: String },
+      institute: { type: String },
+      startDate: { type: String }, // Switched from Date to String
+      endDate: { type: String },   // Switched from Date to String
       isCurrent: { type: Boolean, default: false }
     }
   ],
-  skills: { type: [String], required: true },
+  skills: { type: [String], default: [] },
   projects: [
     {
-      title: { type: String, required: true },
-      description: { type: String, required: true },
+      title: { type: String },
+      description: { type: String },
       githubLink: { type: String, trim: true },
       liveLink: { type: String, trim: true }
     }
   ],
   experience: [
     {
-      role: { type: String, required: true },
-      company: { type: String, required: true },
-      startDate: { type: Date, required: true },
-      endDate: { type: Date }, 
+      role: { type: String },
+      company: { type: String },
+      startDate: { type: String }, // Switched from Date to String
+      endDate: { type: String },   // Switched from Date to String
       isCurrent: { type: Boolean, default: false },
-      description: { type: String, required: true }
+      description: { type: String }
     }
   ],
 
-  // --- NEW JSON RESUME ARRAYS ---
   volunteer: [{
     organization: { type: String },
     position: { type: String },
     url: { type: String },
-    startDate: { type: Date },
-    endDate: { type: Date },
+    startDate: { type: String },
+    endDate: { type: String },
     summary: { type: String },
     highlights: [{ type: String }]
   }],
   awards: [{
     title: { type: String },
-    date: { type: Date },
+    date: { type: String },
     awarder: { type: String },
     summary: { type: String }
   }],
   certificates: [{
     name: { type: String },
-    date: { type: Date },
+    date: { type: String },
     issuer: { type: String },
     url: { type: String }
   }],
   publications: [{
     name: { type: String },
     publisher: { type: String },
-    releaseDate: { type: Date },
+    releaseDate: { type: String },
     url: { type: String },
     summary: { type: String }
   }],
@@ -92,17 +89,23 @@ const cvSchema = new mongoose.Schema({
     reference: { type: String }
   }],
 
-  // --- ORIGINAL RELATIONS & META ---
+  // --- META & RELATIONS ---
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true // Keeping only userId as strictly required
   },
   templateId: { type: String, default: "american-style" },
   profileImage: {
     secure_url: { type: String },
     public_id: { type: String }
-  }
+  },
+  additionalSections: [
+    {
+      title: { type: String },
+      details: { type: String }
+    }
+  ]
 }, { timestamps: true });
 
 const Cv = mongoose.model("Cv", cvSchema);

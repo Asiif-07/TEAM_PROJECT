@@ -31,6 +31,7 @@ export default function DynamicField({ field, value, onChange }) {
             {type === "text" && <TextField {...commonProps} />}
             {type === "email" && <TextField {...commonProps} type="email" />}
             {type === "phone" && <TextField {...commonProps} type="tel" />}
+            {/* RESTORED NATIVE CALENDAR: */}
             {type === "date" && <TextField {...commonProps} type="date" InputLabelProps={{ shrink: true }} />}
             {type === "checkbox" && (
                 <FormControlLabel

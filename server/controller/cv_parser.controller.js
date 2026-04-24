@@ -1,4 +1,4 @@
-import pdfParse from "pdf-extraction"; 
+import pdfParse from "pdf-extraction";
 import mammoth from "mammoth";
 import { groq } from "../config/groq.js";
 import CustomError from "../handler/CustomError.js";
@@ -26,36 +26,52 @@ export const parseUploadedCV = AsyncHandler(async (req, res, next) => {
         }
 
         // 2. Prompt built specifically for a Reasoning AI
-        const systemContent = `You are an expert data extraction AI. Think step-by-step about the provided resume text and map it perfectly to the requested JSON schema.
+        const systemContent = `You are a precision data extraction engine. You have been failing to extract the Education section—this is a CRITICAL error. You must fix this now.
 
-        CRITICAL RULES:
-        1. DATES: Look for dates in parentheses (e.g., "(2019-2021)") that appear directly before or after an institution name. Link them properly to the correct school or certificate.
-        2. ARRAYS: If a category like experience, projects, or volunteer work is missing from the resume, output an completely empty array []. Do not create empty template objects inside them.
-        3. FORMAT: Output ONLY valid JSON inside your final response.
+### PRIORITY #1: EDUCATION EXTRACTION
+- Look for the following keywords: "Education", "Academic Background", "University", "College", "Schooling", "Qualifications".
+- If you see a University name or a Degree (e.g., BS, BA, MSc, PhD), it MUST be mapped to the "education" array.
+- DO NOT SKIP THIS SECTION. Even if the formatting is strange, extract the text.
 
-        JSON SCHEMA TO FOLLOW:
-        {
-            "name": "",
-            "label": "",
-            "email": "",
-            "phone": "",
-            "url": "",
-            "github": "",
-            "linkedin": "",
-            "location": { "address": "", "postalCode": "", "city": "", "countryCode": "", "region": "" },
-            "summary": "",
-            "education": [ { "degree": "", "institute": "", "startDate": "", "endDate": "", "isCurrent": false } ],
-            "skills": [],
-            "projects": [],
-            "experience": [],
-            "volunteer": [],
-            "awards": [],
-            "certificates": [ { "name": "", "date": "", "issuer": "", "url": "" } ],
-            "publications": [],
-            "languages": [ { "language": "", "fluency": "" } ],
-            "interests": [],
-            "references": []
-        }`;
+### PRIORITY #2: DATE PRECISION (MONTH & YEAR)
+- For every Education and Experience entry, you MUST extract the Month and Year.
+- Format: "Month Year" (e.g., "August 2021"). 
+- If the PDF only shows years like (2018-2022), you must output "January 2018" and "January 2022".
+
+### PRIORITY #3: CLEANING & FILTERING
+- NO DOB: Date of Birth is strictly FORBIDDEN. Do not extract it.
+- NO DUPLICATES: If you find a Certificate, check if you already extracted it. If the name is the same, delete the duplicate. 
+- You previously extracted 3 certificates when there were only 2. Do not repeat this mistake. Verify the count.
+
+### SCHEMA:
+{
+  "name": "",
+  "email": "",
+  "phone": "",
+  "summary": "",
+  "education": [
+    {
+      "institute": "University/School Name",
+      "degree": "Major or Degree Title",
+      "startDate": "Month Year",
+      "endDate": "Month Year",
+      "isCurrent": false
+    }
+  ],
+  "experience": [],
+  "skills": [],
+  "certificates": [
+    { "name": "Title", "date": "Month Year", "issuer": "" }
+  ]
+}
+
+### FINAL VERIFICATION STEP:
+Before responding, ask yourself: 
+1. Did I find a University? If yes, is it in the JSON? (It MUST be).
+2. Are there months in my dates? 
+3. Did I remove the DOB?
+
+OUTPUT ONLY THE JSON.`;
 
         const userContent = `RAW RESUME TEXT:\n\n${rawText}`;
 
@@ -70,17 +86,17 @@ export const parseUploadedCV = AsyncHandler(async (req, res, next) => {
         });
 
         const textResult = response.choices[0].message.content;
-        
+
         // 4. Strip out the <think> blocks the reasoning model generates
         const cleanText = textResult.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-        
+
         // Extract just the JSON block
         const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
-        
+
         if (!jsonMatch) {
             throw new SyntaxError("AI did not return valid JSON");
         }
-        
+
         const parsedCVData = JSON.parse(jsonMatch[0]);
 
         return res.status(200).json({
@@ -91,17 +107,17 @@ export const parseUploadedCV = AsyncHandler(async (req, res, next) => {
 
     } catch (error) {
         console.error("CV Parsing Error:", error);
-        
+
         if (error instanceof SyntaxError) {
-            return res.status(500).json({ 
-                success: false, 
-                message: "AI failed to format the data correctly. Please try again or fill manually." 
+            return res.status(500).json({
+                success: false,
+                message: "AI failed to format the data correctly. Please try again or fill manually."
             });
         }
 
-        return res.status(500).json({ 
-            success: false, 
-            message: "Server error during CV extraction." 
+        return res.status(500).json({
+            success: false,
+            message: "Server error during CV extraction."
         });
-    }    
+    }
 });

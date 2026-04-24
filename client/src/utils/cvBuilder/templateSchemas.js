@@ -44,7 +44,7 @@ export const templateSchemas = {
         certifications: { type: "textarea", label: "Certifications" }
     },
 
-    // KOREAN SPECIFIC - Adds Date of Birth and Chinese characters name placeholder
+    // KOREAN SPECIFIC
     "korean-standard": {
         personalInfo: [
             { name: "name", label: "성명 (Name)", type: "text", required: true, grid: 4 },

@@ -20,7 +20,7 @@ const DateRowItem = ({ dates, title, subtitle, description }) => (
                 {dates}
             </Typography>
         </Box>
-        
+
         {/* Right Column: Content */}
         <Box sx={{ flex: 1 }}>
             <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', mb: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.85rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
@@ -36,12 +36,12 @@ const DateRowItem = ({ dates, title, subtitle, description }) => (
 );
 
 export default function BlackWhite({ data }) {
-    
+
     // Aggressively check for multiple possible names your form might be using
-    const { 
-        personalInfo = {}, 
-        experience = [], 
-        education = [], 
+    const {
+        personalInfo = {},
+        experience = [],
+        education = [],
         skills = []
     } = data || {};
 
@@ -55,7 +55,7 @@ export default function BlackWhite({ data }) {
     const getDisplayText = (item) => {
         if (!item) return "";
         if (typeof item === 'string') return item;
-        
+
         if (typeof item === 'object') {
             const possibleKeys = ['name', 'title', 'label', 'value', 'description', 'text', 'degree', 'institute', 'role', 'company'];
             for (let key of possibleKeys) {
@@ -63,7 +63,7 @@ export default function BlackWhite({ data }) {
             }
             const fallbackString = Object.values(item).find(v => typeof v === 'string');
             if (fallbackString) return fallbackString;
-            return ""; 
+            return "";
         }
         return String(item);
     };
@@ -75,7 +75,7 @@ export default function BlackWhite({ data }) {
     const displayPhone = personalInfo.phone || personalInfo.contactNo || personalInfo.contact;
     const displayAddress = personalInfo.address || personalInfo.location;
     const displayEmail = personalInfo.email;
-    
+
     const profileImageUrl = React.useMemo(() => {
         const img = personalInfo.profileImage;
         if (!img) return null;
@@ -90,10 +90,10 @@ export default function BlackWhite({ data }) {
 
     return (
         <Box className="cv-document" sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', fontFamily: '"Arial", sans-serif', boxShadow: 3, bgcolor: 'white', color: '#333', '@media print': { boxShadow: 0 } }}>
-            
+
             {/* ---------------- HEADER ---------------- */}
             <Box sx={{ p: 6, pb: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                
+
                 {/* Profile Picture */}
                 <Box>
                     {profileImageUrl ? (
@@ -113,7 +113,7 @@ export default function BlackWhite({ data }) {
                     <Typography variant="body1" sx={{ color: '#666', mb: 1, letterSpacing: '1px', fontWeight: 500, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                         {personalInfo.title}
                     </Typography>
-                    
+
                     {/* Short line under title */}
                     <Box sx={{ width: '50px', height: '2px', bgcolor: '#999', mb: 1.5 }} />
 
@@ -156,7 +156,7 @@ export default function BlackWhite({ data }) {
                     <SectionBanner title="EDUCATION" />
                     <Box sx={{ mb: 1 }}>
                         {safeEducation.map((edu, idx) => (
-                            <DateRowItem 
+                            <DateRowItem
                                 key={idx}
                                 dates={getDisplayText(edu.year || edu.date)}
                                 title={getDisplayText(edu.institute || edu.school)}
@@ -174,7 +174,7 @@ export default function BlackWhite({ data }) {
                     <SectionBanner title="WORK EXPERIENCE" />
                     <Box sx={{ mb: 1 }}>
                         {safeExperience.map((exp, idx) => (
-                            <DateRowItem 
+                            <DateRowItem
                                 key={idx}
                                 dates={getDisplayText(exp.duration || exp.date)}
                                 title={getDisplayText(exp.company || exp.organization)}
@@ -202,7 +202,7 @@ export default function BlackWhite({ data }) {
                 </Box>
             )}
             <Box sx={{ px: 6, pb: 4 }}>
-              <AdditionalSectionsBlock sections={data?.additionalSections} accentColor="#111827" />
+                <AdditionalSectionsBlock sections={data?.additionalSections} accentColor="#111827" />
             </Box>
 
         </Box>
