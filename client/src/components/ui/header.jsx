@@ -100,7 +100,7 @@ const Header = () => {
       >
         {/* Logo (clickable, goes to home) */}
         <Box component={Link} to="/" sx={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0, textDecoration: "none" }}>
-          <Box component="img" src={logo} alt="Logo" sx={{ width: 54, height: 54, objectFit: "contain" ,marginTop: "10px",marginLeft: "5px"}} />
+          <Box component="img" src={logo} alt="Logo" sx={{ width: 54, height: 54, objectFit: "contain", marginTop: "10px", marginLeft: "5px" }} />
           <Typography
             sx={{
               fontFamily: "Inter, sans-serif",
@@ -354,7 +354,7 @@ const Header = () => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "2px", mb: 4 }}>
-          <Box component="img" src={logo} alt="Logo" sx={{ width: 44, height: 44, objectFit: "contain" ,marginTop: "20px"}} />
+          <Box component="img" src={logo} alt="Logo" sx={{ width: 44, height: 44, objectFit: "contain", marginTop: "20px" }} />
           <Typography
             sx={{
               fontFamily: "Inter, sans-serif",

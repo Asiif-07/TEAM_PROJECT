@@ -30,8 +30,8 @@ const ContactInput = () => {
               <label className="text-sm font-semibold text-slate-700">{t("Your Full Name")}</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Enter your First Name"
                   className="w-full pl-10 pr-4 py-3 rounded-xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                 />
@@ -42,8 +42,8 @@ const ContactInput = () => {
               <label className="text-sm font-semibold text-slate-700">{t("Email Address")}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   placeholder="Enter your Email"
                   className="w-full pl-10 pr-4 py-3 rounded-xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                 />
@@ -57,8 +57,8 @@ const ContactInput = () => {
               <label className="text-sm font-semibold text-slate-700">{t("Company Optional")}</label>
               <div className="relative">
                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Enter your Company / School"
                   className="w-full pl-10 pr-4 py-3 rounded-xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                 />
@@ -69,8 +69,8 @@ const ContactInput = () => {
               <label className="text-sm font-semibold text-slate-700">{t("Phone Optional")}</label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input 
-                  type="tel" 
+                <input
+                  type="tel"
                   placeholder="Enter your Phone Number"
                   className="w-full pl-10 pr-4 py-3 rounded-xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                 />
@@ -81,7 +81,7 @@ const ContactInput = () => {
           {/* Message */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">{t("How Help")}</label>
-            <textarea 
+            <textarea
               placeholder="Enter Message Here"
               rows="4"
               className="w-full p-4 rounded-xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"

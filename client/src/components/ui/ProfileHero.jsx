@@ -2,9 +2,9 @@ import React from "react";
 import sparkleIcon from "../../assets/aboutpic/Sparkle--Streamline-Phosphor.png";
 
 const features = [
-  { label: "AI-Powered",img:"/src/assets/aboutpic/Brain--Streamline-Core.png" },
-  { label: "Human Verified", img:"/src/assets/aboutpic/Star-Badge--Streamline-Core.png" },
-  { label: "Proven Result" ,img:"/src/assets/aboutpic/User-Check-Validate--Streamline-Core.png" },
+  { label: "AI-Powered", img: "/src/assets/aboutpic/Brain--Streamline-Core.png" },
+  { label: "Human Verified", img: "/src/assets/aboutpic/Star-Badge--Streamline-Core.png" },
+  { label: "Proven Result", img: "/src/assets/aboutpic/User-Check-Validate--Streamline-Core.png" },
 ];
 
 const ProfileHero = () => {

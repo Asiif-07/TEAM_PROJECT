@@ -294,7 +294,7 @@ const BlogDetailsCardTypo = () => {
               preparation, your questions can lead to a more engaging and
               productive interview experience, ultimately helping you secure the
               job that best fits your career aspirations. Additionally,
-              optimizing your resume with our curriculum.ai can further enhance
+              optimizing your resume with our CareerForge.AI can further enhance
               your chances of success. Remember, the right questions can
               transform a standard interview into a meaningful conversation that
               benefits both you and your potential employer.
