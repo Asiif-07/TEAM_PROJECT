@@ -117,13 +117,15 @@ export const mapParsedDataToTemplate = (data) => {
 
         // Items that might need to be moved to additionalSections if unsupported by template
         highValueExtras: {
-            Awards: data.awards,
-            Achievements: data.achievements,
-            Interests: data.interests,
-            Hobbies: data.hobbies,
-            Publications: data.publications,
-            Volunteering: data.volunteering,
-            References: data.references
+            "Awards": data.awards,
+            "Achievements": data.achievements,
+            "Interests": data.interests,
+            "Hobbies": data.hobbies,
+            "Publications": data.publications,
+            "Volunteering": data.volunteering,
+            "References": data.references,
+            "Languages": data.languages, // Also send here if the template doesn't support the standard field
+            "Certifications": certifications.length ? certifications.join("\n") : null
         }
     };
 };

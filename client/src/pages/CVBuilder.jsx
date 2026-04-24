@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import * as cvApi from "../api/cv";
 import * as aiApi from "../api/ai";
 import { mapParsedDataToTemplate } from "../utils/cvBuilder/dataMapper";
+import { getTemplateConfig } from "../utils/cvBuilder/templateConfig";
 
 import CustomStepper from "../components/cvBuilder/CustomStepper";
 import LivePreview from "../components/cvBuilder/LivePreview";
@@ -211,11 +212,84 @@ export default function CVBuilder() {
             const res = await aiApi.extractFromPdf({ accessToken, refreshAccessToken, file });
             if (res.success && res.data) {
                 const mappedData = mapParsedDataToTemplate(res.data);
-                setFormData(prev => ({
-                    ...prev,
-                    ...mappedData,
-                    personalInfo: { ...prev.personalInfo, ...mappedData.personalInfo }
-                }));
+                const config = getTemplateConfig(selectedTemplate);
+
+                setFormData(prev => {
+                    // Step 1: Merge Experience & Education (Safety Rule)
+                    const mergedExperience = [...(prev.experience || [])];
+                    if (mappedData.experience?.length) {
+                        mappedData.experience.forEach(newItem => {
+                            // Check if this experience already exists (basic check by role and company)
+                            const exists = mergedExperience.find(e =>
+                                e.role?.toLowerCase() === newItem.role?.toLowerCase() &&
+                                e.company?.toLowerCase() === newItem.company?.toLowerCase()
+                            );
+                            if (!exists && (newItem.role || newItem.company)) {
+                                mergedExperience.push(newItem);
+                            }
+                        });
+                    }
+
+                    const mergedEducation = [...(prev.education || [])];
+                    if (mappedData.education?.length) {
+                        mappedData.education.forEach(newItem => {
+                            const exists = mergedEducation.find(e =>
+                                e.degree?.toLowerCase() === newItem.degree?.toLowerCase() &&
+                                e.institute?.toLowerCase() === newItem.institute?.toLowerCase()
+                            );
+                            if (!exists && (newItem.degree || newItem.institute)) {
+                                mergedEducation.push(newItem);
+                            }
+                        });
+                    }
+
+                    // Step 2: Handle Additional Sections (Dynamic Logic)
+                    const updatedAdditional = [...(prev.additionalSections || [])];
+                    if (mappedData.highValueExtras) {
+                        Object.entries(mappedData.highValueExtras).forEach(([title, content]) => {
+                            if (!content) return;
+
+                            // RULE: Only create "New Section" if it's NOT a standard section 
+                            // AND NOT visible in current template inputs
+                            const standardSections = ["personalInfo", "experience", "education", "skills", "about"];
+                            const isStandard = standardSections.includes(title.toLowerCase()) ||
+                                (title.toLowerCase() === "summary" && standardSections.includes("about"));
+
+                            const isVisible = config.sections?.some(s => s.toLowerCase() === title.toLowerCase());
+
+                            if (!isStandard && !isVisible) {
+                                // Check if this section already exists by title
+                                const exists = updatedAdditional.find(s => s.title?.toLowerCase() === title.toLowerCase());
+                                if (!exists) {
+                                    updatedAdditional.push({
+                                        id: Date.now() + Math.random().toString(36).substr(2, 9),
+                                        title: title,
+                                        content: typeof content === 'string' ? content : JSON.stringify(content, null, 2)
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+                    const mergedSkills = [...(prev.skills || [])];
+                    if (mappedData.skills?.length) {
+                        mappedData.skills.forEach(skill => {
+                            if (!mergedSkills.map(s => s.toLowerCase()).includes(skill.toLowerCase())) {
+                                mergedSkills.push(skill);
+                            }
+                        });
+                    }
+
+                    return {
+                        ...prev,
+                        ...mappedData,
+                        personalInfo: { ...prev.personalInfo, ...mappedData.personalInfo },
+                        experience: mergedExperience.length ? mergedExperience : prev.experience,
+                        education: mergedEducation.length ? mergedEducation : prev.education,
+                        skills: mergedSkills,
+                        additionalSections: updatedAdditional
+                    };
+                });
                 toast.success(t("CV Extracted"), { id: loadingToast });
             } else {
                 toast.dismiss(loadingToast);

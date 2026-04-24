@@ -24,7 +24,8 @@ const languages = [
   { name: "English", flag: "🇺🇸", code: "en" },
   { name: "Spanish", flag: "🇪🇸", code: "es" },
   { name: "French", flag: "🇫🇷", code: "fr" },
-  { name: "German", flag: "🇩🇪", code: "de" }
+  { name: "German", flag: "🇩🇪", code: "de" },
+  { name: "Urdu", flag: "🇵🇰", code: "ur" }
 ];
 
 const navLinks = [
