@@ -62,7 +62,7 @@ export default function Footer() {
               <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-xl">C</span>
               </div>
-              <h2 className="text-white text-2xl font-semibold">CurriculamVit.AI</h2>
+              <h2 className="text-white text-2xl font-semibold">CareerForge.AI</h2>
             </div>
             <p className="text-gray-400 mb-6 max-w-md leading-relaxed">
               {t("Footer Description")}
@@ -151,26 +151,26 @@ export default function Footer() {
           </div>
 
           <div>
-  <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">{t("Legal")}</h3>
-  <nav>
-    <ul className="space-y-3">
-      <li>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Privacy Policy")}</a>
-      </li>
-      <li>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Terms of Service")}</a>
-      </li>
-      <li>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Cookie Policy")}</a>
-      </li>
-      <li>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("GDPR")}</a>
-      </li>
-    </ul>
-  </nav>
-</div>
+            <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">{t("Legal")}</h3>
+            <nav>
+              <ul className="space-y-3">
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Privacy Policy")}</a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Terms of Service")}</a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Cookie Policy")}</a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("GDPR")}</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
 
-          
+
         </div>
 
         <div className="border-t border-b border-[#293547] pt-8 px-6">
@@ -178,8 +178,8 @@ export default function Footer() {
             <div className="flex flex-col sm:flex-row items-center gap-6 text-sm">
               <address className="not-italic flex items-center gap-2">
                 <MailIcon />
-                <a href="mailto:asif@curriculam.ai" className="text-gray-400 hover:text-white transition-colors">
-                  asif@curriculam.ai
+                <a href="mailto:support@careerforge.ai" className="text-gray-400 hover:text-white transition-colors">
+                  support@careerforge.ai
                 </a>
               </address>
               <div className="flex items-center gap-2">
@@ -195,7 +195,7 @@ export default function Footer() {
             </div>
 
             <div className="flex items-center gap-4">
-              <p className="text-gray-400 text-sm">© 2025® 2024 CurriculumVit.AI. {t("All rights reserved")}.</p>
+              <p className="text-gray-400 text-sm">© 2026 CareerForge.AI. {t("All rights reserved")}.</p>
               <div className="flex gap-3">
                 <a href="#" className="text-gray-400 hover:text-white transition-colors">
                   <TwitterIcon />

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 // 🎨 CUSTOM DESIGN COMPONENTS FOR MONOCHROME LAYOUT
 
@@ -9,11 +10,12 @@ const SectionTitle = ({ title }) => (
         variant="h6"
         fontWeight="900"
         sx={{
-            letterSpacing: '6px',
+            letterSpacing: '5px',
             color: '#111',
             textTransform: 'uppercase',
-            mb: 2,
-            fontFamily: '"Times New Roman", Times, serif'
+            mb: 2.5,
+            fontFamily: '"Times New Roman", Times, serif',
+            fontSize: '0.95rem'
         }}
     >
         {title.split('').join(' ')}
@@ -22,9 +24,9 @@ const SectionTitle = ({ title }) => (
 
 // Contact icon row
 const ContactRow = ({ icon, text }) => (
-    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1.5 }}>
-        <Typography sx={{ fontSize: '16px', lineHeight: 1 }}>{icon}</Typography>
-        <Typography variant="body2" sx={{ color: '#111', fontWeight: 500, wordBreak: 'break-all', mt: '2px' }}>
+    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1.8 }}>
+        <Typography sx={{ fontSize: '14px', lineHeight: 1 }}>{icon}</Typography>
+        <Typography variant="body2" sx={{ color: '#111', fontWeight: 500, wordBreak: 'break-all', mt: '1px', fontSize: '0.85rem' }}>
             {text}
         </Typography>
     </Box>
@@ -96,7 +98,7 @@ export default function MonochromeSimple({ data }) {
         return (
             <Box sx={{ pl: 2, mt: 1 }}>
                 {bullets.map((bullet, idx) => (
-                    <Typography key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, display: 'list-item', textAlign: 'justify' }}>
+                    <Typography key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, display: 'list-item', textAlign: 'justify', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                         {bullet.trim()}
                     </Typography>
                 ))}
@@ -105,7 +107,7 @@ export default function MonochromeSimple({ data }) {
     };
 
     return (
-        <Box sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', bgcolor: 'white', color: '#111', p: 4 }}>
+        <Box className="cv-document" sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', bgcolor: 'white', color: '#111', p: 4, pt: 5, '@media print': { boxShadow: 0 } }}>
             
             {/* ================= TOP SECTION ================= */}
             <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
@@ -114,18 +116,22 @@ export default function MonochromeSimple({ data }) {
                 <Box sx={{ width: '32%', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
                     
                     {/* Profile Image (Square) */}
-                    <Box sx={{ width: '100%', aspectRatio: '1/1', bgcolor: '#f0f0f0' }}>
-                        {profileImageUrl && (
+                    <Box sx={{ width: '100%', aspectRatio: '1/1', bgcolor: '#e8e8e8', border: '2px solid #111' }}>
+                        {profileImageUrl ? (
                             <Box 
                                 component="img" 
                                 src={profileImageUrl} 
                                 sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                             />
+                        ) : (
+                            <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Typography variant="h1" sx={{ color: '#ccc', fontWeight: 900 }}>{personalInfo.name?.charAt(0) || "U"}</Typography>
+                            </Box>
                         )}
                     </Box>
 
                     {/* Contact Box (Thick Border) */}
-                    <Box sx={{ border: '2px solid #111', p: 2, flexGrow: 1 }}>
+                    <Box sx={{ border: '3px solid #111', p: 2.5, flexGrow: 1 }}>
                         {displayPhone && <ContactRow icon="📞" text={displayPhone} />}
                         {displayEmail && <ContactRow icon="✉️" text={displayEmail} />}
                         {displayAddress && <ContactRow icon="📍" text={displayAddress} />}
@@ -137,17 +143,20 @@ export default function MonochromeSimple({ data }) {
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                     
                     {/* Name Header Box (Thick Border) */}
-                    <Box sx={{ border: '2px solid #111', p: 3, textAlign: 'center', mb: 3 }}>
+                    <Box sx={{ border: '3px solid #111', p: 3.5, textAlign: 'center', mb: 3 }}>
                         <Typography 
                             variant="h3" 
                             fontWeight="900" 
                             sx={{ 
                                 color: '#111', 
-                                letterSpacing: '4px', 
+                                letterSpacing: '5px', 
                                 textTransform: 'uppercase', 
                                 fontFamily: '"Times New Roman", Times, serif',
                                 mb: 1,
-                                minHeight: '48px'
+                                minHeight: '48px',
+                                lineHeight: 1.1,
+                                wordBreak: 'break-word',
+                                overflowWrap: 'break-word'
                             }}
                         >
                             {personalInfo.name}
@@ -157,9 +166,12 @@ export default function MonochromeSimple({ data }) {
                             fontWeight="800"
                             sx={{ 
                                 color: '#444', 
-                                letterSpacing: '8px', 
+                                letterSpacing: '6px', 
                                 textTransform: 'uppercase',
-                                minHeight: '28px'
+                                minHeight: '28px',
+                                fontSize: '0.82rem',
+                                wordBreak: 'break-word',
+                                overflowWrap: 'break-word'
                             }}
                         >
                             {personalInfo.title}
@@ -170,7 +182,7 @@ export default function MonochromeSimple({ data }) {
                     {(personalInfo.about || personalInfo.summary) && (
                         <Box sx={{ mb: 4 }}>
                             <SectionTitle title="PROFILE" />
-                            <Typography variant="body2" sx={{ color: '#333', lineHeight: 1.6, textAlign: 'justify' }}>
+                            <Typography variant="body2" sx={{ color: '#333', lineHeight: 1.75, textAlign: 'justify', fontSize: '0.9rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                 {personalInfo.about || personalInfo.summary}
                             </Typography>
                         </Box>
@@ -183,18 +195,18 @@ export default function MonochromeSimple({ data }) {
                             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
                                 {safeEducation.map((edu, idx) => (
                                     <Box key={idx}>
-                                        <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', mb: 0.5 }}>
+                                        <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', mb: 0.5, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                             {getDisplayText(edu.year || edu.date)}
                                         </Typography>
-                                        <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', textTransform: 'uppercase' }}>
+                                        <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', textTransform: 'uppercase', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                             {getDisplayText(edu.institute || edu.school)}
                                         </Typography>
                                         <Box sx={{ pl: 2, mt: 0.5 }}>
-                                            <Typography variant="body2" sx={{ color: '#333', display: 'list-item' }}>
+                                            <Typography variant="body2" sx={{ color: '#333', display: 'list-item', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                                 {getDisplayText(edu.degree || edu.course)}
                                             </Typography>
                                             {edu.description && (
-                                                <Typography variant="body2" sx={{ color: '#333', display: 'list-item' }}>
+                                                <Typography variant="body2" sx={{ color: '#333', display: 'list-item', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                                     {getDisplayText(edu.description)}
                                                 </Typography>
                                             )}
@@ -208,7 +220,7 @@ export default function MonochromeSimple({ data }) {
             </Box>
 
             {/* ================= BOTTOM SECTION (Giant Bordered Box) ================= */}
-            <Box sx={{ border: '2px solid #111', p: 4, display: 'flex', gap: 4 }}>
+            <Box sx={{ border: '3px solid #111', p: 4, display: 'flex', gap: 5 }}>
                 
                 {/* --- BOTTOM LEFT (Work Experience) --- */}
                 <Box sx={{ flex: '1.5' }}>
@@ -217,13 +229,13 @@ export default function MonochromeSimple({ data }) {
                             <SectionTitle title="WORK EXPERIENCE" />
                             {safeExperience.map((exp, idx) => (
                                 <Box key={idx} sx={{ mb: 3 }}>
-                                    <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', textTransform: 'uppercase' }}>
+                                    <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', textTransform: 'uppercase', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                         {getDisplayText(exp.duration || exp.date)}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: '#333', mb: 0.5 }}>
+                                    <Typography variant="body2" sx={{ color: '#333', mb: 0.5, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                         {getDisplayText(exp.company || exp.organization)}
                                     </Typography>
-                                    <Typography variant="subtitle1" fontWeight="900" sx={{ color: '#111', fontFamily: '"Times New Roman", Times, serif' }}>
+                                    <Typography variant="subtitle1" fontWeight="900" sx={{ color: '#111', fontFamily: '"Times New Roman", Times, serif', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                         {getDisplayText(exp.role || exp.position)}
                                     </Typography>
                                     
@@ -244,7 +256,7 @@ export default function MonochromeSimple({ data }) {
                             <SectionTitle title="SKILLS" />
                             <Box sx={{ pl: 2 }}>
                                 {safeSkills.map((skill, idx) => (
-                                    <Typography key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, display: 'list-item' }}>
+                                    <Typography key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, display: 'list-item', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                         {getDisplayText(skill)}
                                     </Typography>
                                 ))}
@@ -258,19 +270,19 @@ export default function MonochromeSimple({ data }) {
                             <SectionTitle title="REFERENCE" />
                             {safeReferences.map((ref, idx) => (
                                 <Box key={idx} sx={{ mb: 2 }}>
-                                    <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111' }}>
+                                    <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                         {getDisplayText(ref.name)}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: '#333', mb: 0.5 }}>
+                                    <Typography variant="body2" sx={{ color: '#333', mb: 0.5, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                         {getDisplayText(ref.company)} / {getDisplayText(ref.role)}
                                     </Typography>
                                     {ref.phone && (
-                                        <Typography variant="body2" sx={{ color: '#111', fontWeight: 600 }}>
+                                        <Typography variant="body2" sx={{ color: '#111', fontWeight: 600, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                             Phone <span style={{ fontWeight: 'normal', color: '#333', marginLeft: 8 }}>{getDisplayText(ref.phone)}</span>
                                         </Typography>
                                     )}
                                     {ref.email && (
-                                        <Typography variant="body2" sx={{ color: '#111', fontWeight: 600 }}>
+                                        <Typography variant="body2" sx={{ color: '#111', fontWeight: 600, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                             Email <span style={{ fontWeight: 'normal', color: '#333', marginLeft: 8 }}>{getDisplayText(ref.email)}</span>
                                         </Typography>
                                     )}
@@ -285,13 +297,14 @@ export default function MonochromeSimple({ data }) {
                             <SectionTitle title="LANGUAGES" />
                             <Box sx={{ pl: 2 }}>
                                 {safeLanguages.map((lang, idx) => (
-                                    <Typography key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, display: 'list-item' }}>
+                                    <Typography key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, display: 'list-item', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                         {getDisplayText(lang)}
                                     </Typography>
                                 ))}
                             </Box>
                         </Box>
                     )}
+                    <AdditionalSectionsBlock sections={data?.additionalSections} accentColor="#111827" />
 
                 </Box>
             </Box>

@@ -2,9 +2,9 @@ import React from "react";
 import sparkleIcon from "../../assets/aboutpic/Sparkle--Streamline-Phosphor.png";
 
 const features = [
-  { label: "AI-Powered",img:"/src/assets/aboutpic/Brain--Streamline-Core.png" },
-  { label: "Human Verified", img:"/src/assets/aboutpic/Star-Badge--Streamline-Core.png" },
-  { label: "Proven Result" ,img:"/src/assets/aboutpic/User-Check-Validate--Streamline-Core.png" },
+  { label: "AI-Powered", img: "/src/assets/aboutpic/Brain--Streamline-Core.png" },
+  { label: "Human Verified", img: "/src/assets/aboutpic/Star-Badge--Streamline-Core.png" },
+  { label: "Proven Result", img: "/src/assets/aboutpic/User-Check-Validate--Streamline-Core.png" },
 ];
 
 const ProfileHero = () => {
@@ -40,7 +40,7 @@ const ProfileHero = () => {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">
           About{" "}
           <span className="bg-linear-to-r from-[#2563EB] to-[#38BDF8] bg-clip-text text-transparent">
-            Curriculum.ai
+            CareerForge.AI
           </span>
         </h1>
 

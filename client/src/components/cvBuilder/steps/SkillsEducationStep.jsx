@@ -7,6 +7,7 @@ import { useAuth } from "../../../context/AuthContext";
 import * as aiApi from "../../../api/ai";
 import PremiumInput from "../PremiumInput";
 import { getTemplateConfig } from "../../../utils/cvBuilder/templateConfig";
+import AdditionalSectionsEditor from "../AdditionalSectionsEditor";
 
 export default function SkillsEducationStep({
   formData,
@@ -215,8 +216,7 @@ export default function SkillsEducationStep({
                   />
                   <TextField
                     label={t("Start Date")}
-                    type="date"
-                    InputLabelProps={{ shrink: true }}
+                    placeholder="e.g. 2019"
                     value={item.startDate || ''}
                     onChange={(e) => {
                       const v = e.target.value;
@@ -230,8 +230,7 @@ export default function SkillsEducationStep({
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     <TextField
                       label={item.current ? t("Present") : t("End Date")}
-                      type="date"
-                      InputLabelProps={{ shrink: true }}
+                      placeholder="e.g. 2021"
                       value={item.endDate || ''}
                       disabled={item.current}
                       onChange={(e) => {
@@ -304,6 +303,7 @@ export default function SkillsEducationStep({
             onChange={handleChange}
           />
         )}
+        <AdditionalSectionsEditor formData={formData} setFormData={setFormData} />
       </Box>
     </Grow>
   );

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
 
 @keyframes float {
     0% {
@@ -104,19 +105,20 @@
     animation-delay: 4s;
 }
 
+.font-urdu {
+    font-family: 'Noto Nastaliq Urdu', serif !important;
+}
+
+[dir="rtl"] .font-urdu {
+    line-height: 2 !important;
+}
+
 /* Glassmorphism & Premium UI Utilities */
 .glass {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.glass-dark {
-    background: rgba(17, 24, 39, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .bg-mesh {
@@ -174,30 +176,30 @@
 
 /* CV Document & Print Styles */
 @media print {
-    body * {
-        visibility: hidden;
+    body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
-    .cv-document,
-    .cv-document * {
-        visibility: visible;
-    }
-
-    .cv-document {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 40px !important;
-        box-shadow: none !important;
-        border: none !important;
-    }
-
-    .no-print {
+    .no-print,
+    .exclude-from-pdf,
+    button,
+    .MuiButton-root {
         display: none !important;
     }
+
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+    }
 }
+
 
 .cv-content h1 {
     font-size: 3rem !important;
@@ -244,12 +246,14 @@
     border-top: 10px solid #DC2626 !important;
     background: #FFFFFF !important;
 }
+
 .cv-document.cv-template-classic-red .cv-content h1 {
     font-size: 2.65rem !important;
     color: #991B1B !important;
     text-transform: none !important;
     letter-spacing: -0.5px !important;
 }
+
 .cv-document.cv-template-classic-red .cv-content h2 {
     color: #B91C1C !important;
     border-bottom: 1px solid #FECACA !important;
@@ -261,15 +265,18 @@
     background: linear-gradient(145deg, #ffffff 0%, #EFF6FF 100%) !important;
     border: 1px solid #BFDBFE !important;
 }
+
 .cv-document.cv-template-modern-blue .cv-content h1 {
     color: #0F172A !important;
     font-size: 2.8rem !important;
 }
+
 .cv-document.cv-template-modern-blue .cv-content h2 {
     color: #1D4ED8 !important;
     border-bottom: none !important;
     position: relative;
 }
+
 .cv-document.cv-template-modern-blue .cv-content h2::after {
     content: "";
     display: block;
@@ -284,10 +291,12 @@
     background: #FFFFFF !important;
     border: 1px solid #E5E7EB !important;
 }
+
 .cv-document.cv-template-minimal-black .cv-content h1 {
     color: #111827 !important;
     font-size: 2.55rem !important;
 }
+
 .cv-document.cv-template-minimal-black .cv-content h2 {
     color: #111827 !important;
     border-bottom: 2px solid #111827 !important;
@@ -299,15 +308,18 @@
     background: radial-gradient(circle at top left, #EEF2FF 0%, #ffffff 45%, #F8FAFF 100%) !important;
     border: 1px solid #DDD6FE !important;
 }
+
 .cv-document.cv-template-creative-purple .cv-content h1 {
     color: #4C1D95 !important;
     font-size: 2.9rem !important;
 }
+
 .cv-document.cv-template-creative-purple .cv-content h2 {
     color: #6D28D9 !important;
     border-bottom: none !important;
     position: relative;
 }
+
 .cv-document.cv-template-creative-purple .cv-content h2::after {
     content: "";
     display: block;
@@ -317,25 +329,28 @@
     margin-top: 10px;
     border-radius: 999px;
 }
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .cv-document, .cv-document * {
-    visibility: visible;
-  }
-  .cv-document {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 210mm;
-    height: 297mm;
-    box-shadow: none !important;
+
+/* (Print rules consolidated above) */
+
+/* PDF / html2pdf helpers */
+@page {
+    size: A4;
     margin: 0;
-    padding: 0;
-  }
-  * {
-    -webkit-print-color-adjust:git exact !important;
-    print-color-adjust: exact !important;
-  }
+}
+
+/* Prevent content breaking in the middle of important blocks */
+.cv-document .cv-content>* {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+/* Utility class to explicitly exclude nodes from generated PDF */
+.exclude-from-pdf {
+    display: none !important;
+}
+
+/* Improve image rendering quality when rasterized */
+.cv-document img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
