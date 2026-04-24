@@ -6,14 +6,13 @@ import AsyncHandler from "../handler/AsyncHandler.js";
 
 export const parseUploadedCV = AsyncHandler(async (req, res, next) => {
     try {
-        // STEP 1: Gatekeeper checking
         if (!req.file) {
             return next(new CustomError(400, "Please upload a pdf or docx file"));
         }
 
         let rawText = "";
 
-        // STEP 2: X-Ray Machine (Text Extraction)
+        // 1. Read the file
         if (req.file.mimetype === "application/pdf") {
             const pdfData = await pdfParse(req.file.buffer);
             rawText = pdfData.text;
@@ -22,74 +21,87 @@ export const parseUploadedCV = AsyncHandler(async (req, res, next) => {
             rawText = docxData.value;
         }
 
-        // Agar file se text nikla hi nahi
         if (!rawText || rawText.trim() === "") {
             return next(new CustomError(400, "Unable to read text from the file"));
         }
 
-        // STEP 3: Smart Robot Setup (Groq AI)
-        const systemContent = `You are an expert CV parser. Extract the information from the raw resume text strictly into the provided JSON structure.
-        If a field is not found in the text, leave it as an empty string "".
-        Output MUST be a JSON object with this exact structure:
+        // 2. Prompt built specifically for a Reasoning AI
+        const systemContent = `You are an expert data extraction AI. Think step-by-step about the provided resume text and map it perfectly to the requested JSON schema.
+
+        CRITICAL RULES:
+        1. DATES: Look for dates in parentheses (e.g., "(2019-2021)") that appear directly before or after an institution name. Link them properly to the correct school or certificate.
+        2. ARRAYS: If a category like experience, projects, or volunteer work is missing from the resume, output an completely empty array []. Do not create empty template objects inside them.
+        3. FORMAT: Output ONLY valid JSON inside your final response.
+
+        JSON SCHEMA TO FOLLOW:
         {
             "name": "",
+            "label": "",
             "email": "",
             "phone": "",
+            "url": "",
             "github": "",
             "linkedin": "",
-            "summary": "Write a 2-line professional summary based on the text if not provided",
-            "education": [
-                { "degree": "", "institute": "", "year": "" }
-            ],
-            "skills": ["skill1", "skill2"],
-            "projects": [
-                { "title": "", "description": "", "githubLink": "", "liveLink": "" }
-            ],
-            "experience": [
-                { "role": "", "company": "", "duration": "", "description": "" }
-            ]
-        }
-        The response must contain ONLY the JSON object and nothing else.`;
+            "location": { "address": "", "postalCode": "", "city": "", "countryCode": "", "region": "" },
+            "summary": "",
+            "education": [ { "degree": "", "institute": "", "startDate": "", "endDate": "", "isCurrent": false } ],
+            "skills": [],
+            "projects": [],
+            "experience": [],
+            "volunteer": [],
+            "awards": [],
+            "certificates": [ { "name": "", "date": "", "issuer": "", "url": "" } ],
+            "publications": [],
+            "languages": [ { "language": "", "fluency": "" } ],
+            "interests": [],
+            "references": []
+        }`;
 
-        const userContent = `Raw Resume Text:\n${rawText}`;
+        const userContent = `RAW RESUME TEXT:\n\n${rawText}`;
 
-        // Robot ko text de kar jawab ka wait karo using Groq
+        // 3. Call Groq using the DeepSeek R1 Reasoning Model
         const response = await groq.chat.completions.create({
-            model: "llama-3.1-8b-instant", // You can also use llama3-70b-8192 if you need even smarter parsing
-            response_format: { type: "json_object" }, // Strictly enforce JSON
-            temperature: 0.1, // Very low temperature so it extracts exactly what is there
+            model: "openai/gpt-oss-120b", // <--- THE REASONING MODEL
+            temperature: 0.6, // Reasoning models need a slightly higher temp to "think"
             messages: [
                 { role: "system", content: systemContent },
                 { role: "user", content: userContent }
             ]
         });
 
-        // STEP 4: Validation / Safai
         const textResult = response.choices[0].message.content;
-        const parsedCVData = JSON.parse(textResult);
+        
+        // 4. Strip out the <think> blocks the reasoning model generates
+        const cleanText = textResult.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+        
+        // Extract just the JSON block
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+        
+        if (!jsonMatch) {
+            throw new SyntaxError("AI did not return valid JSON");
+        }
+        
+        const parsedCVData = JSON.parse(jsonMatch[0]);
 
-        // STEP 5: Wapis Frontend ko bhej do!
         return res.status(200).json({
             success: true,
-            message: "CV Extract ho gaya successfully!",
+            message: "CV extracted smartly and successfully!",
             data: parsedCVData,
         });
 
     } catch (error) {
         console.error("CV Parsing Error:", error);
         
-        // Handle specific JSON parsing errors from the AI output
         if (error instanceof SyntaxError) {
             return res.status(500).json({ 
                 success: false, 
-                message: "AI ko data samajhne mein masla hua. Please manually form fill karein." 
+                message: "AI failed to format the data correctly. Please try again or fill manually." 
             });
         }
 
-        // Handle general server errors
         return res.status(500).json({ 
             success: false, 
-            message: "Server error. CV extract nahi ho saka." 
+            message: "Server error during CV extraction." 
         });
     }    
 });
