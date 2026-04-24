@@ -105,7 +105,7 @@ export default function ClassicTemplate({ data }) {
   if (!data) return null;
 
   return (
-    <Box sx={{ p: 6, bgcolor: "#fff", minHeight: "297mm", fontFamily: "'Times New Roman', serif", color: "#111827" }}>
+    <Box className="cv-document" sx={{ p: 6, bgcolor: "#fff", minHeight: "297mm", fontFamily: "'Times New Roman', serif", color: "#111827", '@media print': { boxShadow: 0 } }}>
       {/* HEADER */}
       <Box sx={{ textAlign: "center", mb: 1 }}>
         <Typography variant="h3" sx={{ fontWeight: 700, letterSpacing: "1px", mb: 0.5, wordBreak: "break-word", overflowWrap: "break-word" }}>

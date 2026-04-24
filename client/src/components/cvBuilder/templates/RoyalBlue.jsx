@@ -135,7 +135,7 @@ export default function RoyalBlue({ data }) {
             : null;
 
     return (
-        <Box sx={{ minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Arial", sans-serif', display: 'flex', bgcolor: 'white' }}>
+        <Box className="cv-document" sx={{ minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Arial", sans-serif', display: 'flex', bgcolor: 'white', '@media print': { boxShadow: 0 } }}>
             {/* SIDEBAR */}
             <Box sx={{ width: '34%', background: `linear-gradient(175deg, ${royalBlue} 0%, #0f2847 100%)`, color: 'white', p: 4, pt: 5, flexShrink: 0 }}>
                 {/* Profile */}

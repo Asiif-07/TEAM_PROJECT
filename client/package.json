@@ -24,6 +24,7 @@
     "react-i18next": "^17.0.4",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.28.0",
+    "react-to-print": "^3.3.0",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {

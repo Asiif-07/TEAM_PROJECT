@@ -107,7 +107,7 @@ export default function MonochromeSimple({ data }) {
     };
 
     return (
-        <Box sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', bgcolor: 'white', color: '#111', p: 4, pt: 5 }}>
+        <Box className="cv-document" sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', bgcolor: 'white', color: '#111', p: 4, pt: 5, '@media print': { boxShadow: 0 } }}>
             
             {/* ================= TOP SECTION ================= */}
             <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>

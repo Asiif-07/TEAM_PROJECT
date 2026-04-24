@@ -24,7 +24,7 @@ export default function KoreanTemplate({ data }) {
   const tdStyle = { border: '1px solid black', padding: '8px', textAlign: 'center', fontSize: '13px' };
 
   return (
-    <Box sx={{ minHeight: '297mm', bgcolor: 'white', mx: 'auto', p: 8, fontFamily: '"Malgun Gothic", "Batang", serif', color: 'black' }}>
+    <Box className="cv-document" sx={{ minHeight: '297mm', bgcolor: 'white', mx: 'auto', p: 8, fontFamily: '"Malgun Gothic", "Batang", serif', color: 'black', '@media print': { boxShadow: 0 } }}>
       <Typography variant="h3" align="center" sx={{ letterSpacing: '15px', mb: 6, fontWeight: 'bold' }}>이 력 서</Typography>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid black', marginBottom: '30px' }}>

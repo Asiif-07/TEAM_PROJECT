@@ -75,7 +75,7 @@ export default function CreativeTemplate({ data }) {
     }, [personalInfo.profileImage, personalInfo.profileImagePreview]);
 
     return (
-        <Box sx={{ display: 'flex', minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Arial", sans-serif', bgcolor: 'white' }}>
+        <Box className="cv-document" sx={{ display: 'flex', minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Arial", sans-serif', bgcolor: 'white', '@media print': { boxShadow: 0 } }}>
             {/* SIDEBAR */}
             <Box sx={{
                 width: '33%', flexShrink: 0,

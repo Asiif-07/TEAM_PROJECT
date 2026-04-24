@@ -130,8 +130,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange, se
                 />
                 <TextField
                   label={t("Start Date")}
-                  type="date"
-                  InputLabelProps={{ shrink: true }}
+                  placeholder="e.g. 2018"
                   value={item.startDate || ''}
                   onChange={(e) => {
                     const v = e.target.value;
@@ -145,8 +144,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange, se
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <TextField
                     label={item.current ? t("Present") : t("End Date")}
-                    type="date"
-                    InputLabelProps={{ shrink: true }}
+                    placeholder="e.g. 2022"
                     value={item.endDate || ''}
                     disabled={item.current}
                     onChange={(e) => {

@@ -70,7 +70,7 @@ export default function BlackPro({ data }) {
     }, [personalInfo.profileImage, personalInfo.profileImagePreview]);
 
     return (
-        <Box sx={{ minHeight: '297mm', width: '100%', fontFamily: '"Inter", sans-serif', bgcolor: 'white', display: 'flex', flexDirection: 'column' }}>
+        <Box className="cv-document" sx={{ minHeight: '297mm', width: '100%', fontFamily: '"Inter", sans-serif', bgcolor: 'white', display: 'flex', flexDirection: 'column', '@media print': { boxShadow: 0 } }}>
             {/* HEADER — dark bar matching reference */}
             <Box sx={{ bgcolor: '#1a1a1a', pt: 5, pb: 4, px: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                 <Box>

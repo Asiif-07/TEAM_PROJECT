@@ -28,8 +28,6 @@ export default function CVBuilder() {
     const [activeStep, setActiveStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [isExtracting, setIsExtracting] = useState(false);
-    const [cvContent] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
     const [skillInput, setSkillInput] = useState("");
     const [draftId, setDraftId] = useState(cvId || "");
     const [lastSavedAt, setLastSavedAt] = useState("");
@@ -92,14 +90,14 @@ export default function CVBuilder() {
                     setDraftId(cv._id);
                     setLastSavedAt(cv.lastSavedAt || cv.updatedAt || "");
                 }
-            } catch {
-                setErrorMessage(t("Failed CVs"));
+            } catch (err) {
+                console.error("Failed to fetch CV data:", err);
             } finally {
                 setLoading(false);
             }
         };
         fetchCvData();
-    }, [cvId, accessToken, refreshAccessToken]);
+    }, [cvId, accessToken, refreshAccessToken, t]);
 
     const handleChange = (e, section = null) => {
         const { name, value, files } = e.target;
@@ -132,7 +130,7 @@ export default function CVBuilder() {
         }
     };
 
-    const buildProjectsArray = () =>
+    const buildProjectsArray = useCallback(() =>
         formData.projects
             ? formData.projects.split("\n").filter((p) => p.trim()).map((p) => {
                 const parts = p.split("|");
@@ -143,7 +141,7 @@ export default function CVBuilder() {
                     liveLink: parts[3]?.trim() || "",
                 };
             })
-            : [];
+            : [], [formData.projects]);
 
     const buildCvData = useCallback((status = "draft") => ({
         name: formData.personalInfo.name || "Untitled Draft",
@@ -165,9 +163,9 @@ export default function CVBuilder() {
         certifications: formData.certifications || "",
         additionalSections: Array.isArray(formData.additionalSections) ? formData.additionalSections : [],
         status,
-    }), [formData, selectedTemplate, selectedCategory]);
+    }), [formData, selectedTemplate, selectedCategory, buildProjectsArray]);
 
-    const persistDraft = useCallback(async (isAuto = false) => {
+    const persistDraft = useCallback(async () => {
         if (!accessToken) return null;
         const cvData = buildCvData("draft");
         try {
@@ -184,10 +182,10 @@ export default function CVBuilder() {
                 setLastSavedAt(res.data.lastSavedAt || new Date().toISOString());
             }
             return res?.data?._id || null;
-        } catch (err) {
+        } catch {
             return null;
         }
-    }, [accessToken, refreshAccessToken, buildCvData, draftId, t]);
+    }, [accessToken, refreshAccessToken, buildCvData, draftId]);
 
     useEffect(() => {
         if (!accessToken) return;
@@ -222,9 +220,8 @@ export default function CVBuilder() {
             } else {
                 toast.dismiss(loadingToast);
             }
-        } catch (err) {
+        } catch {
             if (loadingToast) toast.dismiss(loadingToast);
-            // Handled globally in http.js
         } finally {
             setIsExtracting(false);
         }
@@ -300,7 +297,7 @@ export default function CVBuilder() {
     };
 
     if (activeStep === 4) {
-        return <PreviewCV formData={formData} selectedTemplate={selectedTemplate} selectedCategory={selectedCategory} setCvContent={() => {}} setActiveStep={setActiveStep} onSaveCV={handleSaveCV} isSaving={loading} />;
+        return <PreviewCV formData={formData} selectedTemplate={selectedTemplate} selectedCategory={selectedCategory} setCvContent={() => { }} setActiveStep={setActiveStep} onSaveCV={handleSaveCV} isSaving={loading} />;
     }
 
     return (

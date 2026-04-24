@@ -36,7 +36,7 @@ export default function MyCvs() {
     };
 
     loadCvs();
-  }, [isAuthenticated, accessToken, refreshAccessToken]);
+  }, [isAuthenticated, accessToken, refreshAccessToken, t]);
 
   const openCv = (cv) => {
     const params = new URLSearchParams({
@@ -134,14 +134,14 @@ export default function MyCvs() {
                   border: "1px solid #E5E7EB",
                 }}
               >
-                <Typography variant="h6" fontWeight={800} color="#111827">
+                <Typography variant="h6" fontWeight={800} color="#111827" sx={{ wordBreak: "break-word" }}>
                   {cv.name || t("Untitled CV")}
                 </Typography>
-                <Typography sx={{ color: "#4B5563", mt: 0.5 }}>{cv.email || "-"}</Typography>
-                <Typography sx={{ color: "#6B7280", mt: 1, minHeight: "48px" }}>
+                <Typography sx={{ color: "#4B5563", mt: 0.5, wordBreak: "break-word" }}>{cv.email || "-"}</Typography>
+                <Typography sx={{ color: "#6B7280", mt: 1, minHeight: "48px", wordBreak: "break-word", overflowWrap: "anywhere" }}>
                   {cv.summary ? `${cv.summary.slice(0, 120)}${cv.summary.length > 120 ? "..." : ""}` : t("No Summary")}
                 </Typography>
-                <Typography variant="caption" sx={{ color: "#6B7280", display: "block", mt: 1.5 }}>
+                <Typography variant="caption" sx={{ color: "#6B7280", display: "block", mt: 1.5, wordBreak: "break-word" }}>
                   {t("Template")}: {cv.templateId || "modern-blue"}
                 </Typography>
                 <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end", gap: 1.5 }}>

@@ -84,7 +84,7 @@ export default function MinimalistTemplate({ data }) {
     }, [personalInfo.profileImage, personalInfo.profileImagePreview]);
 
     return (
-        <Box sx={{ display: 'flex', minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Helvetica", sans-serif', bgcolor: 'white' }}>
+        <Box className="cv-document" sx={{ display: 'flex', minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Helvetica", sans-serif', bgcolor: 'white', '@media print': { boxShadow: 0 } }}>
             {/* SIDEBAR */}
             <Box sx={{ width: '34%', flexShrink: 0, background: 'linear-gradient(180deg, #2C3E50 0%, #1a252f 100%)', color: 'white', p: 5, pt: 6 }}>
                 {/* Profile Picture */}

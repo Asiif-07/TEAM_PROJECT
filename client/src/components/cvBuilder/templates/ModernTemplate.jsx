@@ -125,7 +125,7 @@ export default function ModernTemplate({ data }) {
   const accentColor = "#4f46e5";
 
   return (
-    <Box sx={{ p: 0, bgcolor: "#fff", minHeight: "297mm", fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
+    <Box className="cv-document" sx={{ p: 0, bgcolor: "#fff", minHeight: "297mm", fontFamily: "'Inter', sans-serif", color: "#1e293b", '@media print': { boxShadow: 0 } }}>
       <Grid container sx={{ minHeight: "297mm" }}>
         {/* SIDEBAR */}
         <Grid item xs={4} sx={{

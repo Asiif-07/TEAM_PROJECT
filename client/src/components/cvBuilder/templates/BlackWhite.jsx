@@ -89,7 +89,7 @@ export default function BlackWhite({ data }) {
     // Moved outside the component
 
     return (
-        <Box sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', fontFamily: '"Arial", sans-serif', boxShadow: 3, bgcolor: 'white', color: '#333' }}>
+        <Box className="cv-document" sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', fontFamily: '"Arial", sans-serif', boxShadow: 3, bgcolor: 'white', color: '#333', '@media print': { boxShadow: 0 } }}>
             
             {/* ---------------- HEADER ---------------- */}
             <Box sx={{ p: 6, pb: 4, display: 'flex', alignItems: 'center', gap: 4 }}>

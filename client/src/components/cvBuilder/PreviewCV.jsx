@@ -1,8 +1,8 @@
 import React from "react";
 import { Box, Button, Container, Paper, Typography, CircularProgress } from "@mui/material";
 import { Download, RefreshCcw, Save } from "lucide-react";
-import { useState } from "react";
-import toast from "react-hot-toast";
+import { useRef } from "react";
+import CVRenderer from "./CVRenderer";
 import ClassicTemplate from "./templates/ClassicTemplate";
 import EuropassTemplate from "./templates/EuropassTemplate";
 import KoreanTemplate from "./templates/KoreanTemplate";
@@ -17,7 +17,8 @@ import RoyalBlue from "./templates/RoyalBlue";
 import RoyalBrown from "./templates/RoyalBrown";
 
 export default function PreviewCV({ formData, selectedTemplate, selectedCategory, setCvContent, setActiveStep, onSaveCV, isSaving }) {
- 
+  const rendererRef = useRef();
+
   // Looks at the ID and Category from the URL and picks the perfect layout
   const renderTemplate = () => {
     const tId = String(selectedTemplate || "").toLowerCase();
@@ -45,7 +46,7 @@ export default function PreviewCV({ formData, selectedTemplate, selectedCategory
   return (
     <Box sx={{ py: 10, bgcolor: "#F8FAF8", minHeight: "100vh" }} className="bg-mesh">
       <Container maxWidth="md">
-        
+
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", mb: 6, px: 2 }} className="no-print">
           <Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
@@ -59,30 +60,35 @@ export default function PreviewCV({ formData, selectedTemplate, selectedCategory
             <Button variant="outlined" startIcon={<RefreshCcw size={18} />} onClick={() => { setCvContent(""); setActiveStep(0); }} sx={{ borderRadius: "16px", textTransform: "none", fontWeight: 700, px: 4, height: "56px", border: "2px solid #E5E7EB", color: "#374151" }}>
               Edit Data
             </Button>
-            <Button 
-              variant="contained" 
-              startIcon={isSaving ? <CircularProgress size={18} color="inherit" /> : <Save size={18} />} 
-              onClick={onSaveCV} 
+            <Button
+              variant="contained"
+              startIcon={isSaving ? <CircularProgress size={18} color="inherit" /> : <Save size={18} />}
+              onClick={onSaveCV}
               disabled={isSaving}
               sx={{ borderRadius: "16px", textTransform: "none", fontWeight: 700, px: 4, height: "56px", bgcolor: "#2563EB" }}
             >
               {isSaving ? "Saving..." : "Save to My CVs"}
             </Button>
-            <Button variant="contained" startIcon={<Download size={18} />} onClick={() => window.print()} sx={{ borderRadius: "16px", textTransform: "none", fontWeight: 700, px: 6, height: "56px", bgcolor: "#111827" }}>
+            <Button
+              variant="contained"
+              startIcon={<Download size={18} />}
+              onClick={() => rendererRef.current?.handlePrint()}
+              sx={{ borderRadius: "16px", textTransform: "none", fontWeight: 700, px: 6, height: "56px", bgcolor: "#111827" }}
+            >
               Download as PDF
             </Button>
           </Box>
         </Box>
 
-        {/* This Paper box acts as an exact A4 piece of paper. 
-          The chosen template renders perfectly inside it! 
-        */}
-        <Paper className="cv-document" elevation={0} sx={{ p: 0, bgcolor: "white", minHeight: "297mm", width: "210mm", margin: "0 auto", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)", position: "relative", overflow: "hidden" }}>
-          <Box sx={{ position: "relative", zIndex: 1 }}>
-            {renderTemplate()}
-          </Box>
-        </Paper>
+        {/* This CVRenderer wraps the template and handles A4 printing */}
+        <CVRenderer
+          ref={rendererRef}
+          userName={formData.personalInfo?.name || "User"}
+        >
+          {renderTemplate()}
+        </CVRenderer>
       </Container>
     </Box>
   );
 }
+

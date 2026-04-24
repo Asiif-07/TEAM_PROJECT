@@ -123,7 +123,7 @@ export default function RoyalBrown({ data }) {
     const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : "";
 
     return (
-        <Box sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', fontFamily: '"Inter", "Arial", sans-serif', display: 'flex', bgcolor: 'white' }}>
+        <Box className="cv-document" sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', fontFamily: '"Inter", "Arial", sans-serif', display: 'flex', bgcolor: 'white', '@media print': { boxShadow: 0 } }}>
             {/* SIDEBAR */}
             <Box sx={{ width: '38%', bgcolor: greySidebarBg, p: 4, pt: 5, display: 'flex', flexDirection: 'column' }}>
                 {/* Profile Picture */}
