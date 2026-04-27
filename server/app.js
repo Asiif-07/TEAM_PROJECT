@@ -14,29 +14,24 @@ import { stripeWebhook } from "./controller/stripe.controller.js";
 
 const app = express();
 
-const isAllowed = ['http://localhost:5174'];
-const localhostPortPattern = /^http:\/\/localhost:\d+$/;
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    "http://localhost:5173",
+    "http://localhost:5174"
+].filter(Boolean);
 
-const corsOptions = (req, cb) => {
-    const origin = req.headers.origin;
-    if (!origin) {
-        return cb(null, true);
-    }
-    if (isAllowed.includes(origin) || localhostPortPattern.test(origin)) {
-        return cb(
-            null,
-            {
-                origin: true,
-                methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-                credentials: true,
-                allowedHeaders: ['Content-Type', 'Authorization']
-            }
-        )
-    }
-    return cb(new Error("Not allowed by CORS"))
-}
-
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost:")) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 const rateLimiter = limiter({
     windowMs: 15 * 60 * 1000,
