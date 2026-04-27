@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:2000",
+        target: "https://team-project-qa0v.onrender.com",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path,
@@ -19,6 +19,6 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
+    include: ['react', 'react-dom', 'react-router-dom', 'react-hot-toast'],
   },
 })
