@@ -27,6 +27,7 @@ export async function apiRequest(path, options = {}) {
     credentials = "include",
     retryOn401 = true,
     refreshAccessToken,
+    showToast = true,
   } = options;
 
   const resolveBody = () => {
@@ -40,7 +41,7 @@ export async function apiRequest(path, options = {}) {
     ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : null),
     ...(headers || {}),
   };
-  
+
   if (!(payload instanceof FormData) && payload != null) {
     fetchHeaders["Content-Type"] = "application/json";
   }
@@ -72,9 +73,9 @@ export async function apiRequest(path, options = {}) {
   if (!res.ok) {
     const validationMessage =
       data &&
-      data.errors &&
-      typeof data.errors === "object" &&
-      Object.values(data.errors).length > 0
+        data.errors &&
+        typeof data.errors === "object" &&
+        Object.values(data.errors).length > 0
         ? String(Object.values(data.errors)[0])
         : "";
 
@@ -92,12 +93,14 @@ export async function apiRequest(path, options = {}) {
       .trim();
 
     if (!message || message.length < 5) {
-        message = "AI service is momentarily unavailable. Retrying...";
+      message = "AI service is momentarily unavailable. Retrying...";
     }
-    
+
     // Global Toasting: Make errors "pop" as requested by user
-    toast.error(message);
-    
+    if (showToast) {
+      toast.error(message);
+    }
+
     const err = new Error(message);
     err.status = res.status;
     err.data = data;

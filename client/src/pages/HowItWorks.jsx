@@ -1,7 +1,7 @@
-import HowItWorksHero from "../components/ui/HowItWorksHero.jsx";
-import ProcessSection from "../components/ui/ProcessSection.jsx";
-import FAQSection from "../components/ui/FAQSection.jsx";
-import Dream from "../components/ui/Dream.jsx";
+import HowItWorksHero from "../components/sections/HowItWorksHero.jsx";
+import ProcessSection from "../components/sections/ProcessSection.jsx";
+import FAQSection from "../components/sections/FAQSection.jsx";
+import Dream from "../components/sections/Dream.jsx";
 
 function HowItWorksPage() {
   return (
@@ -19,8 +19,8 @@ function HowItWorksPage() {
         </p>
       </section>
       <ProcessSection showHeading={false} />
-      <FAQSection/>
-      <Dream/>
+      <FAQSection />
+      <Dream />
     </>
   );
 }

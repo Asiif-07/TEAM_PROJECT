@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { CssBaseline } from "@mui/material";
 import { RouterProvider } from "react-router-dom";
 import router from "./router.jsx";
-import { AuthProvider } from "./context/AuthContext.jsx";
+import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import "./index.css";
 import "./utils/i18n";

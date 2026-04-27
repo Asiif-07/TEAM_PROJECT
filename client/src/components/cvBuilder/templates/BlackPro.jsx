@@ -13,7 +13,8 @@ const SectionHeader = ({ title }) => (
     </Box>
 );
 
-const ContactRow = ({ icon: Icon, text }) => {
+// eslint-disable-next-line
+const ContactRow = ({ icon: IconComponent, text }) => {
     if (!text) return null;
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
@@ -21,7 +22,7 @@ const ContactRow = ({ icon: Icon, text }) => {
                 width: 30, height: 30, borderRadius: '8px', border: '1.5px solid #333',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
             }}>
-                <Icon size={14} color="#000" strokeWidth={2} />
+                <IconComponent size={14} color="#000" strokeWidth={2} />
             </Box>
             <Typography variant="body2" sx={{ color: '#444', fontWeight: 500, wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: '0.82rem' }}>
                 {text}
@@ -59,15 +60,28 @@ export default function BlackPro({ data }) {
     const safeEducation = Array.isArray(education) ? education : [];
     const safeSkills = parseArray(skills);
 
-    const profileImageUrl = React.useMemo(() => {
-        const img = personalInfo.profileImage;
-        if (personalInfo.profileImagePreview) return personalInfo.profileImagePreview;
-        if (!img) return null;
-        if (typeof img === 'string') return img;
-        if (img.secure_url) return img.secure_url;
-        if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
-        return null;
-    }, [personalInfo.profileImage, personalInfo.profileImagePreview]);
+    const profileImage = personalInfo.profileImage;
+    const profileImagePreview = personalInfo.profileImagePreview;
+    const [profileImageUrl, setProfileImageUrl] = React.useState(null);
+
+    React.useEffect(() => {
+        let url = null;
+        if (profileImagePreview) {
+            url = profileImagePreview;
+        } else if (profileImage) {
+            if (typeof profileImage === 'string') {
+                url = profileImage;
+            } else if (profileImage.secure_url) {
+                url = profileImage.secure_url;
+            } else if (profileImage instanceof File || profileImage instanceof Blob) {
+                url = URL.createObjectURL(profileImage);
+            }
+        }
+        setProfileImageUrl(url);
+        return () => {
+            if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+        };
+    }, [profileImage, profileImagePreview]);
 
     return (
         <Box className="cv-document" sx={{ minHeight: '297mm', width: '100%', fontFamily: '"Inter", sans-serif', bgcolor: 'white', display: 'flex', flexDirection: 'column', '@media print': { boxShadow: 0 } }}>

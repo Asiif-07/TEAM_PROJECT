@@ -3,22 +3,22 @@ import { LayoutPage } from './components/layout/layout.jsx';
 import HomePage from './pages/Home.jsx';
 import AboutPage from './pages/About.jsx';
 import Blog from './pages/Blog.jsx';
-import BlogCard from './components/ui/BlogCard.jsx';
+import BlogCard from './components/blog/BlogCard.jsx';
 import BlogDetails from './pages/Blog_Details.jsx';
 import Contact from './pages/ContactUs.jsx';
 import HowItWorksPage from './pages/HowItWorks.jsx';
 import Services from './pages/Service.jsx';
 import NotFound from './pages/NotFound.jsx';
-import Login from './pages/Login.jsx';
-import Signup from './pages/Signup.jsx';
-import CVBuilder from './pages/CVBuilder.jsx';
-import MyCvs from './pages/MyCvs.jsx';
-import RequireAuth from './components/RequireAuth.jsx';
-import CVTemplates from './pages/CVTemplates.jsx';
-import ForgotPassword from './pages/ForgotPassword.jsx';
-import ResetPassword from './pages/ResetPassword.jsx';
-import OAuthGoogleDone from './pages/OAuthGoogleDone.jsx';
-import Profile from './pages/Profile.jsx';
+import Login from './pages/auth/Login.jsx';
+import Signup from './pages/auth/Signup.jsx';
+import CVBuilder from './pages/dashboard/CVBuilder.jsx';
+import MyCvs from './pages/dashboard/MyCvs.jsx';
+import RequireAuth from './components/auth/RequireAuth.jsx';
+import CVTemplates from './pages/dashboard/CVTemplates.jsx';
+import ForgotPassword from './pages/auth/ForgotPassword.jsx';
+import ResetPassword from './pages/auth/ResetPassword.jsx';
+import OAuthGoogleDone from './pages/auth/OAuthGoogleDone.jsx';
+import Profile from './pages/dashboard/Profile.jsx';
 
 const router = createBrowserRouter([
   {

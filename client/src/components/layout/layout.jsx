@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Footer from "../ui/footer.jsx";
-import Header from "../ui/header.jsx";
+import Footer from "./Footer.jsx";
+import Header from "./Header.jsx";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 

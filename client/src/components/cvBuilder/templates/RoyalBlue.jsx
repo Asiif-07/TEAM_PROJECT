@@ -59,7 +59,8 @@ function RBSidebarHeader({ title }) {
     );
 }
 
-function RBTimelineHeader({ icon: Icon, title }) {
+// eslint-disable-next-line
+function RBTimelineHeader({ icon: IconComponent, title }) {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <Box sx={{
@@ -67,7 +68,7 @@ function RBTimelineHeader({ icon: Icon, title }) {
                 display: 'flex', justifyContent: 'center', alignItems: 'center',
                 ml: '44px', zIndex: 2, boxShadow: `0 4px 12px ${royalBlue}44`
             }}>
-                <Icon size={16} color="white" strokeWidth={2.5} />
+                <IconComponent size={16} color="white" strokeWidth={2.5} />
             </Box>
             <Typography variant="subtitle1" fontWeight="900" sx={{ color: royalBlue, ml: 2, letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.8rem' }}>
                 {title}

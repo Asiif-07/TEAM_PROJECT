@@ -73,15 +73,28 @@ export default function MinimalistTemplate({ data }) {
     const displayAddress = personalInfo.address || personalInfo.location;
     const displayEmail = personalInfo.email;
 
-    const profileImageUrl = React.useMemo(() => {
-        const img = personalInfo.profileImage;
-        if (personalInfo.profileImagePreview) return personalInfo.profileImagePreview;
-        if (!img) return null;
-        if (typeof img === 'string') return img;
-        if (img.secure_url) return img.secure_url;
-        if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
-        return null;
-    }, [personalInfo.profileImage, personalInfo.profileImagePreview]);
+    const profileImage = personalInfo.profileImage;
+    const profileImagePreview = personalInfo.profileImagePreview;
+    const [profileImageUrl, setProfileImageUrl] = React.useState(null);
+
+    React.useEffect(() => {
+        let url = null;
+        if (profileImagePreview) {
+            url = profileImagePreview;
+        } else if (profileImage) {
+            if (typeof profileImage === 'string') {
+                url = profileImage;
+            } else if (profileImage.secure_url) {
+                url = profileImage.secure_url;
+            } else if (profileImage instanceof File || profileImage instanceof Blob) {
+                url = URL.createObjectURL(profileImage);
+            }
+        }
+        setProfileImageUrl(url);
+        return () => {
+            if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+        };
+    }, [profileImage, profileImagePreview]);
 
     return (
         <Box className="cv-document" sx={{ display: 'flex', minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Helvetica", sans-serif', bgcolor: 'white', '@media print': { boxShadow: 0 } }}>

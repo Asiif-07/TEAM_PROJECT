@@ -43,12 +43,13 @@ function BRSectionHeader({ title }) {
     );
 }
 
-function BRContactRow({ icon: Icon, text }) {
+// eslint-disable-next-line
+function BRContactRow({ icon: IconComponent, text }) {
     if (!text) return null;
     return (
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.2, mb: 1.8 }}>
             <Box sx={{ width: 24, height: 24, borderRadius: '6px', bgcolor: `${brownHeaderBg}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, mt: '1px' }}>
-                <Icon size={12} color={brownHeaderBg} strokeWidth={2.5} />
+                <IconComponent size={12} color={brownHeaderBg} strokeWidth={2.5} />
             </Box>
             <Typography variant="body2" sx={{ color: textDark, fontWeight: 500, wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: '0.82rem', lineHeight: 1.5 }}>
                 {text}

@@ -3,8 +3,8 @@ import toast from "react-hot-toast";
 import { Box, Button, Container, Paper, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Eye, FileText, Plus, Trash2, Download } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import * as cvApi from "../api/cv";
+import { useAuth } from "../../context/AuthContext";
+import * as cvApi from "../../api/cv";
 import { useTranslation } from "react-i18next";
 
 export default function MyCvs() {

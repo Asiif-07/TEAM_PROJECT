@@ -1,14 +1,14 @@
 import React from 'react'
-import BlogDetailsHero from '../components/ui/Blog_DetailsHero'
-import BlogDetailsCardTypo from '../components/ui/Blog_DetailsCardTypo'
-import LatestBlogHeader from '../components/ui/BlogDetailsLatestPost'
+import BlogDetailsHero from '../components/blog/BlogDetailsHero'
+import BlogDetailsCardTypo from '../components/blog/BlogDetailsCardTypo'
+import LatestBlogHeader from '../components/blog/BlogDetailsLatestPost'
 
 const Blog_Details = () => {
   return (
     <div>
       <BlogDetailsHero />
-      <BlogDetailsCardTypo/>    
-      <LatestBlogHeader/>
+      <BlogDetailsCardTypo />
+      <LatestBlogHeader />
     </div>
   )
 }

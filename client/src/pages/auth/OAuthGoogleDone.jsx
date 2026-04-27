@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, CircularProgress, Typography } from "@mui/material";
-import { useAuth } from "../context/AuthContext";
+// Refresh
+import { useAuth } from "../../context/AuthContext";
 
 export default function OAuthGoogleDone() {
   const { refreshAccessToken } = useAuth();

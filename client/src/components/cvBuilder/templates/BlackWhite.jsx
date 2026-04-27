@@ -76,14 +76,25 @@ export default function BlackWhite({ data }) {
     const displayAddress = personalInfo.address || personalInfo.location;
     const displayEmail = personalInfo.email;
 
-    const profileImageUrl = React.useMemo(() => {
-        const img = personalInfo.profileImage;
-        if (!img) return null;
-        if (typeof img === 'string') return img;
-        if (img.secure_url) return img.secure_url;
-        if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
-        return null;
-    }, [personalInfo.profileImage]);
+    const profileImage = personalInfo.profileImage;
+    const [profileImageUrl, setProfileImageUrl] = React.useState(null);
+
+    React.useEffect(() => {
+        let url = null;
+        if (profileImage) {
+            if (typeof profileImage === 'string') {
+                url = profileImage;
+            } else if (profileImage.secure_url) {
+                url = profileImage.secure_url;
+            } else if (profileImage instanceof File || profileImage instanceof Blob) {
+                url = URL.createObjectURL(profileImage);
+            }
+        }
+        setProfileImageUrl(url);
+        return () => {
+            if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+        };
+    }, [profileImage]);
 
     // 🎨 CUSTOM DESIGN COMPONENTS FOR EXACT MATCH
     // Moved outside the component

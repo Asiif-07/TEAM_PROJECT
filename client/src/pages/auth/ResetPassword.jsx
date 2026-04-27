@@ -1,12 +1,16 @@
 import { Box, Button, Container, Paper, TextField, Typography, Fade } from "@mui/material";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { forgetPassword } from "../api/user";
+import { Link, useNavigate, useParams } from "react-router-dom";
+// Force reload imports
+import { resetPassword } from "../../api/user";
 import { useTranslation } from "react-i18next";
 
-export default function ForgotPassword() {
+export default function ResetPassword() {
   const { t } = useTranslation();
-  const [email, setEmail] = useState("");
+  const { token } = useParams();
+  const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,15 +20,26 @@ export default function ForgotPassword() {
     setError("");
     setMessage("");
 
-    if (!email.trim()) {
-      setError(t("Email Required"));
+    if (!token) {
+      setError("Invalid or missing reset token.");
+      return;
+    }
+
+    if (!password || !confirmPassword) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const res = await forgetPassword({ email });
-      setMessage(res?.message || t("Reset Link Sent"));
+      const res = await resetPassword({ token, password, confirmPassword });
+      setMessage(res?.message || t("Password Changed"));
+      setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       setError(err?.message || t("Error Message"));
     } finally {
@@ -49,7 +64,7 @@ export default function ForgotPassword() {
               {t("Reset Password Title")}
             </Typography>
             <Typography sx={{ color: "#6B7280", fontWeight: 500 }}>
-              {t("Reset Password Sub")}
+              {t("New Password")}
             </Typography>
           </Box>
 
@@ -72,10 +87,18 @@ export default function ForgotPassword() {
           <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               fullWidth
-              label={t("Email Address")}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              label={t("New Password")}
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <TextField
+              fullWidth
+              label={t("Confirm Password")}
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
 
@@ -86,7 +109,7 @@ export default function ForgotPassword() {
               disabled={isSubmitting}
               sx={{ bgcolor: "#111827", py: 1.5, fontWeight: 800, borderRadius: "16px", textTransform: "none", "&:hover": { bgcolor: "#1F2937" } }}
             >
-              {isSubmitting ? t("Sending") : t("Send Reset Link")}
+              {isSubmitting ? t("Updating") : t("Update Password")}
             </Button>
 
             <Typography sx={{ textAlign: "center", mt: 1, color: "#6B7280", fontWeight: 500, fontSize: 13 }}>

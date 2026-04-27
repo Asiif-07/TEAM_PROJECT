@@ -1,16 +1,68 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Box, Container, Paper, Typography, Avatar, Divider, Button, IconButton, CircularProgress } from "@mui/material";
-import { useAuth } from "../context/AuthContext";
-import { FileText, User, Mail, Calendar, Camera } from "lucide-react";
-import { Link } from "react-router-dom";
-import { updateProfilePic } from "../api/user";
+import { useAuth } from "../../context/AuthContext";
+import { FileText, User, Mail, Calendar, Camera, XCircle } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { updateProfilePic } from "../../api/user";
+import { verifySession, cancelSubscription } from "../../api/stripe";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 
 export default function Profile() {
     const { t } = useTranslation();
     const { user, setUser, accessToken, refreshAccessToken } = useAuth();
     const [uploading, setUploading] = useState(false);
+    const [verifying, setVerifying] = useState(false);
+    const [canceling, setCanceling] = useState(false);
     const fileInputRef = useRef(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        const sessionId = searchParams.get("session_id");
+        const success = searchParams.get("success");
+
+        if (success === "true" && sessionId && !verifying) {
+            setVerifying(true);
+            toast.loading(t("Verifying your payment..."), { id: "verify-payment" });
+
+            verifySession({ sessionId, accessToken, refreshAccessToken })
+                .then((res) => {
+                    if (res && res.user) {
+                        setUser(res.user);
+                        localStorage.setItem("currentUser", JSON.stringify(res.user));
+                        toast.success(t("Payment Successful! Premium activated."), { id: "verify-payment" });
+                    }
+                    // Clean the URL without causing a full reload
+                    searchParams.delete("session_id");
+                    searchParams.delete("success");
+                    setSearchParams(searchParams, { replace: true });
+                })
+                .catch((err) => {
+                    toast.error(err.message || t("Could not verify payment."), { id: "verify-payment" });
+                })
+                .finally(() => {
+                    setVerifying(false);
+                });
+        }
+    }, [searchParams, accessToken, refreshAccessToken, t, setUser, setSearchParams, verifying]);
+
+    const handleCancelSubscription = async () => {
+        setCanceling(true);
+        toast.loading(t("Canceling subscription..."), { id: "cancel-sub" });
+
+        try {
+            const res = await cancelSubscription({ accessToken, refreshAccessToken });
+            if (res && res.user) {
+                setUser(res.user);
+                localStorage.setItem("currentUser", JSON.stringify(res.user));
+                toast.success(t("Your subscription has been successfully canceled."), { id: "cancel-sub" });
+            }
+        } catch (error) {
+            toast.error(error.message || t("Failed to cancel subscription."), { id: "cancel-sub" });
+        } finally {
+            setCanceling(false);
+        }
+    };
 
     if (!user) {
         return (
@@ -89,8 +141,36 @@ export default function Profile() {
                         </IconButton>
                     </Box>
 
-                    <Typography variant="h4" fontWeight="900" color="#111827">{user.name}</Typography>
-                    <Typography color="textSecondary" sx={{ mb: 4 }}>{t("CV Member")}</Typography>
+                    <Typography variant="h4" fontWeight="900" color="#111827" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                        {user.name}
+                    </Typography>
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, mb: 4, mt: 1 }}>
+                        <Typography variant="body2" sx={{
+                            bgcolor: user.subscriptionStatus === "active" ? "#10B98120" : "#E5E7EB",
+                            color: user.subscriptionStatus === "active" ? "#059669" : "#6B7280",
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: "100px",
+                            fontWeight: "bold",
+                            fontSize: "12px",
+                            display: "inline-flex",
+                            alignItems: "center"
+                        }}>
+                            {user.subscriptionStatus === "active" ? `🌟 ${t("Premium Member")}` : t("Free Plan")}
+                        </Typography>
+
+                        {user.subscriptionStatus === "active" && (
+                            <Button
+                                onClick={handleCancelSubscription}
+                                disabled={canceling}
+                                color="error"
+                                size="small"
+                                startIcon={canceling ? <CircularProgress size={12} color="inherit" /> : <XCircle size={14} />}
+                                sx={{ textTransform: 'none', fontSize: '11px', fontWeight: 600, mt: 0.5, opacity: 0.8, borderRadius: '8px' }}>
+                                {canceling ? t("Canceling...") : t("Cancel Premium")}
+                            </Button>
+                        )}
+                    </Box>
 
                     <Divider sx={{ mb: 4 }} />
 

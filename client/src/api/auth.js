@@ -29,6 +29,7 @@ export function refreshToken() {
     method: "POST",
     credentials: "include",
     retryOn401: false,
+    showToast: false,
   });
 }
 

@@ -38,6 +38,11 @@ export const AuthProvider = ({ children }) => {
                 }
                 return { accessToken: data?.accessToken || "" };
             } catch {
+                // If refresh fails, the session is likely dead. Clear state to trigger redirection.
+                setAccessToken("");
+                setUser(null);
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("currentUser");
                 return { accessToken: "" };
             }
         })();

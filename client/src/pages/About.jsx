@@ -1,9 +1,9 @@
 import React from "react";
-import ProfileHero from "../components/ui/ProfileHero.jsx";
-import OurStory from "../components/ui/OurStory.jsx";
-import SuccessByNumbers from "../components/ui/SuccessByNumbers.jsx";
-import OurTeam from "../components/ui/OurTeam.jsx";
-import Review from "../components/ui/Review.jsx";
+import ProfileHero from "../components/sections/ProfileHero.jsx";
+import OurStory from "../components/sections/OurStory.jsx";
+import SuccessByNumbers from "../components/sections/SuccessByNumbers.jsx";
+import OurTeam from "../components/sections/OurTeam.jsx";
+import Review from "../components/sections/Review.jsx";
 
 function AboutPage() {
   return (
@@ -12,7 +12,7 @@ function AboutPage() {
       <OurStory />
       <SuccessByNumbers />
       <OurTeam />
-      <Review/>
+      <Review />
     </>
   );
 }

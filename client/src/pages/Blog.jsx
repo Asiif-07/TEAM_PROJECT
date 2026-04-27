@@ -1,7 +1,7 @@
 import React from 'react';
-import HeroSection from '../components/ui/BlogHero.jsx';
-import ArticleCard from '../components/ui/BlogArticleCard.jsx';
-import BlogGrid from '../components/ui/BlogGridCard.jsx';
+import HeroSection from '../components/blog/BlogHero.jsx';
+import ArticleCard from '../components/blog/BlogArticleCard.jsx';
+import BlogGrid from '../components/blog/BlogGridCard.jsx';
 export default function Blog() {
   return (
     <div className="bg-white min-h-screen font-sans">

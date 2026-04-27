@@ -56,9 +56,19 @@ const userSchema = new mongoose.Schema({
         secure_url: { type: String, default: "" },
         public_id: { type: String, default: "" },
     },
-
-
-
+    stripeCustomerId: {
+        type: String,
+        default: null,
+    },
+    subscriptionStatus: {
+        type: String,
+        enum: ["active", "past_due", "canceled", "none", "incomplete", "incomplete_expired", "trialing", "unpaid"],
+        default: "none",
+    },
+    subscriptionPlan: {
+        type: String,
+        default: null,
+    },
 })
 
 userSchema.pre("save", async function () {

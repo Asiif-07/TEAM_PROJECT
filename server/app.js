@@ -9,6 +9,8 @@ import cookieParser from "cookie-parser";
 import userRouter from "./router/user.route.js";
 import cvRouter from "./router/cv.route.js";
 import aiRouter from "./router/ai.route.js";
+import stripeRouter from "./router/stripe.route.js";
+import { stripeWebhook } from "./controller/stripe.controller.js";
 
 const app = express();
 
@@ -50,6 +52,9 @@ const rateLimiter = limiter({
 
 // app.use(rateLimiter);
 
+// MUST BE BEFORE express.json() to parse Stripe Webhooks correctly
+app.use('/api/v1/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+
 app.use(express.json({ limit: "15mb" }));
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
@@ -62,7 +67,8 @@ app.use((req, res, next) => {
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/cv', cvRouter);
-app.use('/api/v1/ai' , aiRouter); 
+app.use('/api/v1/ai', aiRouter);
+app.use('/api/v1/stripe', stripeRouter);
 
 app.use(ErrorMiddleWare);
 

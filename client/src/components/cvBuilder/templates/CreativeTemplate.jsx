@@ -3,15 +3,16 @@ import { Box, Typography } from '@mui/material';
 import { User, Briefcase, GraduationCap, Plus, Award, Wrench, Languages } from 'lucide-react';
 import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
-const SectionIcon = ({ icon: Icon, color }) => (
+// eslint-disable-next-line
+const SectionIcon = ({ icon: IconComponent, color }) => (
     <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: `${color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Icon size={15} color={color} strokeWidth={2.5} />
+        <IconComponent size={15} color={color} strokeWidth={2.5} />
     </Box>
 );
 
-const RightHeader = ({ icon: Icon, title, mainColor }) => (
+const RightHeader = ({ icon: IconComponent, title, mainColor }) => (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5, mt: 4 }}>
-        <SectionIcon icon={Icon} color={mainColor} />
+        <SectionIcon icon={IconComponent} color={mainColor} />
         <Typography variant="subtitle1" fontWeight="900" sx={{ color: mainColor, textTransform: 'uppercase', letterSpacing: '1.5px', fontSize: '0.8rem' }}>{title}</Typography>
         <Box sx={{ flex: 1, height: '1px', bgcolor: mainColor, opacity: 0.2 }} />
     </Box>
@@ -28,9 +29,7 @@ export default function CreativeTemplate({ data }) {
         hobbies = [],
         interests = [],
         certifications = [],
-        certificates = [],
-        awards = [],
-        achievements = []
+        certificates = []
     } = data || {};
 
     const mainColor = "#1B629A";
@@ -64,15 +63,28 @@ export default function CreativeTemplate({ data }) {
     const displayEmail = personalInfo.email;
     const displayLinkedin = personalInfo.linkedin;
 
-    const profileImageUrl = React.useMemo(() => {
-        const img = personalInfo.profileImage;
-        if (personalInfo.profileImagePreview) return personalInfo.profileImagePreview;
-        if (!img) return null;
-        if (typeof img === 'string') return img;
-        if (img.secure_url) return img.secure_url;
-        if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
-        return null;
-    }, [personalInfo.profileImage, personalInfo.profileImagePreview]);
+    const profileImage = personalInfo.profileImage;
+    const profileImagePreview = personalInfo.profileImagePreview;
+    const [profileImageUrl, setProfileImageUrl] = React.useState(null);
+
+    React.useEffect(() => {
+        let url = null;
+        if (profileImagePreview) {
+            url = profileImagePreview;
+        } else if (profileImage) {
+            if (typeof profileImage === 'string') {
+                url = profileImage;
+            } else if (profileImage.secure_url) {
+                url = profileImage.secure_url;
+            } else if (profileImage instanceof File || profileImage instanceof Blob) {
+                url = URL.createObjectURL(profileImage);
+            }
+        }
+        setProfileImageUrl(url);
+        return () => {
+            if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+        };
+    }, [profileImage, profileImagePreview]);
 
     return (
         <Box className="cv-document" sx={{ display: 'flex', minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Arial", sans-serif', bgcolor: 'white', '@media print': { boxShadow: 0 } }}>

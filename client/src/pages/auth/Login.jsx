@@ -1,28 +1,20 @@
-import { Box, Button, TextField, Typography, Paper, Fade, MenuItem } from "@mui/material";
+import { Box, Button, TextField, Typography, Paper, Checkbox, FormControlLabel, Fade } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
 import { useCallback, useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import GoogleSignInButton from "../components/auth/GoogleSignInButton";
+import { useAuth } from "../../context/AuthContext";
+import GoogleSignInButton from "../../components/auth/GoogleSignInButton";
 
-const Signup = () => {
+const Login = () => {
     const { t } = useTranslation();
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        gender: "male",
-    });
-
-    const { signup, loginWithGoogle } = useAuth();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const { login, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from || "/";
     const [searchParams, setSearchParams] = useSearchParams();
     const [error, setError] = useState(() => searchParams.get("oauth_error") || "");
-    const [successMessage, setSuccessMessage] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (searchParams.has("oauth_error")) {
@@ -31,6 +23,23 @@ const Signup = () => {
             setSearchParams(next, { replace: true });
         }
     }, [searchParams, setSearchParams]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+
+        if (!email || !password) {
+            setError("Please fill in all fields.");
+            return;
+        }
+
+        const result = await login(email, password);
+        if (result.success) {
+            navigate(from, { replace: true });
+        } else {
+            setError(result.message);
+        }
+    };
 
     const handleGoogleCredential = useCallback(
         async (credential) => {
@@ -45,53 +54,6 @@ const Signup = () => {
         [from, loginWithGoogle, navigate]
     );
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        setError("");
-        setSuccessMessage("");
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (isSubmitting) return;
-        setError("");
-        setSuccessMessage("");
-
-        if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-            setError("All fields are required.");
-            return;
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-            setError("Passwords do not match.");
-            return;
-        }
-
-        if (formData.password.length < 6) {
-            setError("Password must be at least 6 characters.");
-            return;
-        }
-
-        setIsSubmitting(true);
-        const result = await signup(formData.name, formData.email, formData.password, formData.gender);
-        setIsSubmitting(false);
-
-        if (!result.success) {
-            setError(result.message);
-            return;
-        }
-
-        setSuccessMessage(result.message || "Account has been created successfully. You can log in now.");
-        setFormData({
-            name: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-            gender: "male",
-        });
-        setTimeout(() => navigate("/login", { state: { from: location.state?.from || "/" } }), 1200);
-    };
-
     return (
         <Box
             className="bg-mesh"
@@ -100,7 +62,7 @@ const Signup = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                py: 6,
+                py: 4,
                 px: 2,
                 position: 'relative',
                 overflow: 'hidden'
@@ -116,7 +78,7 @@ const Signup = () => {
                 sx={{
                     p: { xs: 4, sm: 6 },
                     width: "100%",
-                    maxWidth: "500px",
+                    maxWidth: "480px",
                     borderRadius: "32px",
                     boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
                     border: "1px solid rgba(255, 255, 255, 0.8)",
@@ -137,7 +99,7 @@ const Signup = () => {
                             letterSpacing: '-1px'
                         }}
                     >
-                        {t("Sign Up")}
+                        {t("Welcome Back")}
                     </Typography>
                     <Typography
                         sx={{
@@ -146,7 +108,7 @@ const Signup = () => {
                             fontWeight: 500
                         }}
                     >
-                        {t("Join Journey")}
+                        {t("Sign In Access")}
                     </Typography>
                 </Box>
 
@@ -169,63 +131,17 @@ const Signup = () => {
                     </Fade>
                 )}
 
-                {successMessage && (
-                    <Fade in={true}>
-                        <Typography
-                            sx={{
-                                color: "#065F46",
-                                fontSize: "14px",
-                                textAlign: "center",
-                                bgcolor: "rgba(209, 250, 229, 0.6)",
-                                p: 1.5,
-                                borderRadius: "12px",
-                                border: "1px solid rgba(16, 185, 129, 0.25)",
-                                fontWeight: 600
-                            }}
-                        >
-                            {successMessage}
-                        </Typography>
-                    </Fade>
-                )}
-
                 <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                    <Box>
-                        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                            {t("Full Name")}
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            name="name"
-                            placeholder="John Doe"
-                            value={formData.name}
-                            onChange={handleChange}
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    bgcolor: "rgba(255, 255, 255, 0.5)",
-                                    borderRadius: "16px",
-                                    transition: "all 0.3s ease",
-                                    "& fieldset": { borderColor: "rgba(0,0,0,0.05)" },
-                                    "&:hover fieldset": { borderColor: "#2563EB" },
-                                    "&.Mui-focused": {
-                                        bgcolor: "white",
-                                        "& fieldset": { borderColor: "#2563EB", borderWidth: '2px' }
-                                    }
-                                }
-                            }}
-                        />
-                    </Box>
-
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
                             {t("Email Address")}
                         </Typography>
                         <TextField
                             fullWidth
-                            name="email"
+                            placeholder="name@company.com"
                             type="email"
-                            placeholder="john@example.com"
-                            value={formData.email}
-                            onChange={handleChange}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             sx={{
                                 "& .MuiOutlinedInput-root": {
                                     bgcolor: "rgba(255, 255, 255, 0.5)",
@@ -242,71 +158,16 @@ const Signup = () => {
                         />
                     </Box>
 
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Box sx={{ flex: 1 }}>
-                            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                                {t("Password")}
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="password"
-                                type="password"
-                                placeholder="Min. 6 chars"
-                                value={formData.password}
-                                onChange={handleChange}
-                                sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                        bgcolor: "rgba(255, 255, 255, 0.5)",
-                                        borderRadius: "16px",
-                                        transition: "all 0.3s ease",
-                                        "& fieldset": { borderColor: "rgba(0,0,0,0.05)" },
-                                        "&:hover fieldset": { borderColor: "#2563EB" },
-                                        "&.Mui-focused": {
-                                            bgcolor: "white",
-                                            "& fieldset": { borderColor: "#2563EB", borderWidth: '2px' }
-                                        }
-                                    }
-                                }}
-                            />
-                        </Box>
-                        <Box sx={{ flex: 1 }}>
-                            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                                {t("Confirm")}
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="confirmPassword"
-                                type="password"
-                                placeholder="Repeat password"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                        bgcolor: "rgba(255, 255, 255, 0.5)",
-                                        borderRadius: "16px",
-                                        transition: "all 0.3s ease",
-                                        "& fieldset": { borderColor: "rgba(0,0,0,0.05)" },
-                                        "&:hover fieldset": { borderColor: "#2563EB" },
-                                        "&.Mui-focused": {
-                                            bgcolor: "white",
-                                            "& fieldset": { borderColor: "#2563EB", borderWidth: '2px' }
-                                        }
-                                    }
-                                }}
-                            />
-                        </Box>
-                    </Box>
-
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                            Gender
+                            {t("Password")}
                         </Typography>
                         <TextField
                             fullWidth
-                            select
-                            name="gender"
-                            value={formData.gender}
-                            onChange={handleChange}
+                            placeholder="Enter your secure password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             sx={{
                                 "& .MuiOutlinedInput-root": {
                                     bgcolor: "rgba(255, 255, 255, 0.5)",
@@ -320,37 +181,51 @@ const Signup = () => {
                                     }
                                 }
                             }}
+                        />
+                    </Box>
+
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <FormControlLabel
+                            control={<Checkbox sx={{ color: "#D1D5DB", "&.Mui-checked": { color: "#2563EB" } }} />}
+                            label={<Typography variant="body2" sx={{ color: "#4B5563", fontWeight: 500 }}>Remember me</Typography>}
+                        />
+                        <Typography
+                            component={Link}
+                            to="/forgot-password"
+                            sx={{
+                                fontSize: "14px",
+                                fontWeight: 600,
+                                color: "#2563EB",
+                                textDecoration: "none",
+                                "&:hover": { textDecoration: "underline" },
+                            }}
                         >
-                            <MenuItem value="male">Male</MenuItem>
-                            <MenuItem value="female">Female</MenuItem>
-                            <MenuItem value="other">Other</MenuItem>
-                        </TextField>
+                            Forgot Password?
+                        </Typography>
                     </Box>
 
                     <Button
                         type="submit"
                         fullWidth
                         variant="contained"
-                        disabled={isSubmitting}
                         sx={{
                             bgcolor: "#111827",
                             fontSize: "16px",
                             fontWeight: 700,
                             borderRadius: "16px",
                             py: 2,
-                            mt: 1,
                             textTransform: "none",
                             boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                             "&:hover": { bgcolor: "#1F2937", transform: 'translateY(-2px)' },
                             transition: 'all 0.3s ease'
                         }}
                     >
-                        {isSubmitting ? t("Signing Up") : t("Create Elite Account")}
+                        {t("Sign In")}
                     </Button>
 
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
-                        <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: 'uppercase' }}>{t("Social Entry")}</Typography>
+                        <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: 'uppercase' }}>{t("Secure Connect")}</Typography>
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
                     </Box>
 
@@ -379,7 +254,7 @@ const Signup = () => {
                                 gap: 1
                             }}
                         >
-                            Continue with Google
+                            {t("Continue with Google")}
                         </Button>
                         <GoogleSignInButton onCredential={handleGoogleCredential} />
                         <Button
@@ -403,10 +278,10 @@ const Signup = () => {
 
                 <Box sx={{ textAlign: "center" }}>
                     <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500 }}>
-                        {t("Already have an account?")}{" "}
+                        {t("Login Help")}{" "}
                         <Box
                             component={Link}
-                            to="/login"
+                            to="/signup"
                             sx={{
                                 color: "#2563EB",
                                 fontWeight: 700,
@@ -414,7 +289,7 @@ const Signup = () => {
                                 "&:hover": { textDecoration: "underline" },
                             }}
                         >
-                            {t("Log in here")}
+                            {t("Create Account Link")}
                         </Box>
                     </Typography>
                 </Box>
@@ -423,4 +298,4 @@ const Signup = () => {
     );
 };
 
-export default Signup;
+export default Login;

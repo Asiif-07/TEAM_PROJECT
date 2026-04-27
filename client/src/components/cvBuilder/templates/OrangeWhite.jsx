@@ -21,11 +21,12 @@ function SectionBanner({ title }) {
     );
 }
 
-function ContactIconRow({ icon: Icon, text }) {
+// eslint-disable-next-line
+function ContactIconRow({ icon: IconComponent, text }) {
     if (!text) return null;
     return (
         <Box sx={{ display: 'flex', gap: 1.2, alignItems: 'flex-start', mb: 1.2 }}>
-            <Icon size={13} color={primaryOrange} strokeWidth={2.5} style={{ marginTop: 2, flexShrink: 0 }} />
+            <IconComponent size={13} color={primaryOrange} strokeWidth={2.5} style={{ marginTop: 2, flexShrink: 0 }} />
             <Typography variant="body2" sx={{ color: '#444', fontSize: '0.8rem', wordBreak: 'break-word', overflowWrap: 'break-word', fontWeight: 500 }}>{text}</Typography>
         </Box>
     );

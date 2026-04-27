@@ -1,16 +1,16 @@
-import ServicesHero from "../components/ui/ServicesHero.jsx";
-import Services from "../components/ui/Services.jsx";   
-import FeatureSection from "../components/ui/Feature_services.jsx";
-import Dream from "../components/ui/Dream.jsx";
-import FAQSection from "../components/ui/FAQSection.jsx";
+import ServicesHero from "../components/sections/ServicesHero.jsx";
+import Services from "../components/sections/Services.jsx";
+import FeatureSection from "../components/sections/FeatureServices.jsx";
+import Dream from "../components/sections/Dream.jsx";
+import FAQSection from "../components/sections/FAQSection.jsx";
 function Service() {
     return (
         <>
-        <ServicesHero />
-        <Services />
-        <FeatureSection/>
-        <FAQSection/>
-        <Dream/>
+            <ServicesHero />
+            <Services />
+            <FeatureSection />
+            <FAQSection />
+            <Dream />
         </>
     );
 }

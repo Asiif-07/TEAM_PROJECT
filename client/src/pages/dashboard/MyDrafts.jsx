@@ -3,9 +3,9 @@ import { Box, Typography, Button, Container, Paper } from "@mui/material";
 import { Plus, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../context/AuthContext";
-import { useCVDraft } from "../hooks/useCVDraft";
-import DraftList from "../components/cvBuilder/DraftList";
+import { useAuth } from "../../context/AuthContext";
+import { useCVDraft } from "../../hooks/useCVDraft";
+import DraftList from "../../components/cvBuilder/DraftList";
 import toast from "react-hot-toast";
 
 /**

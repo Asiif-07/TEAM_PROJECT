@@ -3,20 +3,20 @@ import toast from 'react-hot-toast';
 import { Box, Button, Typography, Paper, Container } from "@mui/material";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useSearchParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from "react-i18next";
-import * as cvApi from "../api/cv";
-import * as aiApi from "../api/ai";
-import { mapParsedDataToTemplate } from "../utils/cvBuilder/dataMapper";
-import { getTemplateConfig } from "../utils/cvBuilder/templateConfig";
+import * as cvApi from "../../api/cv";
+import * as aiApi from "../../api/ai";
+import { mapParsedDataToTemplate } from "../../utils/cvBuilder/dataMapper";
+import { getTemplateConfig } from "../../utils/cvBuilder/templateConfig";
 
-import CustomStepper from "../components/cvBuilder/CustomStepper";
-import LivePreview from "../components/cvBuilder/LivePreview";
-import PersonalInfoStep from "../components/cvBuilder/steps/PersonalInfoStep";
-import ExperienceStep from "../components/cvBuilder/steps/ExperienceStep";
-import SkillsEducationStep from "../components/cvBuilder/steps/SkillsEducationStep";
-import GenerateStep from "../components/cvBuilder/steps/GenerateStep";
-import PreviewCV from "../components/cvBuilder/PreviewCV";
+import CustomStepper from "../../components/cvBuilder/CustomStepper";
+import LivePreview from "../../components/cvBuilder/LivePreview";
+import PersonalInfoStep from "../../components/cvBuilder/steps/PersonalInfoStep";
+import ExperienceStep from "../../components/cvBuilder/steps/ExperienceStep";
+import SkillsEducationStep from "../../components/cvBuilder/steps/SkillsEducationStep";
+import GenerateStep from "../../components/cvBuilder/steps/GenerateStep";
+import PreviewCV from "../../components/cvBuilder/PreviewCV";
 
 export default function CVBuilder() {
     const { t } = useTranslation();
