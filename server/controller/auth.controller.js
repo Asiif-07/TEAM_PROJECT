@@ -157,7 +157,7 @@ function getOAuth2ClientForRedirect(redirectUri) {
   return new OAuth2Client(id, secret, redirectUri);
 }
 
-const appBaseUrl = () => process.env.APP_URL || "http://localhost:5173";
+const appBaseUrl = () => process.env.FRONTEND_URL || process.env.APP_URL || "https://carrerforge.vercel.app";
 
 async function findOrCreateUserFromGooglePayload(payload) {
   if (!payload?.email || !payload?.sub) {
@@ -260,8 +260,8 @@ const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
   const allowlist = getOAuthRedirectAllowlist();
   let redirectUri = req.cookies?.google_oauth_redirect;
   const cookieState = req.cookies?.google_oauth_state;
-  const baseFromCookie = appBaseFromRedirectUri(redirectUri);
-  const base = baseFromCookie || appBaseUrl();
+  const appOrigin = req.cookies?.google_oauth_origin;
+  const base = appOrigin || appBaseUrl();
 
   const redirectLogin = (msg) =>
     res.redirect(302, `${base}/login?oauth_error=${encodeURIComponent(msg)}`);
