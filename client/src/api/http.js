@@ -1,10 +1,4 @@
 import toast from "react-hot-toast";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-function buildUrl(path) {
-  if (!path.startsWith("/")) return `${API_BASE_URL}/${path}`;
-  return `${API_BASE_URL}${path}`;
-}
 
 async function readJsonSafe(res) {
   const text = await res.text();
@@ -46,7 +40,8 @@ export async function apiRequest(path, options = {}) {
     fetchHeaders["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(buildUrl(path), {
+  const endpoint = path.startsWith("/") ? path : `/${path}`;
+  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
     method,
     credentials,
     headers: fetchHeaders,
