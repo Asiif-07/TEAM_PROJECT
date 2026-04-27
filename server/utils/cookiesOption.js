@@ -1,10 +1,10 @@
 
 const CookieOptions = {
-    httpOnly:true,
-    secure:false,
-    sameSite:"strict",
-    maxAge:8*24*60*60*1000
+    httpOnly: true,
+    secure: true, // Required for sameSite: "none"
+    sameSite: "none", // Required for cross-site cookies
+    maxAge: 8 * 24 * 60 * 60 * 1000
 }
 
 
-export {CookieOptions}
+export { CookieOptions }
