@@ -38,8 +38,8 @@ export const createCheckoutSession = async (req, res) => {
                     quantity: 1,
                 },
             ],
-            success_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/profile?success=true&session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/services?canceled=true`,
+            success_url: `${process.env.CLIENT_URL || process.env.FRONTEND_URL || "https://carrerforge.vercel.app"}/profile?success=true&session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.CLIENT_URL || process.env.FRONTEND_URL || "https://carrerforge.vercel.app"}/services?canceled=true`,
             client_reference_id: userId.toString(),
             customer_email: user.email,
         };

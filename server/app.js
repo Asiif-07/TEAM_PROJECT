@@ -13,6 +13,7 @@ import stripeRouter from "./router/stripe.route.js";
 import { stripeWebhook } from "./controller/stripe.controller.js";
 
 const app = express();
+app.set("trust proxy", 1);
 
 const allowedOrigins = [
     process.env.FRONTEND_URL,

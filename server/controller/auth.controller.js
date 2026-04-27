@@ -261,7 +261,7 @@ const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
   let redirectUri = req.cookies?.google_oauth_redirect;
   const cookieState = req.cookies?.google_oauth_state;
   const appOrigin = req.cookies?.google_oauth_origin;
-  const base = appOrigin || appBaseUrl();
+  const base = appOrigin || process.env.FRONTEND_URL || process.env.APP_URL || "https://carrerforge.vercel.app";
 
   const redirectLogin = (msg) =>
     res.redirect(302, `${base}/login?oauth_error=${encodeURIComponent(msg)}`);
