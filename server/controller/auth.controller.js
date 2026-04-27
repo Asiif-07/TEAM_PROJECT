@@ -12,7 +12,7 @@ import sanitizeUser from "../utils/sanitizeUser.js"
 
 const getAppUrlFromRequest = (req) => {
   const origin = req?.headers?.origin;
-  return origin || process.env.APP_URL || "http://localhost:5173";
+  return origin || process.env.CLIENT_URL || process.env.APP_URL || "http://localhost:5173";
 }
 
 const RegisterUser = AsyncHandler(async (req, res, next) => {
@@ -70,10 +70,11 @@ const GOOGLE_CALLBACK_PATH = "/api/v1/auth/google/callback";
 
 function getOAuthRedirectAllowlist() {
   const raw = process.env.OAUTH_REDIRECT_ORIGINS;
-  if (raw) {
-    return raw.split(",").map((s) => s.trim().replace(/\/$/, "")).filter(Boolean);
-  }
   const list = ["http://localhost:5173", "http://127.0.0.1:5173"];
+
+  if (raw) {
+    list.push(...raw.split(",").map((s) => s.trim().replace(/\/$/, "")).filter(Boolean));
+  }
   if (process.env.APP_URL) {
     try {
       list.push(new URL(process.env.APP_URL).origin);
@@ -81,6 +82,28 @@ function getOAuthRedirectAllowlist() {
       list.push(String(process.env.APP_URL).replace(/\/$/, ""));
     }
   }
+  if (process.env.CLIENT_URL) {
+    try {
+      list.push(new URL(process.env.CLIENT_URL).origin);
+    } catch {
+      list.push(String(process.env.CLIENT_URL).replace(/\/$/, ""));
+    }
+  }
+  if (process.env.FRONTEND_URL) {
+    try {
+      list.push(new URL(process.env.FRONTEND_URL).origin);
+    } catch {
+      list.push(String(process.env.FRONTEND_URL).replace(/\/$/, ""));
+    }
+  }
+  if (process.env.CALLBACK_URL) {
+    try {
+      list.push(new URL(process.env.CALLBACK_URL).origin);
+    } catch {
+      /* ignore */
+    }
+  }
+
   return [...new Set(list)];
 }
 
@@ -131,13 +154,26 @@ function redirectUriIsAllowed(redirectUri, allowlist) {
 function resolveOAuthRedirectUri(req) {
   const allowlist = getOAuthRedirectAllowlist();
   const fromBrowser = getOriginFromRequest(req);
+  const fallback = process.env.CALLBACK_URL?.trim();
+
+  // 1. In production, we usually want the redirect to go directly to the backend CALLBACK_URL
+  // to avoid issues with missing proxies on platforms like Vercel.
+  if (fallback) {
+    const cleanFallback = fallback.replace(/\/$/, "");
+    if (redirectUriIsAllowed(cleanFallback, allowlist)) {
+      // If we are on localhost, we might still prefer the local proxy for HMR/debugging
+      if (fromBrowser && (fromBrowser.includes("localhost") || fromBrowser.includes("127.0.0.1"))) {
+        return buildGoogleRedirectUri(fromBrowser);
+      }
+      return cleanFallback;
+    }
+  }
+
+  // 2. If no CALLBACK_URL is set, or we are developing locally, fallback to origin-based URI
   if (fromBrowser && originIsAllowed(fromBrowser, allowlist)) {
     return buildGoogleRedirectUri(fromBrowser);
   }
-  const fallback = process.env.CALLBACK_URL?.trim();
-  if (fallback && redirectUriIsAllowed(fallback, allowlist)) {
-    return fallback.replace(/\/$/, "");
-  }
+
   return null;
 }
 
