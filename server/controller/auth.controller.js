@@ -60,8 +60,8 @@ const googleClient = process.env.GOOGLE_CLIENT_ID
 
 const googleOAuthStateCookie = {
   httpOnly: true,
-  secure: CookieOptions.secure === true,
-  sameSite: "lax",
+  secure: true,
+  sameSite: "none",
   maxAge: 10 * 60 * 1000,
   path: "/",
 };
