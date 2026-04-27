@@ -11,7 +11,7 @@ const templates = [
     title: "Classic Professional",
     description: "Clean and traditional structure with strong section headings.",
     highlights: ["Balanced spacing", "Section-first layout", "Professional accent"],
-    image: "src/assets/images/classical cv.png"
+    image: "/assets/images/classical cv.png"
   },
   {
     id: "europass-standard",
@@ -19,7 +19,7 @@ const templates = [
     title: "Standard EU Format",
     description: "The official layout required for many European institutions.",
     highlights: ["Official format", "Left-aligned labels", "Recognized Europe-wide"],
-    image: "src/assets/images/euro poass.png"
+    image: "/assets/images/euro poass.png"
   },
   {
     id: "korean-standard",
@@ -27,7 +27,7 @@ const templates = [
     title: "Standard 이력서",
     description: "Traditional grid-based layout for the Korean job market.",
     highlights: ["Photo inclusion", "Strict table grid", "Standard data fields"],
-    image: "src/assets/images/korean cv teof.jpg"
+    image: "/assets/images/korean cv teof.jpg"
   },
   {
     id: "modern-blue",
@@ -35,7 +35,7 @@ const templates = [
     title: "Modern Split-Layout",
     description: "Contemporary layout designed for quick recruiter scanning.",
     highlights: ["Sidebar header", "Readable typography", "Modern section dividers"],
-    image: "src/assets/images/modern cv.webp"
+    image: "/assets/images/modern cv.webp"
   },
   {
     id: "minimalist-clean",
@@ -43,7 +43,7 @@ const templates = [
     title: "Minimalist Zen",
     description: "Ultra-clean design that focuses on typography and whitespace.",
     highlights: ["High whitespace", "Elegant serif font", "Focused structure"],
-    image: "src/assets/images/minimalist .png"
+    image: "/assets/images/minimalist .png"
   },
   {
     id: "creative-indigo",
@@ -51,7 +51,7 @@ const templates = [
     title: "Creative Spark",
     description: "Dynamic and bold layout with colorful accents for a standout CV.",
     highlights: ["Colorful accents", "Modern avatar", "High impact"],
-    image: "src/assets/images/creative cv.png"
+    image: "/assets/images/creative cv.png"
   },
 
   {
@@ -60,7 +60,7 @@ const templates = [
     title: "Black Pro",
     description: "A sleek, high-contrast professional template designed for modern corporate roles.",
     highlights: ["Dark theme elements", "High contrast", "Executive feel"],
-    image: "src/assets/images/Black Pro.PNg" 
+    image: "/assets/images/Black Pro.PNg"
   },
   {
     id: "black-white",
@@ -68,7 +68,7 @@ const templates = [
     title: "Black & White",
     description: "A classic greyscale design focusing entirely on content and clean typography.",
     highlights: ["Printer friendly", "Greyscale", "Distraction-free"],
-    image: "src/assets/images/blackk.PNG"
+    image: "/assets/images/blackk.PNG"
   },
   {
     id: "monochrome-simple",
@@ -76,7 +76,7 @@ const templates = [
     title: "Monochrome Simple",
     description: "A straightforward, single-color layout for a highly readable and elegant presentation.",
     highlights: ["Single tone", "Simple structure", "Easy to scan"],
-    image: "src/assets/images/Monochrome simple.PNG"
+    image: "/assets/images/Monochrome simple.PNG"
   },
   {
     id: "orange-white",
@@ -84,7 +84,7 @@ const templates = [
     title: "Orange White",
     description: "Vibrant orange accents mixed with clean white spacing to show off your energetic side.",
     highlights: ["Vibrant accents", "Energetic feel", "High visibility"],
-    image: "src/assets/images/orange n white.PNG"
+    image: "/assets/images/orange n white.PNG"
   },
   {
     id: "royal-blue",
@@ -92,7 +92,7 @@ const templates = [
     title: "Royal Blue",
     description: "A deeply professional layout featuring rich royal blue elements for corporate readiness.",
     highlights: ["Rich color palette", "Corporate ready", "Elegant headers"],
-    image: "src/assets/images/royal blue.PNG"
+    image: "/assets/images/royal blue.PNG"
   },
   {
     id: "royal-brown",
@@ -100,7 +100,7 @@ const templates = [
     title: "Royal Brown",
     description: "A warm, classic design with earthy brown tones that stand out from the standard blue and black.",
     highlights: ["Warm tones", "Classic elegance", "Distinctive style"],
-    image: "src/assets/images/royal brown.PNG"
+    image: "/assets/images/royal brown.PNG"
   }
 ];
 
@@ -120,7 +120,7 @@ export default function CVTemplates() {
     });
   }, [activeCategory, query]);
 
-  
+
   // It sends the user to /cv-builder and attaches the template ID to the URL!
   const onSelectTemplate = (template) => {
     navigate(`/cv-builder?category=${encodeURIComponent(template.category)}&template=${encodeURIComponent(template.id)}`);

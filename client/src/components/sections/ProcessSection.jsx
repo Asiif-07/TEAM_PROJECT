@@ -2,23 +2,23 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 // Reusable Banner Component
-const Banner = ({ 
-  stepLabel, 
-  title, 
-  titleAccent, 
-  text, 
-  image, 
-  buttonText, 
-  imageLeft, 
-  themeColor, 
-  accentText, 
+const Banner = ({
+  stepLabel,
+  title,
+  titleAccent,
+  text,
+  image,
+  buttonText,
+  imageLeft,
+  themeColor,
+  accentText,
   extraContent,
 }) => {
   const { t } = useTranslation();
   return (
     <div className="mx-auto px-6 py-16 lg:py-24 relative" style={{ maxWidth: '1280px' }}>
       <div className={`flex flex-col md:flex-row items-center gap-16 lg:gap-32 ${imageLeft ? "md:flex-row-reverse" : ""}`}>
-        
+
         {/* Text Content */}
         <div className="flex-1 space-y-8 text-left">
           {/* Step Label with Icon */}
@@ -79,16 +79,16 @@ const Banner = ({
             ${accentText.includes('blue') ? 'bg-blue-600' : ''} 
             ${accentText.includes('green') ? 'bg-green-600' : ''} 
             ${accentText.includes('orange') ? 'bg-orange-600' : ''} 
-            ${accentText.includes('pink') ? 'bg-pink-600' : ''}`} 
+            ${accentText.includes('pink') ? 'bg-pink-600' : ''}`}
           />
-          
+
           <div className="relative group">
             <div className="rounded-[3rem] lg:rounded-[4rem] p-3 lg:p-5 bg-white shadow-[0_40px_80px_-15px_rgba(0,0,0,0.08)]">
               <div className="rounded-[2rem] lg:rounded-[3rem] overflow-hidden">
-                <img 
-                  src={image} 
-                  alt={title} 
-                  className="w-full h-auto object-cover transform transition-transform duration-1000 group-hover:scale-105" 
+                <img
+                  src={image}
+                  alt={title}
+                  className="w-full h-auto object-cover transform transition-transform duration-1000 group-hover:scale-105"
                 />
               </div>
             </div>
@@ -115,54 +115,54 @@ const ProcessSection = ({ showHeading = true }) => {
         </div>
       )}
 
-      <Banner 
+      <Banner
         stepLabel={t("Step 1")}
         title={t("Choose Service Title")}
         titleAccent={t("Service & Package")}
         text={t("Process Step 1 Text")}
-        image="/src/assets/images/banner/673b1186892be17ee3fd3c50_res1.webp (1).png"
+        image="/assets/images/banner/673b1186892be17ee3fd3c50_res1.webp (1).png"
         buttonText={t("Choose Service Button")}
         imageLeft={false}
         accentText="text-blue-600"
         themeColor="border-blue-600 hover:bg-blue-600 hover:text-white"
       />
 
-      <Banner 
+      <Banner
         stepLabel={t("AI Analysis Title")}
         title={t("AI Intelligent Title")}
         titleAccent=""
         text={t("AI Intelligent Text")}
-        image="/src/assets/images/banner/673b128a0b7a6d75befd50b2_res2.webp.png"
+        image="/assets/images/banner/673b128a0b7a6d75befd50b2_res2.webp.png"
         buttonText={t("AI ANALYSIS")}
         imageLeft={true}
         accentText="text-green-600"
         themeColor="border-green-600 hover:bg-green-600 hover:text-white"
       />
 
-      <Banner 
+      <Banner
         stepLabel={t("Customization Title")}
         title={t("Human Review Title")}
         titleAccent=""
         text={t("Human Review Text")}
-        image="/src/assets/images/banner/673b128a8eea3105e427c227_res3.webp.png"
+        image="/assets/images/banner/673b128a8eea3105e427c227_res3.webp.png"
         buttonText={t("Human Review Button")}
         imageLeft={false}
         accentText="text-orange-500"
         themeColor="border-orange-500 hover:bg-orange-500 hover:text-white"
       />
 
-      <Banner 
+      <Banner
         stepLabel={t("Quality Delivery Title")}
         title={t("Quality Delivery")}
         titleAccent=""
         text={t("Quality Delivery Text")}
-        image="/src/assets/images/banner/673b128acbeb5118a12ab056_res4.webp.png"
+        image="/assets/images/banner/673b128acbeb5118a12ab056_res4.webp.png"
         buttonText={t("Delivered Fast")}
         imageLeft={true}
         accentText="text-pink-500"
         themeColor="border-pink-500 hover:bg-pink-500 hover:text-white"
         extraContent={true}
-      />  
+      />
     </section>
   );
 };

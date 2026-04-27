@@ -38,7 +38,7 @@ export default function WhyChooseSection() {
               <div className="bg-gradient-to-r from-blue-100/50 via-white to-blue-100/50 rounded-2xl p-4 md:p-8 w-full max-w-5xl shadow-inner">
                 <div className="relative w-full aspect-video md:aspect-auto flex items-center justify-center">
                   <img
-                    src="/src/assets/images/whychooseimg1-removebg-preview.png"
+                    src="/assets/images/whychooseimg1-removebg-preview.png"
                     alt="Resume preview and career growth"
                     className="w-full h-auto max-h-[400px] object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-[1.02]"
                   />

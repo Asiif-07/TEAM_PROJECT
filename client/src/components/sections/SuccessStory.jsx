@@ -17,15 +17,15 @@ const SuccessStories = () => {
 
   return (
     <section className="bg-white py-20 relative">
-      
+
       {/* 1st DIV: HEADER */}
       <div className="max-w-6xl mx-auto px-6 mb-16 text-center relative z-30">
-        <img 
-          src="/src/assets/images/succes.png" 
-          alt="Success annotation" 
+        <img
+          src="/assets/images/succes.png"
+          alt="Success annotation"
           className="absolute -left-5 -bottom-30 w-36 md:w-58 pointer-events-none select-none drop-shadow-sm"
         />
-        
+
         <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 tracking-tight">
           {t("Success")} <span className="text-blue-600">{t("Stories")}</span>
         </h2>
@@ -36,10 +36,10 @@ const SuccessStories = () => {
 
       {/* 2nd DIV: CONTENT GRID */}
       <div className="relative py-12 px-6 z-10 overflow-hidden">
-        
+
         {/* Background Dot Grid */}
-        <div className="absolute inset-0 opacity-[0.1] pointer-events-none" 
-             style={{ backgroundImage: `radial-gradient(#475569 0.8px, transparent 0.8p)`, backgroundSize: '30px 30px' }} />
+        <div className="absolute inset-0 opacity-[0.1] pointer-events-none"
+          style={{ backgroundImage: `radial-gradient(#475569 0.8px, transparent 0.8p)`, backgroundSize: '30px 30px' }} />
 
         {/* Top-Left & Bottom-Right Gradients (#B8DBFE) */}
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#B8DBFE] rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 opacity-60 pointer-events-none" />
@@ -47,7 +47,7 @@ const SuccessStories = () => {
 
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-5 relative z-10">
           {stories.map((item, idx) => (
-            <div 
+            <div
               key={idx}
               className={`p-7 rounded-[2.2rem] flex flex-col justify-between relative transition-transform hover:scale-[1.01] border border-black/5 shadow-sm overflow-hidden
                 ${item.color} 
@@ -57,13 +57,13 @@ const SuccessStories = () => {
                 <div className="flex flex-col h-full">
                   {/* Container for Frame 72.png - styled to spread across the top */}
                   <div className="w-full mb-10">
-                    <img 
-                      src="/src/assets/images/Frame 72.png" 
-                      alt="Metric Icons" 
+                    <img
+                      src="/assets/images/Frame 72.png"
+                      alt="Metric Icons"
                       className="w-full h-auto object-contain"
                     />
                   </div>
-                  
+
                   <div className="mt-auto">
                     <div className="text-5xl font-medium max-h-[242px] text-slate-900 tracking-tighter">
                       {item.val}
@@ -80,13 +80,13 @@ const SuccessStories = () => {
                   </p>
                   <div className="flex items-center justify-between pt-5 border-t border-black/5">
                     <div className="flex items-center gap-3">
-                      <img src="/src/assets/images/testimonial-storylake.png" alt="" />
+                      <img src="/assets/images/testimonial-storylake.png" alt="" />
                       <div>
                         <div className="text-sm font-bold text-slate-900">{item.author}</div>
                         <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{item.role}</div>
                       </div>
                     </div>
-                    <img src="/src/assets/images/Storylake logo.png" alt="" />
+                    <img src="/assets/images/Storylake logo.png" alt="" />
                   </div>
                 </>
               )}

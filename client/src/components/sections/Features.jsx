@@ -24,7 +24,7 @@ export default function Features() {
                 ${i < 3 ? "md:col-span-2" : "md:col-span-3"}`}
           >
             <div className="bg-blue-50 p-2 rounded-lg mb-6">
-              <img src="/src/assets/images/Background.jpg" alt="icon" className="w-6 h-6" />
+              <img src="/assets/images/Background.jpg" alt="icon" className="w-6 h-6" />
             </div>
 
             <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
