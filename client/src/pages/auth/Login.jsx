@@ -1,15 +1,14 @@
 import { Box, Button, TextField, Typography, Paper, Checkbox, FormControlLabel, Fade } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
-import { useCallback, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import GoogleSignInButton from "../../components/auth/GoogleSignInButton";
 
 const Login = () => {
     const { t } = useTranslation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { login, loginWithGoogle } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from || "/";
@@ -41,18 +40,6 @@ const Login = () => {
         }
     };
 
-    const handleGoogleCredential = useCallback(
-        async (credential) => {
-            setError("");
-            const result = await loginWithGoogle(credential);
-            if (result.success) {
-                navigate(from, { replace: true });
-            } else {
-                setError(result.message);
-            }
-        },
-        [from, loginWithGoogle, navigate]
-    );
 
     return (
         <Box
@@ -256,7 +243,6 @@ const Login = () => {
                         >
                             {t("Continue with Google")}
                         </Button>
-                        <GoogleSignInButton onCredential={handleGoogleCredential} />
                         <Button
                             fullWidth
                             variant="outlined"

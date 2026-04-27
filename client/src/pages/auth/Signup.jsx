@@ -1,9 +1,8 @@
 import { Box, Button, TextField, Typography, Paper, Fade, MenuItem } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import { useCallback, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import GoogleSignInButton from "../../components/auth/GoogleSignInButton";
 
 const Signup = () => {
     const { t } = useTranslation();
@@ -15,10 +14,9 @@ const Signup = () => {
         gender: "male",
     });
 
-    const { signup, loginWithGoogle } = useAuth();
+    const { signup } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from || "/";
     const [searchParams, setSearchParams] = useSearchParams();
     const [error, setError] = useState(() => searchParams.get("oauth_error") || "");
     const [successMessage, setSuccessMessage] = useState("");
@@ -32,18 +30,6 @@ const Signup = () => {
         }
     }, [searchParams, setSearchParams]);
 
-    const handleGoogleCredential = useCallback(
-        async (credential) => {
-            setError("");
-            const result = await loginWithGoogle(credential);
-            if (result.success) {
-                navigate(from, { replace: true });
-            } else {
-                setError(result.message);
-            }
-        },
-        [from, loginWithGoogle, navigate]
-    );
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -381,7 +367,6 @@ const Signup = () => {
                         >
                             Continue with Google
                         </Button>
-                        <GoogleSignInButton onCredential={handleGoogleCredential} />
                         <Button
                             fullWidth
                             variant="outlined"
