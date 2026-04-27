@@ -23,23 +23,11 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-
-        const normalizedOrigin = origin.replace(/\/$/, "");
-        const allowed = allowedOrigins.map(o => o.replace(/\/$/, ""));
-
-        if (allowed.includes(normalizedOrigin) || normalizedOrigin.startsWith("http://localhost:")) {
-            callback(null, true);
-        } else {
-            console.error(`[CORS] Blocked origin: ${origin}`);
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
+    origin: true, // Reflects the origin of the request
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
 }));
 
 const rateLimiter = limiter({
