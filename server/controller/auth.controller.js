@@ -277,6 +277,11 @@ const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
       path: "/",
       sameSite: "lax",
     });
+    res.clearCookie("google_oauth_origin", {
+      httpOnly: true,
+      path: "/",
+      sameSite: "lax",
+    });
   };
 
   if (!redirectUri?.trim() && process.env.CALLBACK_URL?.trim()) {
