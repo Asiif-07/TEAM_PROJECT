@@ -42,6 +42,7 @@ import toast from "react-hot-toast";
 import { createCheckoutSession } from "../../api/stripe";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function Services() {
   const { t } = useTranslation();
@@ -49,6 +50,19 @@ export default function Services() {
   const navigate = useNavigate();
   const { accessToken, refreshAccessToken, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Ping the server on mount to wake it up if it's sleeping (Render cold start)
+    // This reduces delay when the user finally clicks "Get Started"
+    const pingServer = async () => {
+      try {
+        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/health`);
+      } catch (e) {
+        // Silent catch: if ping fails, the actual request will handle errors
+      }
+    };
+    pingServer();
+  }, []);
 
   const handleSubscribe = async (planTitle) => {
     if (!isAuthenticated) {
@@ -147,7 +161,7 @@ export default function Services() {
                     : "bg-white border-2 border-[#1570EF] text-[#1570EF] hover:bg-[#1570EF] hover:text-white group-hover:bg-[#2563EB] group-hover:text-white group-hover:border-[#2563EB] disabled:opacity-50"
                   }
               `}>
-                {loading ? t("Processing...") : t("Get Started")}
+                {loading ? t("Initializing...") : t("Get Started")}
               </button>
             </div>
           </div>

@@ -63,6 +63,10 @@ app.use('/api/v1/cv', cvRouter);
 app.use('/api/v1/ai', aiRouter);
 app.use('/api/v1/stripe', stripeRouter);
 
+app.get('/api/v1/health', (req, res) => {
+    res.status(200).json({ success: true, message: "Server is healthy" });
+});
+
 app.use(ErrorMiddleWare);
 
 export default app;
