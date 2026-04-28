@@ -89,7 +89,8 @@ async function findOrCreateUserFromGooglePayload(payload) {
   let user = await User.findOne({ $or: [{ googleId: payload.sub }, { email }] });
 
   if (!user) {
-    user = await User.create({
+    // Return a new (not yet saved) instance
+    return new User({
       name: googleName,
       email,
       googleId: payload.sub,
@@ -99,35 +100,26 @@ async function findOrCreateUserFromGooglePayload(payload) {
         public_id: ""
       }
     });
-    return user;
   }
 
   if (user.googleId && user.googleId !== payload.sub) {
     throw new CustomError(403, "This email is already linked to a different Google account");
   }
 
-  let needsSave = false;
+  // Update in-memory only; caller (issueSessionForUser) will save the final state
   if (!user.googleId) {
     user.googleId = payload.sub;
-    needsSave = true;
   }
-
   if (!user.name || user.name === "hi" || user.name === "Hi" || user.name === email.split("@")[0]) {
     user.name = googleName;
-    needsSave = true;
   }
-
   if (!user.profileImage?.secure_url && googlePicture) {
     user.profileImage = {
       secure_url: googlePicture,
       public_id: ""
     };
-    needsSave = true;
   }
 
-  if (needsSave) {
-    await user.save({ validateBeforeSave: false });
-  }
   return user;
 }
 
