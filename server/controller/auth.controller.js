@@ -64,7 +64,7 @@ const FRONTEND_BASE = process.env.CLIENT_URL || process.env.FRONTEND_URL || proc
 const googleOAuthStateCookie = {
   httpOnly: true,
   secure: true,
-  sameSite: "none",
+  sameSite: "lax",
   maxAge: 10 * 60 * 1000,
   path: "/",
 };
