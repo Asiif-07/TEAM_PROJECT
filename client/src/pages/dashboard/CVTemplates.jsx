@@ -60,7 +60,7 @@ const templates = [
     title: "Black Pro",
     description: "A sleek, high-contrast professional template designed for modern corporate roles.",
     highlights: ["Dark theme elements", "High contrast", "Executive feel"],
-    image: "/assets/images/Black Pro.PNg"
+    image: "/assets/images/Black Pro.PNG"
   },
   {
     id: "black-white",
@@ -100,7 +100,7 @@ const templates = [
     title: "Royal Brown",
     description: "A warm, classic design with earthy brown tones that stand out from the standard blue and black.",
     highlights: ["Warm tones", "Classic elegance", "Distinctive style"],
-    image: "/assets/images/royal brown.PNG"
+    image: "/assets/images/Royal brown.PNG"
   }
 ];
 

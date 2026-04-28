@@ -1,5 +1,5 @@
 import React from "react";
-import brainImage from "../../assets/aboutpic/Brain--Streamline-Core.png";
+import containerImage from "../../assets/aboutpic/Container.png";
 import { useTranslation } from "react-i18next";
 
 const OurStory = () => {
@@ -31,7 +31,7 @@ const OurStory = () => {
             <div className="md:w-1/2 flex items-center justify-center">
               <div className="w-full max-w-[580px] rounded-2xl overflow-hidden bg-slate-900/90">
                 <img
-                  src="/src/assets/aboutpic/Container.png"
+                  src={containerImage}
                   alt="AI brain visualization"
                   className="w-full h-full object-cover"
                 />
