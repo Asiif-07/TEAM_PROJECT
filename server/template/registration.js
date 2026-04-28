@@ -24,7 +24,7 @@ function welcomeEmailTemplate(username, useremail, appUrl) {
         <table border="0" cellpadding="0" cellspacing="0" width="100%">
             <tr>
                 <td align="center">
-                    <a href="${clientUrl}/dashboard" style="display: inline-block; padding: 16px 32px; background-color: #2563EB; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; transition: background-color 0.3s ease;">
+                    <a href="${clientUrl}" style="display: inline-block; padding: 16px 32px; background-color: #2563EB; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; transition: background-color 0.3s ease;">
                         Go to Dashboard
                     </a>
                 </td>

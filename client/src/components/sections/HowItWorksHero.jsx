@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const HowItWorksHero = () => {
+  const navigate = useNavigate();
   return (
     <section
       className="relative w-full bg-white pt-20 pb-16 overflow-hidden"
@@ -72,6 +74,7 @@ const HowItWorksHero = () => {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             {/* Primary gradient button */}
             <button
+              onClick={() => navigate("/cv-templates")}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5BB8FF] to-[#006CFF] px-8 py-3.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-white shadow-[0_14px_32px_rgba(0,108,255,0.55)] transition hover:brightness-110"
             >
               Get Start Now
