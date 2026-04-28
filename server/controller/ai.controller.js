@@ -14,9 +14,10 @@ export const generateAIContent = AsyncHandler(async (req, res) => {
         let taskTemperature = 0.3; 
 
         switch (type) {
+            // --- ORIGINAL FIELDS ---
             case "summary":
                 systemContent = `You are an expert ATS-certified resume writer. Write a highly professional, engaging CV summary. 
-                It MUST be between 50 and 75 words (approx. 3-4 sentences). Highlight the candidate's core expertise, professional value, and career trajectory based on the provided details. Do not use filler words.
+                It MUST be between 50 and 75 words (approx. 3-4 sentences). Highlight the candidate's core expertise, professional value, and career trajectory. Do not use filler words.
                 You MUST output ONLY a valid JSON object matching this exact schema: 
                 {"summary": "your generated professional summary text here"}`;
                 
@@ -52,13 +53,47 @@ export const generateAIContent = AsyncHandler(async (req, res) => {
                 userContent = `Target Role: ${data.role}`;
                 break;
 
+            // --- NEW JSON RESUME FIELDS ---
+            case "label":
+                systemContent = `You are a career coach. Based on the user's provided skills and current job title, generate a punchy, professional headline/label (e.g., "Full Stack MERN Developer" or "Senior UI/UX Designer"). Keep it under 5 words.
+                You MUST output ONLY a valid JSON object matching this exact schema: 
+                {"label": "Professional Title Here"}`;
+                
+                userContent = `Current Role: ${data.role}\nSkills/Tech: ${data.skills}`;
+                break;
+
+            case "volunteer":
+                systemContent = `You are a professional resume writer. Enhance the raw volunteer details into a polished summary and 2 impactful bullet points (highlights).
+                You MUST output ONLY a valid JSON object matching this exact schema: 
+                {"summary": "A 1-2 sentence professional summary of the volunteer work.", "highlights": ["Point 1", "Point 2"]}`;
+                
+                userContent = `Organization: ${data.organization}\nRole: ${data.position}\nRaw Details: ${data.description}`;
+                break;
+
+            case "awards":
+                systemContent = `You are a resume expert. Write a 1-2 sentence professional summary explaining the significance of this award and why it was achieved.
+                You MUST output ONLY a valid JSON object matching this exact schema: 
+                {"summary": "Polished award description here."}`;
+                
+                userContent = `Award Title: ${data.title}\nIssuer: ${data.awarder}\nRaw Details: ${data.description}`;
+                break;
+
+            case "publications":
+                systemContent = `You are an academic/professional editor. Write a 1-2 sentence compelling summary or abstract of this publication.
+                You MUST output ONLY a valid JSON object matching this exact schema: 
+                {"summary": "Polished publication summary here."}`;
+                
+                userContent = `Title: ${data.name}\nPublisher: ${data.publisher}\nRaw Details: ${data.description}`;
+                break;
+
             default:
                 return res.status(400).json({ success: false, message: "Invalid type requested." });
         }
 
+        // Switched to the 70B model for smarter, more professional text generation
         const response = await groq.chat.completions.create({
-            model: "llama-3.1-8b-instant",
-            response_format: { type: "json_object" }, // Guarantees JSON output from Groq
+            model: "llama-3.3-70b-versatile", 
+            response_format: { type: "json_object" }, 
             temperature: taskTemperature,
             messages: [
                 { role: "system", content: systemContent },
@@ -66,7 +101,6 @@ export const generateAIContent = AsyncHandler(async (req, res) => {
             ]
         });
 
-        // Parse the strictly formatted JSON response
         const parsedData = JSON.parse(response.choices[0].message.content);
 
         res.status(200).json({
@@ -77,7 +111,6 @@ export const generateAIContent = AsyncHandler(async (req, res) => {
     } catch (error) {
         console.error("AI Generation Error:", error);
         
-        // Differentiate between AI JSON parsing failures and general network/API failures
         if (error instanceof SyntaxError) {
              return res.status(500).json({ success: false, message: "AI returned malformed data. Please try again." });
         }
