@@ -62,7 +62,7 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
         const tId = String(selectedTemplate || "").toLowerCase();
         const tCat = String(selectedCategory || "").toLowerCase();
 
-  
+
         if (tId === 'black-pro' || tId.includes('black-pro')) return <BlackPro data={normalizedData} />;
         if (tId === 'black-white' || tId.includes('black-white')) return <BlackWhite data={normalizedData} />;
         if (tId === 'monochrome-simple' || tId.includes('monochrome')) return <MonochromeSimple data={normalizedData} />;
@@ -83,7 +83,7 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
         return <ClassicTemplate data={normalizedData} />;
     };
 
-    if (!isLg) return null;
+    const isMobile = !isLg;
 
     return (
         <>
@@ -96,18 +96,34 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
             }} />
             <Box
                 sx={{
-                    position: "sticky",
-                    top: "120px",
-                    height: "calc(100vh - 120px)",
-                    display: "flex",
+                    position: isMobile ? "fixed" : "sticky",
+                    top: isMobile ? 0 : "120px",
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: isMobile ? "100vh" : "calc(100vh - 120px)",
+                    zIndex: isMobile ? 2000 : 1,
+                    display: isMobile && !props.showMobilePreview ? "none" : "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     overflowY: "auto",
-                    width: "auto", 
-                    minWidth: "500px",
+                    width: isMobile ? "100%" : "auto",
+                    minWidth: isMobile ? "auto" : "500px",
                     perspective: "1000px",
+                    bgcolor: isMobile ? "rgba(0,0,0,0.8)" : "transparent",
+                    backdropFilter: isMobile ? "blur(8px)" : "none",
+                    pt: isMobile ? 4 : 0
                 }}
             >
+                {/* Mobile Close Button */}
+                {isMobile && (
+                    <Button
+                        onClick={props.onCloseMobile}
+                        sx={{ position: "absolute", top: 20, right: 20, color: "white", bgcolor: "rgba(255,255,255,0.1)", borderRadius: "12px", px: 3 }}
+                    >
+                        Close Preview
+                    </Button>
+                )}
                 <Box sx={{ mb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", px: 2 }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "#6366F1", animation: "pulse 2s infinite" }} />

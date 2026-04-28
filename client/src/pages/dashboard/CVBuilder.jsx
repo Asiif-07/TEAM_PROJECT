@@ -391,24 +391,26 @@ export default function CVBuilder() {
         }
     };
 
+    const [showMobilePreview, setShowMobilePreview] = useState(false);
+
     if (activeStep === 4) {
         return <PreviewCV formData={formData} selectedTemplate={selectedTemplate} selectedCategory={selectedCategory} setCvContent={() => { }} setActiveStep={setActiveStep} onSaveCV={handleSaveCV} isSaving={loading} />;
     }
 
     return (
-        <Box sx={{ minHeight: '100vh', py: 12, bgcolor: 'background.default' }}>
+        <Box sx={{ minHeight: '100vh', py: { xs: 6, lg: 12 }, bgcolor: 'background.default' }}>
             <Container maxWidth="xl">
-                <Box sx={{ textAlign: 'center', mb: 10 }}>
+                <Box sx={{ textAlign: 'center', mb: { xs: 5, lg: 10 } }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                         <Box></Box>
-                        <Typography variant="h2" fontWeight="900" sx={{ color: 'text.primary' }}>{cvId ? t('Edit Your CV') : t('Create Your Future')}</Typography>
+                        <Typography variant="h2" fontWeight="900" sx={{ color: 'text.primary', fontSize: { xs: '2.5rem', lg: '3.75rem' } }}>{cvId ? t('Edit Your CV') : t('Create Your Future')}</Typography>
                         <Box></Box>
                     </Box>
                     <Typography variant="h6" color="text.secondary">{t("Active Template")}: {selectedTemplate.toUpperCase()}</Typography>
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 4, justifyContent: 'center', alignItems: 'flex-start' }}>
-                    <Paper className='glass' sx={{ p: 6, borderRadius: '32px', flex: '0 1 800px', width: '100%', bgcolor: 'background.paper' }}>
+                    <Paper className='glass' sx={{ p: { xs: 3, lg: 6 }, borderRadius: '32px', flex: '0 1 800px', width: '100%', bgcolor: 'background.paper' }}>
                         <CustomStepper activeStep={activeStep} onStepClick={setActiveStep} />
 
                         <Box sx={{ minHeight: 400, mt: 4 }}>
@@ -429,7 +431,32 @@ export default function CVBuilder() {
                         </Box>
                     </Paper>
 
-                    <LivePreview formData={formData} selectedTemplate={selectedTemplate} selectedCategory={selectedCategory} />
+                    <LivePreview
+                        formData={formData}
+                        selectedTemplate={selectedTemplate}
+                        selectedCategory={selectedCategory}
+                        showMobilePreview={showMobilePreview}
+                        onCloseMobile={() => setShowMobilePreview(false)}
+                    />
+                </Box>
+
+                {/* Mobile Preview Toggle Button */}
+                <Box sx={{ display: { xs: 'flex', lg: 'none' }, position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 1000 }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => setShowMobilePreview(true)}
+                        startIcon={<Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#fff', animation: 'pulse 2s infinite' }} />}
+                        sx={{
+                            borderRadius: '30px',
+                            px: 4,
+                            py: 1.5,
+                            bgcolor: '#1E1B4B',
+                            boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+                            '&:hover': { bgcolor: '#2D2A6E' }
+                        }}
+                    >
+                        {t("Live Preview")}
+                    </Button>
                 </Box>
             </Container>
         </Box>

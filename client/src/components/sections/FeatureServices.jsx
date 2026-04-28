@@ -49,7 +49,7 @@ const FeatureSection = () => {
             <p className="text-gray-600 mb-8 text-lg">
               {t("AI Interview Desc")}
             </p>
-            <div className="flex space-x-4 mb-8">
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
               <div className="bg-green-200 p-6 rounded-lg flex-1 shadow-sm">
                 <FeaturedVideoIcon fontSize="large" className="text-green-600 mb-4" />
                 <h3 className="text-xl font-semibold mb-2">{t("8 Interview Types")}</h3>
@@ -61,14 +61,14 @@ const FeatureSection = () => {
                 <p className="text-gray-600">{t("Practice Anytime")}</p>
               </div>
             </div>
-            <div className="flex space-x-4 gap-3">
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <Button
                 onClick={() => navigate('/cv-templates')}
-                variant="contained" color="primary" endIcon={<span>→</span>} className="bg-blue-600 hover:bg-blue-700 px-6  py-3"
+                variant="contained" color="primary" endIcon={<span>→</span>} className="bg-blue-600 hover:bg-blue-700 px-6 py-3 w-full sm:w-auto"
               >
                 {t("Try AI Interview")}
               </Button>
-              <Button variant="outlined" className="px-6 py-3 text-blue-600 border-blue-600 hover:bg-blue-50">
+              <Button variant="outlined" className="px-6 py-3 text-blue-600 border-blue-600 hover:bg-blue-50 w-full sm:w-auto">
                 {t("Learn More")}
               </Button>
             </div>
