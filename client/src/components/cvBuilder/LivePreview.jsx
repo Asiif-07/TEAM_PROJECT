@@ -15,7 +15,7 @@ import OrangeWhite from "./templates/OrangeWhite";
 import RoyalBlue from "./templates/RoyalBlue";
 import RoyalBrown from "./templates/RoyalBrown";
 
-export default function LivePreview({ formData, selectedTemplate, selectedCategory }) {
+export default function LivePreview({ formData, selectedTemplate, selectedCategory, ...props }) {
     const theme = useTheme();
     const isLg = useMediaQuery(theme.breakpoints.up('lg'));
     const [scale, setScale] = React.useState(0.65); // Default to Medium
