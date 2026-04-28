@@ -48,6 +48,7 @@ export const parseUploadedCV = AsyncHandler(async (req, res, next) => {
   "name": "",
   "email": "",
   "phone": "",
+  "title": "Professional Title (e.g. Full Stack Developer)",
   "summary": "",
   "education": [
     {

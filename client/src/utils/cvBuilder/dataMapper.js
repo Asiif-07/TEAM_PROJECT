@@ -171,9 +171,9 @@ export const mapParsedDataToTemplate = (data) => {
                 current: !!exp.current || !!exp.isCurrent || endDate?.toLowerCase().includes("present"),
                 description: exp.description || ""
             };
-        }),
+        }).filter(exp => exp.role || exp.company),
 
-        education,
+        education: education.filter(edu => edu.degree || edu.institute),
         skills: Array.isArray(data.skills) ? data.skills : [],
         languages: languagesStr,
         certifications: certifications.join("\n"),
@@ -195,8 +195,7 @@ export const mapParsedDataToTemplate = (data) => {
             "Publications": data.publications,
             "Volunteering": data.volunteer || data.volunteering,
             "References": data.references,
-            "Languages": languagesStr,
-            "Certifications": certifications.length ? certifications.join("\n") : null
+            // REMOVED Languages and Certifications here to prevent duplicated sections in templates
         },
         additionalSections: Array.isArray(data.additionalSections) ? data.additionalSections : []
     };

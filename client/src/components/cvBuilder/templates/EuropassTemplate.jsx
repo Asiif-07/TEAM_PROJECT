@@ -84,6 +84,7 @@ export default function EuropassTemplate({ data }) {
   const skills = data?.skills || [];
   const languages = data?.languages || "";
   const projects = data?.projects || "";
+  const certifications = data?.certifications || "";
 
   const accentColor = "#0055a4";
 
@@ -232,6 +233,13 @@ export default function EuropassTemplate({ data }) {
           <EuropassSection title="Honours and awards" icon={Award}>
             <Typography variant="body2" sx={{ whiteSpace: "pre-line", color: "#374151", lineHeight: 1.8, wordBreak: "break-word", overflowWrap: "break-word" }}>
               {projects}
+            </Typography>
+          </EuropassSection>
+        )}
+        {certifications && (
+          <EuropassSection title="Certifications" icon={Award}>
+            <Typography variant="body2" sx={{ whiteSpace: "pre-line", color: "#374151", lineHeight: 1.8, wordBreak: "break-word", overflowWrap: "break-word" }}>
+              {certifications}
             </Typography>
           </EuropassSection>
         )}
