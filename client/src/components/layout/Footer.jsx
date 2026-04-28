@@ -54,7 +54,7 @@ import { useTranslation } from 'react-i18next';
 export default function Footer() {
   const { t } = useTranslation();
   return (
-    <footer className="bg-slate-800 text-gray-300 py-12 px-6">
+    <footer className="bg-slate-800 text-gray-300 py-12 px-6 no-print">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12 px-6">
           <div className="lg:col-span-2">

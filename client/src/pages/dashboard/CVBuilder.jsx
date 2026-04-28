@@ -441,7 +441,7 @@ export default function CVBuilder() {
                 </Box>
 
                 {/* Mobile Preview Toggle Button */}
-                <Box sx={{ display: { xs: 'flex', lg: 'none' }, position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 1000 }}>
+                <Box className="no-print" sx={{ display: { xs: 'flex', lg: 'none' }, position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 1000 }}>
                     <Button
                         variant="contained"
                         onClick={() => setShowMobilePreview(true)}

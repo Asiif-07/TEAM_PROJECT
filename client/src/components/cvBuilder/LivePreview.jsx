@@ -95,6 +95,7 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
                 }
             }} />
             <Box
+                className="no-print"
                 sx={{
                     position: isMobile ? "fixed" : "sticky",
                     top: isMobile ? 0 : "120px",
