@@ -5,34 +5,44 @@ function resetPasswordEmailTemplate(username, resetToken, appUrl) {
     const resetLink = `${clientUrl}/reset-password/${resetToken}`;
 
     const content = `
-        <h1 style="margin: 0 0 20px 0; font-size: 28px; font-weight: 800; color: #1E293B; line-height: 1.2;">
-            Reset your password
-        </h1>
-        <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #4B5563;">
-            Hi **${username}**, we received a request to reset your account password. If you didn't request this, you can safely ignore this email.
-        </p>
-        
-        <div style="background-color: #FFF7ED; border-left: 4px solid #EA580C; padding: 20px; margin-bottom: 30px; border-radius: 4px;">
-            <p style="margin: 0; font-size: 14px; color: #9A3412; font-weight: 600;">
-                Security Note: <span style="font-weight: 400; color: #1E293B;">This link will expire in 10 minutes.</span>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="margin: 0 0 16px 0; font-size: 28px; font-weight: 800; color: #1E293B; line-height: 1.2; letter-spacing: -0.02em;">
+                Reset your password
+            </h1>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #4B5563;">
+                Hi <span style="color: #1E293B; font-weight: 600;">${username}</span>, we received a request to secure your account.
             </p>
         </div>
         
-        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 32px;">
             <tr>
                 <td align="center">
-                    <a href="${resetLink}" style="display: inline-block; padding: 16px 32px; background-color: #EA580C; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; transition: background-color 0.3s ease;">
-                        Reset Password
+                    <a href="${resetLink}" style="display: inline-block; padding: 18px 44px; background-color: #2563EB; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
+                        Secure My Account
                     </a>
                 </td>
             </tr>
         </table>
+
+        <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; padding: 24px; border-radius: 12px; margin-bottom: 32px;">
+            <p style="margin: 0 0 8px 0; font-size: 14px; color: #1E293B; font-weight: 600;">
+                Important Security Information
+            </p>
+            <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #64748B; line-height: 1.6;">
+                <li>This link will expire in <span style="color: #1E293B; font-weight: 600;">10 minutes</span>.</li>
+                <li>If you didn't request this, you can safely ignore this email.</li>
+                <li>Your account remains secure.</li>
+            </ul>
+        </div>
         
-        <p style="margin: 30px 0 0 0; font-size: 14px; color: #9CA3AF; text-align: center;">
-            If you're having trouble clicking the button, copy and paste this link into your browser:
-            <br>
-            <span style="color: #2563EB; word-break: break-all;">${resetLink}</span>
-        </p>
+        <div style="border-top: 1px solid #F1F5F9; padding-top: 24px; text-align: center;">
+            <p style="margin: 0 0 12px 0; font-size: 14px; color: #94A3B8;">
+                If you're having trouble with the button, copy and paste this link:
+            </p>
+            <p style="margin: 0; font-size: 12px; color: #2563EB; word-break: break-all; opacity: 0.8;">
+                ${resetLink}
+            </p>
+        </div>
     `;
 
     return emailBaseLayout(content, "Password reset request for your CareerForge.AI account");
