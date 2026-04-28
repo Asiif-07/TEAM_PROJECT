@@ -1,12 +1,11 @@
 import toast from "react-hot-toast";
 
 async function readJsonSafe(res) {
-  const text = await res.text();
-  if (!text) return null;
   try {
-    return JSON.parse(text);
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
   } catch {
-    return { message: text };
+    return null;
   }
 }
 
@@ -14,88 +13,44 @@ export async function apiRequest(path, options = {}) {
   const {
     method = "GET",
     body,
-    /** Use for file uploads: multipart body is often consumed on the first fetch; rebuild on 401 retry. */
-    rebuildBody,
     accessToken,
-    headers,
-    credentials = "include",
-    retryOn401 = true,
+    headers = {},
     refreshAccessToken,
     showToast = true,
+    retryOn401 = true
   } = options;
 
-  const resolveBody = () => {
-    if (typeof rebuildBody === "function") return rebuildBody();
-    return body;
-  };
-
-  const payload = resolveBody();
-
   const fetchHeaders = {
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : null),
-    ...(headers || {}),
+    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+    ...(!(body instanceof FormData) && body != null && { "Content-Type": "application/json" }),
+    ...headers,
   };
 
-  if (!(payload instanceof FormData) && payload != null) {
-    fetchHeaders["Content-Type"] = "application/json";
-  }
-
-  const endpoint = path.startsWith("/") ? path : `/${path}`;
-  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
+  const url = `${import.meta.env.VITE_API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  const res = await fetch(url, {
     method,
-    credentials,
     headers: fetchHeaders,
-    body:
-      payload == null
-        ? undefined
-        : payload instanceof FormData
-          ? payload
-          : JSON.stringify(payload),
+    credentials: "include",
+    body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
   });
 
-  if (res.status === 401 && retryOn401 && typeof refreshAccessToken === "function") {
+  // Handle Token Refresh on 401
+  if (res.status === 401 && retryOn401 && refreshAccessToken) {
     const refreshed = await refreshAccessToken();
     if (refreshed?.accessToken) {
-      return apiRequest(path, {
-        ...options,
-        accessToken: refreshed.accessToken,
-        retryOn401: false,
-      });
+      return apiRequest(path, { ...options, accessToken: refreshed.accessToken, retryOn401: false });
     }
   }
 
   const data = await readJsonSafe(res);
+
   if (!res.ok) {
-    const validationMessage =
-      data &&
-        data.errors &&
-        typeof data.errors === "object" &&
-        Object.values(data.errors).length > 0
-        ? String(Object.values(data.errors)[0])
-        : "";
+    let message = data?.message || data?.error || `Error ${res.status}`;
 
-    let message =
-      validationMessage ||
-      (data && (data.message || data.error)) ||
-      `Request failed (${res.status})`;
+    // Simple sanitization for a cleaner UI
+    message = message.replace(/\[.*?\]/g, "").trim() || "Something went wrong. Please try again.";
 
-    // Sanitize technical jargon for a premium "human" experience
-    message = message
-      .replace(/\[?GoogleGenerativeAI Error\]?:?/gi, "")
-      .replace(/Error fetching from https:\/\/\S+/gi, "")
-      .replace(/\[\d{3} [^\]]+\]/gi, "")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    if (!message || message.length < 5) {
-      message = "AI service is momentarily unavailable. Retrying...";
-    }
-
-    // Global Toasting: Make errors "pop" as requested by user
-    if (showToast) {
-      toast.error(message);
-    }
-
+    if (showToast) toast.error(message);
     const err = new Error(message);
     err.status = res.status;
     err.data = data;
