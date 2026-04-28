@@ -70,7 +70,13 @@ const GOOGLE_CALLBACK_PATH = "/api/v1/auth/google/callback";
 
 function getOAuthRedirectAllowlist() {
   const raw = process.env.OAUTH_REDIRECT_ORIGINS;
-  const list = ["http://localhost:5173", "http://127.0.0.1:5173"];
+  const list = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    // Production defaults — always trusted
+    "https://carrerforge.vercel.app",
+    "https://team-project-qa0v.onrender.com",
+  ];
 
   if (raw) {
     list.push(...raw.split(",").map((s) => s.trim().replace(/\/$/, "")).filter(Boolean));
@@ -105,6 +111,7 @@ function getOAuthRedirectAllowlist() {
   }
 
   return [...new Set(list)];
+
 }
 
 function originIsAllowed(origin, allowlist) {
