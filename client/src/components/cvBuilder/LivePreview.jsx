@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Paper, Typography, useMediaQuery, useTheme, GlobalStyles } from "@mui/material";
+import { Box, Button, Paper, Typography, useMediaQuery, useTheme, GlobalStyles } from "@mui/material";
 
 import ClassicTemplate from "./templates/ClassicTemplate";
 import EuropassTemplate from "./templates/EuropassTemplate";
@@ -75,9 +75,6 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
         if (tId.includes('modern') || tCat.includes('modern')) return <ModernTemplate data={normalizedData} />;
         if (tId.includes('minimalist') || tCat.includes('minimalist')) return <MinimalistTemplate data={normalizedData} />;
         if (tId.includes('creative') || tCat.includes('creative')) return <CreativeTemplate data={normalizedData} />;
-        if (tId.includes('executive') || tCat.includes('executive')) return <ExecutiveTemplate data={normalizedData} />;
-        if (tId.includes('wave') || tCat.includes('wave')) return <GradientWaveTemplate data={normalizedData} />;
-        if (tId.includes('tech') || tCat.includes('tech')) return <TechPremiumTemplate data={normalizedData} />;
 
         // Fallback default
         return <ClassicTemplate data={normalizedData} />;

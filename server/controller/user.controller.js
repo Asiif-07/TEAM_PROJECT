@@ -164,4 +164,28 @@ const UpdateProfilePic = AsyncHandler(async (req, res, next) => {
     }
 });
 
-export { ChangePassword, forgetPassword, resetPassword, UpdateProfilePic };
+const UpdateEmail = AsyncHandler(async (req, res, next) => {
+    const { email } = req.body;
+    const user = req.user;
+
+    if (user.email === email) {
+        return next(new CustomError(400, "New email cannot be same as old email"));
+    }
+
+    const emailExist = await User.findOne({ email });
+
+    if (emailExist) {
+        return next(new CustomError(400, "Email already in use"));
+    }
+
+    user.email = email;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Email updated successfully",
+        data: sanitizeUser(user)
+    });
+});
+
+export { ChangePassword, forgetPassword, resetPassword, UpdateProfilePic, UpdateEmail };
