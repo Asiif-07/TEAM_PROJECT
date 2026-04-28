@@ -58,6 +58,9 @@ const googleClient = process.env.GOOGLE_CLIENT_ID
   ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
   : null;
 
+const GOOGLE_CALLBACK_URI = process.env.CALLBACK_URL || "https://team-project-qa0v.onrender.com/api/v1/auth/google/callback";
+const FRONTEND_BASE = process.env.CLIENT_URL || process.env.FRONTEND_URL || process.env.APP_URL || "https://carrerforge.vercel.app";
+
 const googleOAuthStateCookie = {
   httpOnly: true,
   secure: true,
@@ -66,141 +69,14 @@ const googleOAuthStateCookie = {
   path: "/",
 };
 
-const GOOGLE_CALLBACK_PATH = "/api/v1/auth/google/callback";
-
-function getOAuthRedirectAllowlist() {
-  const raw = process.env.OAUTH_REDIRECT_ORIGINS;
-  const list = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    // Production defaults — always trusted
-    "https://carrerforge.vercel.app",
-    "https://team-project-qa0v.onrender.com",
-  ];
-
-  if (raw) {
-    list.push(...raw.split(",").map((s) => s.trim().replace(/\/$/, "")).filter(Boolean));
-  }
-  if (process.env.APP_URL) {
-    try {
-      list.push(new URL(process.env.APP_URL).origin);
-    } catch {
-      list.push(String(process.env.APP_URL).replace(/\/$/, ""));
-    }
-  }
-  if (process.env.CLIENT_URL) {
-    try {
-      list.push(new URL(process.env.CLIENT_URL).origin);
-    } catch {
-      list.push(String(process.env.CLIENT_URL).replace(/\/$/, ""));
-    }
-  }
-  if (process.env.FRONTEND_URL) {
-    try {
-      list.push(new URL(process.env.FRONTEND_URL).origin);
-    } catch {
-      list.push(String(process.env.FRONTEND_URL).replace(/\/$/, ""));
-    }
-  }
-  if (process.env.CALLBACK_URL) {
-    try {
-      list.push(new URL(process.env.CALLBACK_URL).origin);
-    } catch {
-      /* ignore */
-    }
-  }
-
-  return [...new Set(list)];
-
-}
-
-function originIsAllowed(origin, allowlist) {
-  if (!origin) return false;
-  const n = origin.replace(/\/$/, "");
-  return allowlist.some((a) => a === n);
-}
-
-function getOriginFromRequest(req) {
-  const o = req.get("origin");
-  if (o) {
-    try {
-      return new URL(o).origin;
-    } catch {
-      /* ignore */
-    }
-  }
-  const ref = req.get("referer");
-  if (ref) {
-    try {
-      return new URL(ref).origin;
-    } catch {
-      /* ignore */
-    }
-  }
-  return null;
-}
-
-function buildGoogleRedirectUri(origin) {
-  return `${String(origin).replace(/\/$/, "")}${GOOGLE_CALLBACK_PATH}`;
-}
-
-function redirectUriIsAllowed(redirectUri, allowlist) {
-  if (!redirectUri || typeof redirectUri !== "string") return false;
-  try {
-    const u = new URL(redirectUri);
-    const path = (u.pathname || "").replace(/\/$/, "") || "/";
-    const expected = GOOGLE_CALLBACK_PATH.replace(/\/$/, "");
-    if (path !== expected) return false;
-    return originIsAllowed(u.origin, allowlist);
-  } catch {
-    return false;
-  }
-}
-
-/** Same redirect_uri must be used for authorize + token exchange; derive from browser + store in cookie. */
-function resolveOAuthRedirectUri(req) {
-  const allowlist = getOAuthRedirectAllowlist();
-  const fromBrowser = getOriginFromRequest(req);
-  const fallback = process.env.CALLBACK_URL?.trim();
-
-  // 1. In production, we usually want the redirect to go directly to the backend CALLBACK_URL
-  // to avoid issues with missing proxies on platforms like Vercel.
-  if (fallback) {
-    const cleanFallback = fallback.replace(/\/$/, "");
-    if (redirectUriIsAllowed(cleanFallback, allowlist)) {
-      // If we are on localhost, we might still prefer the local proxy for HMR/debugging
-      if (fromBrowser && (fromBrowser.includes("localhost") || fromBrowser.includes("127.0.0.1"))) {
-        return buildGoogleRedirectUri(fromBrowser);
-      }
-      return cleanFallback;
-    }
-  }
-
-  // 2. If no CALLBACK_URL is set, or we are developing locally, fallback to origin-based URI
-  if (fromBrowser && originIsAllowed(fromBrowser, allowlist)) {
-    return buildGoogleRedirectUri(fromBrowser);
-  }
-
-  return null;
-}
-
-function appBaseFromRedirectUri(redirectUri) {
-  if (!redirectUri) return null;
-  try {
-    return new URL(redirectUri).origin;
-  } catch {
-    return null;
-  }
-}
-
-function getOAuth2ClientForRedirect(redirectUri) {
+function getOAuth2ClientForRedirect() {
   const id = process.env.GOOGLE_CLIENT_ID;
   const secret = process.env.GOOGLE_CLIENT_SECRET;
-  if (!id || !secret || !redirectUri) return null;
-  return new OAuth2Client(id, secret, redirectUri);
+  if (!id || !secret) return null;
+  return new OAuth2Client(id, secret, GOOGLE_CALLBACK_URI);
 }
 
-const appBaseUrl = () => process.env.FRONTEND_URL || process.env.APP_URL || "https://carrerforge.vercel.app";
+const appBaseUrl = () => FRONTEND_BASE;
 
 async function findOrCreateUserFromGooglePayload(payload) {
   if (!payload?.email || !payload?.sub) {
@@ -266,30 +142,15 @@ async function issueSessionForUser(res, user) {
 
 const GoogleOAuthStart = AsyncHandler(async (req, res, next) => {
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-    return next(
-      new CustomError(503, "Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.")
-    );
-  }
-
-  const redirectUri = resolveOAuthRedirectUri(req);
-  if (!redirectUri) {
-    const examples = getOAuthRedirectAllowlist().map((o) => buildGoogleRedirectUri(o)).join(", ");
-    return next(
-      new CustomError(
-        400,
-        `Could not pick a safe redirect URI. Open the app from an allowed origin (see OAUTH_REDIRECT_ORIGINS), ` +
-        `and in Google Cloud add these Authorized redirect URIs: ${examples}`
-      )
-    );
+    return next(new CustomError(503, "Google OAuth is not configured."));
   }
 
   const state = crypto.randomBytes(24).toString("hex");
   res.cookie("google_oauth_state", state, googleOAuthStateCookie);
-  res.cookie("google_oauth_redirect", redirectUri, googleOAuthStateCookie);
 
   const params = new URLSearchParams({
     client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: redirectUri,
+    redirect_uri: GOOGLE_CALLBACK_URI,
     response_type: "code",
     scope: "openid email profile",
     state,
@@ -300,50 +161,13 @@ const GoogleOAuthStart = AsyncHandler(async (req, res, next) => {
 });
 
 const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
-  const allowlist = getOAuthRedirectAllowlist();
-  let redirectUri = req.cookies?.google_oauth_redirect;
   const cookieState = req.cookies?.google_oauth_state;
-  const appOrigin = req.cookies?.google_oauth_origin;
-  const base = appOrigin || process.env.FRONTEND_URL || process.env.APP_URL || "https://carrerforge.vercel.app";
 
   const redirectLogin = (msg) =>
-    res.redirect(302, `${base}/login?oauth_error=${encodeURIComponent(msg)}`);
+    res.redirect(302, `${FRONTEND_BASE}/login?oauth_error=${encodeURIComponent(msg)}`);
 
-  const clearOAuthCookies = () => {
-    res.clearCookie("google_oauth_state", {
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-    });
-    res.clearCookie("google_oauth_redirect", {
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-    });
-    res.clearCookie("google_oauth_origin", {
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-    });
-  };
-
-  if (!redirectUri?.trim() && process.env.CALLBACK_URL?.trim()) {
-    redirectUri = process.env.CALLBACK_URL.trim().replace(/\/$/, "");
-  }
-
-  if (!redirectUriIsAllowed(redirectUri, allowlist)) {
-    clearOAuthCookies();
-    return redirectLogin(
-      "Invalid OAuth redirect (redirect_uri_mismatch). Add this exact URL under Google Cloud → Credentials → Authorized redirect URIs: " +
-      (redirectUri || buildGoogleRedirectUri("http://localhost:5173"))
-    );
-  }
-
-  const oauth2 = getOAuth2ClientForRedirect(redirectUri);
-  if (!oauth2) {
-    clearOAuthCookies();
-    return redirectLogin("Google OAuth is not configured on the server.");
-  }
+  const clearOAuthCookies = () =>
+    res.clearCookie("google_oauth_state", { httpOnly: true, path: "/", sameSite: "lax" });
 
   if (req.query.error) {
     clearOAuthCookies();
@@ -351,10 +175,15 @@ const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
   }
 
   const { code, state } = req.query;
-
   if (!code || !state || !cookieState || state !== cookieState) {
     clearOAuthCookies();
     return redirectLogin("Invalid or expired sign-in session. Please try again.");
+  }
+
+  const oauth2 = getOAuth2ClientForRedirect();
+  if (!oauth2) {
+    clearOAuthCookies();
+    return redirectLogin("Google OAuth is not configured on the server.");
   }
 
   let tokens;
@@ -388,13 +217,12 @@ const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
     user = await findOrCreateUserFromGooglePayload(payload);
   } catch (err) {
     clearOAuthCookies();
-    const message = err instanceof CustomError ? err.message : "Sign-in failed.";
-    return redirectLogin(message);
+    return redirectLogin(err instanceof CustomError ? err.message : "Sign-in failed.");
   }
 
   clearOAuthCookies();
   await issueSessionForUser(res, user);
-  res.redirect(302, `${base}/oauth/google-done`);
+  res.redirect(302, `${FRONTEND_BASE}/oauth/google-done`);
 });
 
 const GoogleLoginUser = AsyncHandler(async (req, res, next) => {
