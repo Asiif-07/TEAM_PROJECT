@@ -165,7 +165,7 @@ export default function SkillsEducationStep({
                 key={idx}
                 variant="outlined"
                 sx={{
-                  p: 2,
+                  p: { xs: 1.5, lg: 2 },
                   borderRadius: "16px",
                   bgcolor: "rgba(255,255,255,0.5)",
                 }}

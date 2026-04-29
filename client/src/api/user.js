@@ -32,3 +32,24 @@ export function resetPassword({ token, password, confirmPassword }) {
   });
 }
 
+export function updateEmail({ accessToken, refreshAccessToken, email }) {
+  return apiRequest("/api/v1/user/update-email", {
+    method: "PUT",
+    accessToken,
+    refreshAccessToken,
+    body: { email },
+    credentials: "include",
+    retryOn401: true,
+  });
+}
+
+export function changePassword({ accessToken, refreshAccessToken, oldPassword, newPassword }) {
+  return apiRequest("/api/v1/user/change-password", {
+    method: "POST",
+    accessToken,
+    refreshAccessToken,
+    body: { oldPassword, newPassword },
+    credentials: "include",
+    retryOn401: true,
+  });
+}

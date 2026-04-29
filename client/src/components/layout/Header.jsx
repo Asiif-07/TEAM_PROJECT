@@ -77,7 +77,7 @@ const Header = () => {
 
   return (
     <AppBar
-      className="glass"
+      className="glass no-print"
       position="sticky"
       elevation={0}
       sx={{

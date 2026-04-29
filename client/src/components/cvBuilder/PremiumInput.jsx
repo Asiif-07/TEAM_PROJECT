@@ -3,7 +3,7 @@ import { Box, TextField, Typography } from "@mui/material";
 
 export default function PremiumInput({ label, ...props }) {
   return (
-    <Box sx={{ mb: 4 }}>
+    <Box sx={{ mb: { xs: 2.5, lg: 4 } }}>
       <Typography
         variant="subtitle2"
         sx={{

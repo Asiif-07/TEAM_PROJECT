@@ -58,8 +58,8 @@ export default function PersonalInfoStep({ formData, handleChange, selectedTempl
         {/* Magic Extraction Box */}
         <Box
           sx={{
-            mb: 4,
-            p: 3,
+            mb: { xs: 2, lg: 4 },
+            p: { xs: 2, lg: 3 },
             borderRadius: "20px",
             background: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)",
             border: "1px solid rgba(99, 102, 241, 0.1)",

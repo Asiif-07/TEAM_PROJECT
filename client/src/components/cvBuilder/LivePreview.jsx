@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Paper, Typography, useMediaQuery, useTheme, GlobalStyles } from "@mui/material";
+import { Box, Button, IconButton, Paper, Typography, useMediaQuery, useTheme, GlobalStyles } from "@mui/material";
+import { X } from "lucide-react";
 
 import ClassicTemplate from "./templates/ClassicTemplate";
 import EuropassTemplate from "./templates/EuropassTemplate";
@@ -15,10 +16,11 @@ import OrangeWhite from "./templates/OrangeWhite";
 import RoyalBlue from "./templates/RoyalBlue";
 import RoyalBrown from "./templates/RoyalBrown";
 
-export default function LivePreview({ formData, selectedTemplate, selectedCategory }) {
+export default function LivePreview({ formData, selectedTemplate, selectedCategory, ...props }) {
     const theme = useTheme();
     const isLg = useMediaQuery(theme.breakpoints.up('lg'));
-    const [scale, setScale] = React.useState(0.65); // Default to Medium
+    const isMobile = !isLg;
+    const [scale, setScale] = React.useState(isMobile ? 0.45 : 0.65);
 
     const normalizedData = React.useMemo(() => {
         // Deep clone manually to preserve File objects (JSON.stringify strips them)
@@ -62,7 +64,7 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
         const tId = String(selectedTemplate || "").toLowerCase();
         const tCat = String(selectedCategory || "").toLowerCase();
 
-  
+
         if (tId === 'black-pro' || tId.includes('black-pro')) return <BlackPro data={normalizedData} />;
         if (tId === 'black-white' || tId.includes('black-white')) return <BlackWhite data={normalizedData} />;
         if (tId === 'monochrome-simple' || tId.includes('monochrome')) return <MonochromeSimple data={normalizedData} />;
@@ -75,15 +77,10 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
         if (tId.includes('modern') || tCat.includes('modern')) return <ModernTemplate data={normalizedData} />;
         if (tId.includes('minimalist') || tCat.includes('minimalist')) return <MinimalistTemplate data={normalizedData} />;
         if (tId.includes('creative') || tCat.includes('creative')) return <CreativeTemplate data={normalizedData} />;
-        if (tId.includes('executive') || tCat.includes('executive')) return <ExecutiveTemplate data={normalizedData} />;
-        if (tId.includes('wave') || tCat.includes('wave')) return <GradientWaveTemplate data={normalizedData} />;
-        if (tId.includes('tech') || tCat.includes('tech')) return <TechPremiumTemplate data={normalizedData} />;
 
         // Fallback default
         return <ClassicTemplate data={normalizedData} />;
     };
-
-    if (!isLg) return null;
 
     return (
         <>
@@ -95,51 +92,75 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
                 }
             }} />
             <Box
+                className="no-print"
                 sx={{
-                    position: "sticky",
-                    top: "120px",
-                    height: "calc(100vh - 120px)",
-                    display: "flex",
+                    position: isMobile ? "fixed" : "sticky",
+                    top: isMobile ? 0 : "120px",
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: isMobile ? "100vh" : "calc(100vh - 120px)",
+                    zIndex: isMobile ? 2000 : 1,
+                    display: isMobile && !props.showMobilePreview ? "none" : "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     overflowY: "auto",
-                    width: "auto", 
-                    minWidth: "500px",
+                    width: isMobile ? "100%" : "auto",
+                    minWidth: isMobile ? "auto" : "500px",
                     perspective: "1000px",
+                    bgcolor: isMobile ? "rgba(0,0,0,0.8)" : "transparent",
+                    backdropFilter: isMobile ? "blur(8px)" : "none",
+                    pt: isMobile ? 4 : 0
                 }}
             >
-                <Box sx={{ mb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", px: 2 }}>
+                <Box sx={{ mb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", px: 2, position: "relative" }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "#6366F1", animation: "pulse 2s infinite" }} />
-                        <Typography variant="caption" fontWeight="900" sx={{ color: "#6366F1", letterSpacing: "1px", textTransform: "uppercase" }}>
-                            Live Preview ({scale === 0.5 ? 'Small' : scale === 0.65 ? 'Medium' : 'Large'})
+                        <Typography variant="caption" fontWeight="900" sx={{ color: "#6366F1", letterSpacing: "1px", textTransform: "uppercase", fontSize: { xs: '0.65rem', lg: '0.75rem' } }}>
+                            {isMobile ? 'Preview' : `Live Preview (${scale === 0.5 || scale === 0.45 ? 'Small' : scale === 0.65 || scale === 0.55 ? 'Medium' : 'Large'})`}
                         </Typography>
                     </Box>
-                    <Box sx={{ display: "flex", bgcolor: "rgba(99, 102, 241, 0.1)", borderRadius: "20px", p: 0.5 }}>
-                        {[
-                            { label: "S", val: 0.5 },
-                            { label: "M", val: 0.65 },
-                            { label: "L", val: 0.8 }
-                        ].map((s) => (
-                            <Box
-                                key={s.label}
-                                onClick={() => setScale(s.val)}
-                                sx={{
-                                    px: 2,
-                                    py: 0.5,
-                                    borderRadius: "15px",
-                                    cursor: "pointer",
-                                    fontSize: "0.7rem",
-                                    fontWeight: 900,
-                                    transition: "all 0.2s",
-                                    bgcolor: scale === s.val ? "#6366F1" : "transparent",
-                                    color: scale === s.val ? "white" : "#6366F1",
-                                    "&:hover": { bgcolor: scale === s.val ? "#6366F1" : "rgba(99, 102, 241, 0.2)" }
-                                }}
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box sx={{ display: "flex", bgcolor: "rgba(99, 102, 241, 0.1)", borderRadius: "20px", p: 0.5 }}>
+                            {(isMobile ? [
+                                { label: "S", val: 0.45 },
+                                { label: "M", val: 0.55 },
+                                { label: "L", val: 0.65 }
+                            ] : [
+                                { label: "S", val: 0.5 },
+                                { label: "M", val: 0.65 },
+                                { label: "L", val: 0.8 }
+                            ]).map((s) => (
+                                <Box
+                                    key={s.label}
+                                    onClick={() => setScale(s.val)}
+                                    sx={{
+                                        px: { xs: 1.5, lg: 2 },
+                                        py: 0.5,
+                                        borderRadius: "15px",
+                                        cursor: "pointer",
+                                        fontSize: "0.7rem",
+                                        fontWeight: 900,
+                                        transition: "all 0.2s",
+                                        bgcolor: scale === s.val ? "#6366F1" : "transparent",
+                                        color: scale === s.val ? "white" : "#6366F1",
+                                        "&:hover": { bgcolor: scale === s.val ? "#6366F1" : "rgba(99, 102, 241, 0.2)" }
+                                    }}
+                                >
+                                    {s.label}
+                                </Box>
+                            ))}
+                        </Box>
+
+                        {isMobile && (
+                            <IconButton
+                                onClick={props.onCloseMobile}
+                                sx={{ color: "white", bgcolor: "rgba(255,255,255,0.1)", p: 0.8, borderRadius: "10px", "&:hover": { bgcolor: "rgba(255,255,255,0.2)" } }}
                             >
-                                {s.label}
-                            </Box>
-                        ))}
+                                <X size={18} />
+                            </IconButton>
+                        )}
                     </Box>
                 </Box>
 

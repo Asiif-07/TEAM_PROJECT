@@ -62,12 +62,13 @@ export default function ExperienceStep({ formData, setFormData, handleChange, se
           variant="body2"
           color="textSecondary"
           sx={{
-            mb: 4,
+            mb: { xs: 2, lg: 4 },
             bgcolor: "#EFF6FF",
             p: 2,
             borderRadius: "12px",
             border: "1px solid #DBEAFE",
             color: "#1E40AF",
+            fontSize: { xs: '0.75rem', lg: '0.875rem' }
           }}
         >
           💡 {t("Experience Tip")}
@@ -79,7 +80,7 @@ export default function ExperienceStep({ formData, setFormData, handleChange, se
               key={idx}
               variant="outlined"
               sx={{
-                p: 2,
+                p: { xs: 1.5, lg: 2 },
                 borderRadius: "16px",
                 bgcolor: "rgba(255,255,255,0.5)",
               }}

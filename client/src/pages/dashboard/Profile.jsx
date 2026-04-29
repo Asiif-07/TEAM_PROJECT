@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, Container, Paper, Typography, Avatar, Divider, Button, IconButton, CircularProgress } from "@mui/material";
+import { Box, Container, Paper, Typography, Avatar, Divider, Button, IconButton, CircularProgress, TextField, Collapse } from "@mui/material";
 import { useAuth } from "../../context/AuthContext";
-import { FileText, User, Mail, Calendar, Camera, XCircle } from "lucide-react";
+import { FileText, User, Mail, Calendar, Camera, XCircle, Lock, ChevronDown, ChevronUp } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { updateProfilePic } from "../../api/user";
+import { updateProfilePic, updateEmail, changePassword } from "../../api/user";
 import { verifySession, cancelSubscription } from "../../api/stripe";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
@@ -16,6 +16,14 @@ export default function Profile() {
     const [canceling, setCanceling] = useState(false);
     const fileInputRef = useRef(null);
     const [searchParams, setSearchParams] = useSearchParams();
+
+    // New states for email and password updates
+    const [showEmailForm, setShowEmailForm] = useState(false);
+    const [showPasswordForm, setShowPasswordForm] = useState(false);
+    const [emailData, setEmailData] = useState({ email: "" });
+    const [passwordData, setPasswordData] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
+    const [updatingEmail, setUpdatingEmail] = useState(false);
+    const [updatingPassword, setUpdatingPassword] = useState(false);
 
     useEffect(() => {
         const sessionId = searchParams.get("session_id");
@@ -64,14 +72,6 @@ export default function Profile() {
         }
     };
 
-    if (!user) {
-        return (
-            <Container maxWidth="sm" sx={{ py: 20, textAlign: "center" }}>
-                <Typography variant="h5">{t("Login To View Profile")}</Typography>
-            </Container>
-        );
-    }
-
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -87,13 +87,83 @@ export default function Profile() {
             if (response.success && response.data) {
                 setUser(response.data);
                 localStorage.setItem("currentUser", JSON.stringify(response.data));
+                toast.success(t("Profile picture updated!"));
             }
         } catch (error) {
             console.error("Failed to upload profile picture:", error);
+            toast.error(t("Failed to update profile picture"));
         } finally {
             setUploading(false);
         }
     };
+
+    const handleUpdateEmail = async (e) => {
+        e.preventDefault();
+        if (!emailData.email) return toast.error(t("Please enter a new email"));
+        if (emailData.email === user.email) return toast.error(t("New email must be different"));
+
+        setUpdatingEmail(true);
+        try {
+            const res = await updateEmail({
+                accessToken,
+                refreshAccessToken,
+                email: emailData.email
+            });
+            if (res.success) {
+                setUser(res.data);
+                localStorage.setItem("currentUser", JSON.stringify(res.data));
+                toast.success(t("Email updated successfully!"));
+                setShowEmailForm(false);
+                setEmailData({ email: "" });
+            }
+        } catch (error) {
+            toast.error(error.message || t("Failed to update email"));
+        } finally {
+            setUpdatingEmail(false);
+        }
+    };
+
+    const handleUpdatePassword = async (e) => {
+        e.preventDefault();
+        const { oldPassword, newPassword, confirmPassword } = passwordData;
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            return toast.error(t("Please fill in all fields"));
+        }
+        if (newPassword !== confirmPassword) {
+            return toast.error(t("Passwords do not match"));
+        }
+        if (newPassword.length < 6) {
+            return toast.error(t("Password must be at least 6 characters"));
+        }
+
+        setUpdatingPassword(true);
+        try {
+            const res = await changePassword({
+                accessToken,
+                refreshAccessToken,
+                oldPassword,
+                newPassword
+            });
+            if (res.success) {
+                toast.success(t("Password updated successfully!"));
+                setShowPasswordForm(false);
+                setPasswordData({ oldPassword: "", newPassword: "", confirmPassword: "" });
+            }
+        } catch (error) {
+            toast.error(error.message || t("Failed to update password"));
+        } finally {
+            setUpdatingPassword(false);
+        }
+    };
+
+    if (!user) {
+        return (
+            <Container maxWidth="sm" sx={{ py: 20, textAlign: "center" }}>
+                <Typography variant="h5">{t("Login To View Profile")}</Typography>
+            </Container>
+        );
+    }
 
     return (
         <Box sx={{ minHeight: "100vh", py: 12, bgcolor: "#F8FAF8" }} className="bg-mesh">
@@ -175,14 +245,115 @@ export default function Profile() {
                     <Divider sx={{ mb: 4 }} />
 
                     <Box sx={{ textAlign: "left", mb: 4 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-                            <Mail size={20} color="#6B7280" />
-                            <Box>
-                                <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Email Address")}</Typography>
-                                <Typography variant="body1" fontWeight="600">{user.email}</Typography>
+                        {/* Email Row */}
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                <Mail size={20} color="#6B7280" />
+                                <Box>
+                                    <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Email Address")}</Typography>
+                                    <Typography variant="body1" fontWeight="600">{user.email}</Typography>
+                                </Box>
                             </Box>
+                            <Button
+                                size="small"
+                                onClick={() => setShowEmailForm(!showEmailForm)}
+                                sx={{ textTransform: "none", fontSize: "12px", borderRadius: "8px", color: "#2563EB" }}
+                                endIcon={showEmailForm ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                            >
+                                {t("Edit")}
+                            </Button>
                         </Box>
 
+                        <Collapse in={showEmailForm}>
+                            <Box component="form" onSubmit={handleUpdateEmail} sx={{ mb: 4, mt: -1, p: 2, bgcolor: "#F9FAFB", borderRadius: "12px", border: "1px solid #E5E7EB" }}>
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="email"
+                                    placeholder={t("Enter new email")}
+                                    value={emailData.email}
+                                    onChange={(e) => setEmailData({ email: e.target.value })}
+                                    sx={{
+                                        mb: 2,
+                                        "& .MuiOutlinedInput-root": {
+                                            borderRadius: "8px",
+                                            bgcolor: "#fff"
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    fullWidth
+                                    type="submit"
+                                    variant="contained"
+                                    disabled={updatingEmail}
+                                    sx={{ borderRadius: "8px", bgcolor: "#111827", textTransform: "none", py: 1 }}
+                                >
+                                    {updatingEmail ? <CircularProgress size={20} color="inherit" /> : t("Update Email")}
+                                </Button>
+                            </Box>
+                        </Collapse>
+
+                        {/* Password Row */}
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                <Lock size={20} color="#6B7280" />
+                                <Box>
+                                    <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Password")}</Typography>
+                                    <Typography variant="body1" fontWeight="600">••••••••</Typography>
+                                </Box>
+                            </Box>
+                            <Button
+                                size="small"
+                                onClick={() => setShowPasswordForm(!showPasswordForm)}
+                                sx={{ textTransform: "none", fontSize: "12px", borderRadius: "8px", color: "#2563EB" }}
+                                endIcon={showPasswordForm ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                            >
+                                {t("Change")}
+                            </Button>
+                        </Box>
+
+                        <Collapse in={showPasswordForm}>
+                            <Box component="form" onSubmit={handleUpdatePassword} sx={{ mb: 4, mt: -1, p: 2, bgcolor: "#F9FAFB", borderRadius: "12px", border: "1px solid #E5E7EB" }}>
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="password"
+                                    placeholder={t("Current Password")}
+                                    value={passwordData.oldPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                                    sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: "8px", bgcolor: "#fff" } }}
+                                />
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="password"
+                                    placeholder={t("New Password")}
+                                    value={passwordData.newPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                    sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: "8px", bgcolor: "#fff" } }}
+                                />
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="password"
+                                    placeholder={t("Confirm New Password")}
+                                    value={passwordData.confirmPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                    sx={{ mb: 2, "& .MuiOutlinedInput-root": { borderRadius: "8px", bgcolor: "#fff" } }}
+                                />
+                                <Button
+                                    fullWidth
+                                    type="submit"
+                                    variant="contained"
+                                    disabled={updatingPassword}
+                                    sx={{ borderRadius: "8px", bgcolor: "#111827", textTransform: "none", py: 1 }}
+                                >
+                                    {updatingPassword ? <CircularProgress size={20} color="inherit" /> : t("Change Password")}
+                                </Button>
+                            </Box>
+                        </Collapse>
+
+                        {/* Username Row */}
                         <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                             <User size={20} color="#6B7280" />
                             <Box>

@@ -57,7 +57,7 @@ export default function Services() {
     const pingServer = async () => {
       try {
         await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/health`);
-      } catch (e) {
+      } catch {
         // Silent catch: if ping fails, the actual request will handle errors
       }
     };
@@ -108,7 +108,7 @@ export default function Services() {
               boxShadow: "0px 4px 6px -2px rgba(16, 24, 40, 0.02)",
             }}
             className={`
-              group relative w-[330px] rounded-[24px] transition-all duration-[50ms] border
+              group relative w-full max-w-[330px] rounded-[24px] transition-all duration-[50ms] border
               p-5 flex flex-col will-change-transform transform-gpu
 
               ${item.dark
