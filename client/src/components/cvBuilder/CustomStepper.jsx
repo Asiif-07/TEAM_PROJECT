@@ -13,7 +13,7 @@ const steps = [
 export default function CustomStepper({ activeStep, onStepClick }) {
   const { t } = useTranslation();
   return (
-    <Box sx={{ mb: 10 }}>
+    <Box sx={{ mb: { xs: 6, lg: 10 } }}>
       <Box
         sx={{
           display: "flex",
@@ -26,7 +26,7 @@ export default function CustomStepper({ activeStep, onStepClick }) {
         <Box
           sx={{
             position: "absolute",
-            top: "24px",
+            top: { xs: "20px", lg: "24px" },
             left: { xs: "10%", sm: "15%" },
             right: { xs: "10%", sm: "15%" },
             height: "2px",
@@ -74,9 +74,9 @@ export default function CustomStepper({ activeStep, onStepClick }) {
               <Box
                 className="step-icon"
                 sx={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: "18px",
+                  width: { xs: 40, lg: 50 },
+                  height: { xs: 40, lg: 50 },
+                  borderRadius: { xs: "14px", lg: "18px" },
                   bgcolor: isActive ? "#2563EB" : isCompleted ? "#111827" : "white",
                   color: isActive || isCompleted ? "white" : "#9CA3AF",
                   display: "flex",
@@ -87,10 +87,10 @@ export default function CustomStepper({ activeStep, onStepClick }) {
                   transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                   boxShadow: isActive ? "0 0 20px rgba(37, 99, 235, 0.3)" : "none",
                   transform: isActive ? "scale(1.1)" : "scale(1)",
-                  mb: 1.5,
+                  mb: 1,
                 }}
               >
-                {step.icon}
+                {React.cloneElement(step.icon, { size: isActive ? 20 : 16 })}
               </Box>
 
               <Typography
@@ -101,7 +101,7 @@ export default function CustomStepper({ activeStep, onStepClick }) {
                   color: isActive ? "#2563EB" : "#6B7280",
                   textTransform: "uppercase",
                   letterSpacing: "1px",
-                  fontSize: "0.65rem",
+                  fontSize: { xs: "0.55rem", lg: "0.65rem" },
                   textAlign: "center",
                   transition: "all 0.4s ease",
                 }}

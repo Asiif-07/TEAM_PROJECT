@@ -316,7 +316,7 @@ export default function CVBuilder() {
             }
         } catch (err) {
             console.error("Extraction error:", err);
-            if (loadingToast) toast.dismiss(loadingToast);
+            toast.error(t("Failed to extract data from PDF"), { id: loadingToast });
         } finally {
             setIsExtracting(false);
         }
@@ -398,19 +398,19 @@ export default function CVBuilder() {
     }
 
     return (
-        <Box sx={{ minHeight: '100vh', py: { xs: 6, lg: 12 }, bgcolor: 'background.default' }}>
-            <Container maxWidth="xl">
-                <Box sx={{ textAlign: 'center', mb: { xs: 5, lg: 10 } }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box sx={{ minHeight: '100vh', py: { xs: 3, lg: 12 }, bgcolor: 'background.default' }}>
+            <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3 } }}>
+                <Box sx={{ textAlign: 'center', mb: { xs: 3, lg: 10 } }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: { xs: 2, lg: 4 } }}>
                         <Box></Box>
-                        <Typography variant="h2" fontWeight="900" sx={{ color: 'text.primary', fontSize: { xs: '2.5rem', lg: '3.75rem' } }}>{cvId ? t('Edit Your CV') : t('Create Your Future')}</Typography>
+                        <Typography variant="h2" fontWeight="900" sx={{ color: 'text.primary', fontSize: { xs: '1.75rem', lg: '3.75rem' } }}>{cvId ? t('Edit Your CV') : t('Create Your Future')}</Typography>
                         <Box></Box>
                     </Box>
-                    <Typography variant="h6" color="text.secondary">{t("Active Template")}: {selectedTemplate.toUpperCase()}</Typography>
+                    <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', lg: '1.25rem' } }}>{t("Active Template")}: {selectedTemplate.toUpperCase()}</Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 4, justifyContent: 'center', alignItems: 'flex-start' }}>
-                    <Paper className='glass' sx={{ p: { xs: 3, lg: 6 }, borderRadius: '32px', flex: '0 1 800px', width: '100%', bgcolor: 'background.paper' }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: { xs: 2, lg: 4 }, justifyContent: 'center', alignItems: 'flex-start' }}>
+                    <Paper className='glass' sx={{ p: { xs: 2, sm: 3, lg: 6 }, borderRadius: { xs: '24px', lg: '32px' }, flex: '0 1 800px', width: '100%', bgcolor: 'background.paper' }}>
                         <CustomStepper activeStep={activeStep} onStepClick={setActiveStep} />
 
                         <Box sx={{ minHeight: 400, mt: 4 }}>

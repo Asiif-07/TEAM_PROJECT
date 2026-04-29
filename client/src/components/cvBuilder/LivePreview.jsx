@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Button, Paper, Typography, useMediaQuery, useTheme, GlobalStyles } from "@mui/material";
+import { Box, Button, IconButton, Paper, Typography, useMediaQuery, useTheme, GlobalStyles } from "@mui/material";
+import { X } from "lucide-react";
 
 import ClassicTemplate from "./templates/ClassicTemplate";
 import EuropassTemplate from "./templates/EuropassTemplate";
@@ -18,7 +18,8 @@ import RoyalBrown from "./templates/RoyalBrown";
 export default function LivePreview({ formData, selectedTemplate, selectedCategory, ...props }) {
     const theme = useTheme();
     const isLg = useMediaQuery(theme.breakpoints.up('lg'));
-    const [scale, setScale] = React.useState(0.65); // Default to Medium
+    const isMobile = !isLg;
+    const [scale, setScale] = React.useState(isMobile ? 0.45 : 0.65);
 
     const normalizedData = React.useMemo(() => {
         // Deep clone manually to preserve File objects (JSON.stringify strips them)
@@ -80,8 +81,6 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
         return <ClassicTemplate data={normalizedData} />;
     };
 
-    const isMobile = !isLg;
-
     return (
         <>
             <GlobalStyles styles={{
@@ -113,47 +112,54 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
                     pt: isMobile ? 4 : 0
                 }}
             >
-                {/* Mobile Close Button */}
-                {isMobile && (
-                    <Button
-                        onClick={props.onCloseMobile}
-                        sx={{ position: "absolute", top: 20, right: 20, color: "white", bgcolor: "rgba(255,255,255,0.1)", borderRadius: "12px", px: 3 }}
-                    >
-                        Close Preview
-                    </Button>
-                )}
-                <Box sx={{ mb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", px: 2 }}>
+                <Box sx={{ mb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", px: 2, position: "relative" }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "#6366F1", animation: "pulse 2s infinite" }} />
-                        <Typography variant="caption" fontWeight="900" sx={{ color: "#6366F1", letterSpacing: "1px", textTransform: "uppercase" }}>
-                            Live Preview ({scale === 0.5 ? 'Small' : scale === 0.65 ? 'Medium' : 'Large'})
+                        <Typography variant="caption" fontWeight="900" sx={{ color: "#6366F1", letterSpacing: "1px", textTransform: "uppercase", fontSize: { xs: '0.65rem', lg: '0.75rem' } }}>
+                            {isMobile ? 'Preview' : `Live Preview (${scale === 0.5 || scale === 0.45 ? 'Small' : scale === 0.65 || scale === 0.55 ? 'Medium' : 'Large'})`}
                         </Typography>
                     </Box>
-                    <Box sx={{ display: "flex", bgcolor: "rgba(99, 102, 241, 0.1)", borderRadius: "20px", p: 0.5 }}>
-                        {[
-                            { label: "S", val: 0.5 },
-                            { label: "M", val: 0.65 },
-                            { label: "L", val: 0.8 }
-                        ].map((s) => (
-                            <Box
-                                key={s.label}
-                                onClick={() => setScale(s.val)}
-                                sx={{
-                                    px: 2,
-                                    py: 0.5,
-                                    borderRadius: "15px",
-                                    cursor: "pointer",
-                                    fontSize: "0.7rem",
-                                    fontWeight: 900,
-                                    transition: "all 0.2s",
-                                    bgcolor: scale === s.val ? "#6366F1" : "transparent",
-                                    color: scale === s.val ? "white" : "#6366F1",
-                                    "&:hover": { bgcolor: scale === s.val ? "#6366F1" : "rgba(99, 102, 241, 0.2)" }
-                                }}
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box sx={{ display: "flex", bgcolor: "rgba(99, 102, 241, 0.1)", borderRadius: "20px", p: 0.5 }}>
+                            {(isMobile ? [
+                                { label: "S", val: 0.45 },
+                                { label: "M", val: 0.55 },
+                                { label: "L", val: 0.65 }
+                            ] : [
+                                { label: "S", val: 0.5 },
+                                { label: "M", val: 0.65 },
+                                { label: "L", val: 0.8 }
+                            ]).map((s) => (
+                                <Box
+                                    key={s.label}
+                                    onClick={() => setScale(s.val)}
+                                    sx={{
+                                        px: { xs: 1.5, lg: 2 },
+                                        py: 0.5,
+                                        borderRadius: "15px",
+                                        cursor: "pointer",
+                                        fontSize: "0.7rem",
+                                        fontWeight: 900,
+                                        transition: "all 0.2s",
+                                        bgcolor: scale === s.val ? "#6366F1" : "transparent",
+                                        color: scale === s.val ? "white" : "#6366F1",
+                                        "&:hover": { bgcolor: scale === s.val ? "#6366F1" : "rgba(99, 102, 241, 0.2)" }
+                                    }}
+                                >
+                                    {s.label}
+                                </Box>
+                            ))}
+                        </Box>
+
+                        {isMobile && (
+                            <IconButton
+                                onClick={props.onCloseMobile}
+                                sx={{ color: "white", bgcolor: "rgba(255,255,255,0.1)", p: 0.8, borderRadius: "10px", "&:hover": { bgcolor: "rgba(255,255,255,0.2)" } }}
                             >
-                                {s.label}
-                            </Box>
-                        ))}
+                                <X size={18} />
+                            </IconButton>
+                        )}
                     </Box>
                 </Box>
 
