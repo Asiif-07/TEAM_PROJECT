@@ -1,3 +1,4 @@
+import React from "react";
 import { Box, Button, IconButton, Paper, Typography, useMediaQuery, useTheme, GlobalStyles } from "@mui/material";
 import { X } from "lucide-react";
 
