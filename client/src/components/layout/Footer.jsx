@@ -78,13 +78,13 @@ export default function Footer() {
               </div>
               <span className="ml-3 text-gray-400 text-sm">+6</span>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="email"
                 placeholder={t("Enter Email")}
-                className="flex-1 bg-slate-700 text-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
+                className="flex-1 bg-slate-700 text-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 w-full"
               />
-              <button className="bg-linear-to-r from-blue-400 to-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+              <button className="bg-linear-to-r from-blue-400 to-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors w-full sm:w-auto">
                 {t("Subscribe")}
               </button>
             </div>
