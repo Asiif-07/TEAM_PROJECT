@@ -73,7 +73,7 @@ const updateBlog = AsyncHandler(async(req,res,next)=>{
 })
 
 
-const qdeleteBlog = AsyncHandler(async (req, res, next) => {
+const deleteBlog = AsyncHandler(async (req, res, next) => {
     const { id } = req.params; 
     const userId = req.userId; 
 
