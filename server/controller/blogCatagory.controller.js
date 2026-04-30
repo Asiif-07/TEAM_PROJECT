@@ -5,7 +5,7 @@ import BlogCatogery from "../model/blogCatagoryModle.js";
 
 const createBlogCategory = AsyncHandler(async (req, res, next) => {
   const userId = req.userId;
-  const { name, description } = req.body;
+  const { name, description, slug } = req.body;
 
   const user = await User.findById(userId);
 
@@ -16,6 +16,8 @@ const createBlogCategory = AsyncHandler(async (req, res, next) => {
   const category = await BlogCatogery.create({
     name,
     description,
+    slug,
+
     user: userId,
   });
 
@@ -34,22 +36,23 @@ const updateBlogCategory = AsyncHandler(async (req, res, next) => {
   const userId = req.userId;
   const { id } = req.params;
 
-  const category = await blogCatagory.findById(id);
+  const category = await BlogCatogery.findById(id);
 
   if (!category) {
     return next(new CustomError(404, "Blog category not found"));
   }
 
-  if (category.userId.toString() !== userId) {
-    return next(
-      new CustomError(
-        403,
-        "You are not authorized to update this blog category",
-      ),
-    );
+  if (category.user.toString() !== userId) {
+    return next(new CustomError(403, "You are not authorized to update this blog category"));
   }
 
-  const updatedCategory = await blogCatagory.findByIdAndUpdate(id, req.body, {
+
+  let updateData = { ...req.body };
+  if (req.body.name) {
+    updateData.slug = req.body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  }
+
+  const updatedCategory = await BlogCatogery.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true,
   });
@@ -86,4 +89,27 @@ const getBlogCategorys = AsyncHandler(async (req, res, next) => {
   });
 });
 
-export { createBlogCategory, updateBlogCategory, getBlogCategorys };
+const getSingleBlogCategory = AsyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new CustomError(400, "Invalid Category ID format.");
+  }
+
+
+  const category = await BlogCatogery.findById(id).populate("user", "name email");
+
+
+  if (!category) {
+    throw new CustomError(404, "Blog category nahi mili ya delete ho chuki hai");
+  }
+
+
+  res.status(200).json({
+    success: true,
+    category,
+  });
+});
+
+export { createBlogCategory, updateBlogCategory, getBlogCategorys, getSingleBlogCategory };

@@ -6,39 +6,53 @@ import { ApiFeatures } from "../utils/apiFeatures.js";
 
 const createBlog = AsyncHandler(async (req, res, next) => {
   const userId = req.userId;
-
-  const {
-    title,
-    description,
-    coverImage,
-    image,
-    author,
-    category,
-    tags,
-    status,
-  } = req.body;
-
+ 
+  const { title, description, author, category, tags, status } = req.body;
+ 
   const user = await User.findById(userId);
-
   if (!user) {
     throw new CustomError(404, "User not found");
   }
-
+ 
+  // ✅ Cover image upload
+  let coverImageUrl = null;
+  if (req.files && req.files.coverImage) {
+    const result = await uploadToCloudinary({
+      resource_type: "image",
+      folder: "blogs/covers",
+      buffer: req.files.coverImage[0].buffer,
+    });
+    coverImageUrl = result.secure_url;
+  }
+ 
+  // ✅ Multiple images upload
+  let imageUrls = [];
+  if (req.files && req.files.image) {
+    const uploadPromises = req.files.image.map((file) =>
+      uploadToCloudinary({
+        resource_type: "image",
+        folder: "blogs/images",
+        buffer: file.buffer,
+      })
+    );
+    const results = await Promise.all(uploadPromises);
+    imageUrls = results.map((result) => result.secure_url);
+  }
+ 
   const blog = await Blog.create({
-    userId,
     title,
     description,
-    coverImage,
-    image,
+    coverImage: coverImageUrl,
+    image: imageUrls,
     author: userId,
     category,
-    tags,
+    tags,   // ✅ FIX: model mein bhi 'tags' fix kiya (BlogModel.js dekho)
     status,
   });
-
+ 
   await blog.populate("author", "name email");
   await blog.populate("category", "name");
-
+ 
   res.status(201).json({
     success: true,
     message: "Blog created successfully",
@@ -49,33 +63,53 @@ const createBlog = AsyncHandler(async (req, res, next) => {
 const updateBlog = AsyncHandler(async (req, res, next) => {
   const userId = req.userId;
   const { id } = req.params;
-
-  const blog = await Blog.findById(id);
-
-  if (!blog) {
+ 
+  const existingBlog = await Blog.findById(id);
+  if (!existingBlog) {
     throw new CustomError(404, "Blog not found");
   }
-
-  if (blog.author.toString() !== userId.toString()) {
-    throw new CustomError(403, "you can update your own blog only");
+ 
+  if (existingBlog.author.toString() !== userId.toString()) {
+    throw new CustomError(403, "You can update your own blog only");
   }
-
-  blog = await Blog.findByIdAndUpdate(
-    id,
-    { ...req.body },
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
-
-  await blog.populate("author", "name email");
-  await blog.populate("category", "name");
-
+ 
+  let updateData = { ...req.body };
+ 
+  // ✅ Cover image update
+  if (req.files && req.files.coverImage) {
+    const result = await uploadToCloudinary({
+      resource_type: "image",
+      folder: "blogs/covers",
+      buffer: req.files.coverImage[0].buffer,
+    });
+    updateData.coverImage = result.secure_url;
+  }
+ 
+  // ✅ Multiple images update
+  if (req.files && req.files.image) {
+    const uploadPromises = req.files.image.map((file) =>
+      uploadToCloudinary({
+        resource_type: "image",
+        folder: "blogs/images",
+        buffer: file.buffer,
+      })
+    );
+    const results = await Promise.all(uploadPromises);
+    updateData.image = results.map((result) => result.secure_url);
+  }
+ 
+  const updatedBlog = await Blog.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true,
+  });
+ 
+  await updatedBlog.populate("author", "name email");
+  await updatedBlog.populate("category", "name");
+ 
   res.status(200).json({
     success: true,
     message: "Blog updated successfully",
-    blog,
+    blog: updatedBlog,
   });
 });
 
