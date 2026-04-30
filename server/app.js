@@ -11,6 +11,8 @@ import cvRouter from "./router/cv.route.js";
 import aiRouter from "./router/ai.route.js";
 import stripeRouter from "./router/stripe.route.js";
 import { stripeWebhook } from "./controller/stripe.controller.js";
+import {catagoryRouter} from "./router/blogCatagory.route.js";
+import blogRoutes from "./router/blogs.route.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -62,6 +64,8 @@ app.use('/api/v1/user', userRouter);
 app.use('/api/v1/cv', cvRouter);
 app.use('/api/v1/ai', aiRouter);
 app.use('/api/v1/stripe', stripeRouter);
+app.use('/api/v1/blogCategory', catagoryRouter);
+app.use('/api/v1/blog', blogRoutes);
 
 app.get('/api/v1/health', (req, res) => {
     res.status(200).json({ success: true, message: "Server is healthy" });
