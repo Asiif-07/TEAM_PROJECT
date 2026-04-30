@@ -123,11 +123,21 @@ async function findOrCreateUserFromGooglePayload(payload) {
   return user;
 }
 
-async function issueSessionForUser(res, user) {
+async function issueSessionForUser(req, res, user) {
+  const isNewUser = user.isNew;
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
   user.refreshToken = [{ token: refreshToken, createdAt: Date.now() }];
   await user.save({ validateBeforeSave: false });
+
+  if (isNewUser) {
+    const appUrl = getAppUrlFromRequest(req);
+    const welcomeEmail = welcomeEmailTemplate(user.name, user.email, appUrl);
+    // Do not block session issuance on email sending.
+    sendEmail(user.email, "welcome to our application", welcomeEmail)
+      .catch((error) => console.error("Google welcome email failed:", error?.message || error));
+  }
+
   res.cookie("refreshToken", refreshToken, CookieOptions);
   return { accessToken, user: sanitizeUser(user) };
 }
@@ -213,7 +223,7 @@ const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
   }
 
   clearOAuthCookies();
-  await issueSessionForUser(res, user);
+  await issueSessionForUser(req, res, user);
   res.redirect(302, `${FRONTEND_BASE}/oauth/google-done`);
 });
 
@@ -242,7 +252,7 @@ const GoogleLoginUser = AsyncHandler(async (req, res, next) => {
     return next(err);
   }
 
-  const { accessToken, user: safeUser } = await issueSessionForUser(res, user);
+  const { accessToken, user: safeUser } = await issueSessionForUser(req, res, user);
 
   res.status(200).json({
     success: true,

@@ -1,4 +1,4 @@
-import { useState, } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
@@ -41,7 +41,16 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [userAnchorEl, setUserAnchorEl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Derive selected language from i18n.language
   const displayLangCode = i18n.language?.includes('-') ? i18n.language.split('-')[0] : i18n.language;
@@ -81,10 +90,12 @@ const Header = () => {
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: "rgba(255, 255, 255, 0.5)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.3)",
-        boxShadow: "none",
-        zIndex: 1100
+        bgcolor: isScrolled ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.5)",
+        backdropFilter: "blur(12px)",
+        borderBottom: isScrolled ? "1px solid rgba(0, 0, 0, 0.1)" : "1px solid rgba(255, 255, 255, 0.3)",
+        boxShadow: isScrolled ? "0 4px 12px rgba(0, 0, 0, 0.05)" : "none",
+        zIndex: 1100,
+        transition: "all 0.3s ease-in-out"
       }}
     >
       <Toolbar
