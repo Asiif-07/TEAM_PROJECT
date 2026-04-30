@@ -14,12 +14,12 @@ const NotFound = () => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         let animationFrameId;
-        
+
         const resizeCanvas = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         };
-        
+
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
@@ -34,31 +34,32 @@ const NotFound = () => {
         const animate = () => {
             ctx.fillStyle = 'rgba(17, 24, 39, 0.2)'; // Trail effect
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
+
             stars.forEach(star => {
                 ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.5})`;
                 ctx.beginPath();
                 ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 // Movement based on mouse position (parallax)
                 const moveX = (mousePosition.x * 0.5) * star.z;
                 const moveY = (mousePosition.y * 0.5) * star.z;
-                
-                star.x += star.speed + moveX * 0.1; 
-                
+
+                star.x += star.speed + moveX * 0.1;
+                star.y += moveY * 0.1;
+
                 // Reset stars
                 if (star.x > canvas.width) star.x = 0;
                 if (star.x < 0) star.x = canvas.width;
                 if (star.y > canvas.height) star.y = 0;
                 if (star.y < 0) star.y = canvas.height;
             });
-            
+
             animationFrameId = requestAnimationFrame(animate);
         };
-        
+
         animate();
-        
+
         return () => {
             window.removeEventListener('resize', resizeCanvas);
             cancelAnimationFrame(animationFrameId);
@@ -87,8 +88,8 @@ const NotFound = () => {
     return (
         <div className="min-h-screen bg-gray-900 overflow-hidden relative flex items-center justify-center font-sans selection:bg-red-500/30">
             {/* Canvas Starfield */}
-            <canvas 
-                ref={canvasRef} 
+            <canvas
+                ref={canvasRef}
                 className="absolute inset-0 w-full h-full z-0 opacity-60"
             />
 
@@ -108,19 +109,19 @@ const NotFound = () => {
             </div>
 
             {/* Main Content Card with 3D Tilt */}
-            <div 
+            <div
                 ref={containerRef}
                 className="relative z-10 p-12 max-w-5xl w-full mx-4"
                 style={tiltStyle}
             >
                 <div className="relative z-20 flex flex-col items-center">
-                    
+
                     {/* Animated Icon Container */}
                     <div className="relative group mb-8">
                         <div className="absolute inset-0 bg-red-500/30 rounded-full blur-3xl animate-pulse group-hover:bg-red-500/50 transition-all duration-500"></div>
                         <div className="relative bg-gray-900/40 backdrop-blur-md p-8 rounded-full border border-white/10 shadow-[0_0_50px_rgba(239,68,68,0.2)] group-hover:scale-110 transition-transform duration-500 ease-out">
                             <Ghost className="w-32 h-32 text-red-500 animate-[float_3s_ease-in-out_infinite] drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]" strokeWidth={1} />
-                            
+
                             {/* Orbiting Elements */}
                             <div className="absolute inset-0 animate-[spin_4s_linear_infinite]">
                                 <div className="absolute -top-2 left-1/2 w-3 h-3 bg-red-400 rounded-full shadow-[0_0_10px_#f87171]"></div>
@@ -136,13 +137,13 @@ const NotFound = () => {
                         <h1 className="text-9xl sm:text-[12rem] font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-gray-200 to-gray-500 tracking-tighter filter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] animate-pulse">
                             404
                         </h1>
-                        <h1 
+                        <h1
                             className="absolute inset-0 text-9xl sm:text-[12rem] font-black text-red-500/40 tracking-tighter mix-blend-overlay animate-[glitch_2s_infinite]"
                             style={{ clipPath: 'polygon(0 0, 100% 0, 100% 45%, 0 45%)', transform: 'translate(-2px)' }}
                         >
                             404
                         </h1>
-                        <h1 
+                        <h1
                             className="absolute inset-0 text-9xl sm:text-[12rem] font-black text-blue-500/40 tracking-tighter mix-blend-overlay animate-[glitch_2s_infinite_reverse]"
                             style={{ clipPath: 'polygon(0 80%, 100% 20%, 100% 100%, 0 100%)', transform: 'translate(2px)' }}
                         >
@@ -175,7 +176,7 @@ const NotFound = () => {
                             <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1s_infinite] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                         </Link>
 
-                        <button 
+                        <button
                             onClick={() => window.history.back()}
                             className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 text-white font-semibold rounded-xl hover:bg-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 group"
                         >
@@ -186,7 +187,7 @@ const NotFound = () => {
 
                 </div>
             </div>
-            
+
             {/* Corner Decor */}
             <div className="absolute top-10 left-10 w-20 h-20 border-l-2 border-t-2 border-white/20 rounded-tl-3xl"></div>
             <div className="absolute bottom-10 right-10 w-20 h-20 border-r-2 border-b-2 border-white/20 rounded-br-3xl"></div>

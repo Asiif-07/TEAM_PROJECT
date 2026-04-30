@@ -1,5 +1,5 @@
-import { Box, Button, Container, Paper, Typography, TextField } from "@mui/material";
-import { ChevronRight } from "lucide-react";
+import { Box, Button, Container, Paper, Typography, TextField, InputAdornment } from "@mui/material";
+import { ChevronRight, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -136,15 +136,85 @@ export default function CVTemplates() {
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2, mb: 4, alignItems: "center", justifyContent: "space-between" }}>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {categories.map((c) => (
-              <Button key={c} onClick={() => setActiveCategory(c)} variant={activeCategory === c ? "contained" : "outlined"} size="small" sx={{ borderRadius: "999px", textTransform: "none", fontWeight: 800 }}>
-                {t(c)}
-              </Button>
-            ))}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 2,
+            mb: 5,
+            p: 1,
+            bgcolor: "white",
+            borderRadius: "24px",
+            boxShadow: "0 4px 20px -2px rgba(0,0,0,0.05)",
+            alignItems: "center",
+            justifyContent: "space-between"
+          }}
+        >
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", flexGrow: 1, pl: { xs: 0, md: 1 }, justifyContent: { xs: "center", md: "flex-start" } }}>
+            {categories.map((c) => {
+              const isActive = activeCategory === c;
+              return (
+                <Button
+                  key={c}
+                  onClick={() => setActiveCategory(c)}
+                  disableElevation
+                  variant={isActive ? "contained" : "text"}
+                  size="small"
+                  sx={{
+                    borderRadius: "999px",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    px: 2.5,
+                    py: 0.75,
+                    color: isActive ? "#fff" : "#64748B",
+                    bgcolor: isActive ? "#0F172A" : "transparent",
+                    transition: "all 0.2s ease",
+                    '&:hover': {
+                      bgcolor: isActive ? "#1E293B" : "#F1F5F9",
+                      color: isActive ? "#fff" : "#0F172A"
+                    }
+                  }}
+                >
+                  {t(c)}
+                </Button>
+              );
+            })}
           </Box>
-          <TextField size="small" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("Search Templates")} sx={{ width: { xs: "100%", md: 320 }, bgcolor: "white", borderRadius: 1 }} />
+          <TextField
+            size="small"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("Search Templates")}
+            sx={{
+              width: { xs: "100%", md: 320 },
+              '& .MuiOutlinedInput-root': {
+                borderRadius: "999px",
+                bgcolor: "#F8FAFC",
+                transition: "all 0.2s ease-in-out",
+                '& fieldset': {
+                  borderColor: "transparent",
+                },
+                '&:hover fieldset': {
+                  borderColor: "#E2E8F0",
+                },
+                '&.Mui-focused': {
+                  bgcolor: "white",
+                  boxShadow: "0 0 0 4px rgba(15, 23, 42, 0.05)",
+                  '& fieldset': {
+                    borderColor: "#0F172A",
+                    borderWidth: "1px"
+                  }
+                }
+              }
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search size={18} color="#94A3B8" />
+                </InputAdornment>
+              ),
+            }}
+          />
         </Box>
 
         <Box sx={{ display: "grid", gap: 4, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", lg: "1fr 1fr 1fr" } }}>
