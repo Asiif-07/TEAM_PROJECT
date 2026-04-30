@@ -32,7 +32,7 @@ const BlogSchema = new mongoose.Schema({
         enum:["draft", "published"],
         default:"draft",
     },
-    tages:[{
+    tags:[{
         type:String
     }],
     views:{
