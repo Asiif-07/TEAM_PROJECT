@@ -2,9 +2,20 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
-// 🎨 CUSTOM DESIGN COMPONENTS FOR MONOCHROME LAYOUT
+const PhoneIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+);
+const EmailIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+);
+const LocationIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+);
+const WebIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+);
 
-// Wide letter-spaced title (e.g., "P R O F I L E")
+
 const SectionTitle = ({ title }) => (
     <Typography
         variant="h6"
@@ -13,20 +24,28 @@ const SectionTitle = ({ title }) => (
             letterSpacing: '5px',
             color: '#111',
             textTransform: 'uppercase',
-            mb: 2.5,
+            mb: 2,
+            mt: 2,
             fontFamily: '"Times New Roman", Times, serif',
-            fontSize: '0.95rem'
+            fontSize: '1rem'
         }}
     >
         {title.split('').join(' ')}
     </Typography>
 );
 
-// Contact icon row
 const ContactRow = ({ icon, text }) => (
-    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1.8 }}>
-        <Typography sx={{ fontSize: '14px', lineHeight: 1 }}>{icon}</Typography>
-        <Typography variant="body2" sx={{ color: '#111', fontWeight: 500, wordBreak: 'break-all', mt: '1px', fontSize: '0.85rem' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.8, overflow: 'hidden' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{icon}</Box>
+        <Typography variant="body2" sx={{ 
+            color: '#111', 
+            fontWeight: 500, 
+            fontSize: '0.85rem',
+            whiteSpace: 'nowrap', 
+            overflow: 'hidden', 
+            textOverflow: 'ellipsis',
+            width: '100%'
+        }}>
             {text}
         </Typography>
     </Box>
@@ -34,7 +53,6 @@ const ContactRow = ({ icon, text }) => (
 
 export default function MonochromeSimple({ data }) {
     
-
     const { 
         personalInfo = {}, 
         experience = [], 
@@ -50,13 +68,13 @@ export default function MonochromeSimple({ data }) {
         return [];
     };
 
-    // ULTIMATE TEXT EXTRACTOR
+    // ULTIMATE TEXT EXTRACTOR - ensures no missing data if wrapped in objects
     const getDisplayText = (item) => {
         if (!item) return "";
         if (typeof item === 'string') return item;
         
         if (typeof item === 'object') {
-            const possibleKeys = ['name', 'title', 'label', 'value', 'description', 'text', 'degree', 'institute', 'role', 'company'];
+            const possibleKeys = ['name', 'title', 'label', 'value', 'description', 'text', 'degree', 'institute', 'role', 'company', 'url', 'link'];
             for (let key of possibleKeys) {
                 if (item[key]) return item[key];
             }
@@ -73,10 +91,15 @@ export default function MonochromeSimple({ data }) {
     const safeLanguages = parseArray(languages);
     const safeReferences = Array.isArray(references) ? references : [];
 
+
     const displayPhone = personalInfo.phone || personalInfo.contactNo || personalInfo.contact;
-    const displayAddress = personalInfo.address || personalInfo.location;
+    const displayAddress = personalInfo.address || personalInfo.location || personalInfo.city;
     const displayEmail = personalInfo.email;
-    const displayWebsite = personalInfo.website || personalInfo.portfolio || personalInfo.linkedin;
+    
+    let displayWebsite = personalInfo.website || personalInfo.portfolio || personalInfo.linkedin;
+    if (!displayWebsite && Array.isArray(personalInfo.links) && personalInfo.links.length > 0) {
+        displayWebsite = personalInfo.links[0];
+    }
     
     const profileImageUrl = React.useMemo(() => {
         const img = personalInfo.profileImage;
@@ -85,20 +108,16 @@ export default function MonochromeSimple({ data }) {
         if (img.secure_url) return img.secure_url;
         if (img instanceof File || img instanceof Blob) return URL.createObjectURL(img);
         return null;
-    }, []);
+    }, [personalInfo.profileImage]);
 
-    // 🎨 CUSTOM DESIGN COMPONENTS FOR MONOCHROME LAYOUT
-    // Moved outside the component
-
-    // Bullet Point Renderer for Work Experience descriptions
+    // Clean bullet points using native lists for perfect alignment
     const renderBullets = (text) => {
         if (!text) return null;
-        // Split by newlines or existing bullet characters
         const bullets = text.split(/\n|•/).filter(b => b.trim() !== '');
         return (
-            <Box sx={{ pl: 2, mt: 1 }}>
+            <Box component="ul" sx={{ m: 0, pl: 2.5, mt: 1 }}>
                 {bullets.map((bullet, idx) => (
-                    <Typography key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, display: 'list-item', textAlign: 'justify', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                    <Typography component="li" key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, textAlign: 'justify', fontSize: '0.85rem' }}>
                         {bullet.trim()}
                     </Typography>
                 ))}
@@ -107,109 +126,110 @@ export default function MonochromeSimple({ data }) {
     };
 
     return (
-        <Box className="cv-document" sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', bgcolor: 'white', color: '#111', p: 4, pt: 5, '@media print': { boxShadow: 0 } }}>
+        <Box className="cv-document" sx={{ minHeight: '297mm', width: '210mm', mx: 'auto', bgcolor: 'white', color: '#111', p: '12mm', boxSizing: 'border-box', '@media print': { boxShadow: 0 } }}>
             
             {/* ================= TOP SECTION ================= */}
-            <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
+            <Box sx={{ display: 'flex', gap: '24px', mb: '24px' }}>
                 
                 {/* --- TOP LEFT (Image & Contact) --- */}
-                <Box sx={{ width: '32%', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ width: '32%', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     
                     {/* Profile Image (Square) */}
-                    <Box sx={{ width: '100%', aspectRatio: '1/1', bgcolor: '#e8e8e8', border: '2px solid #111' }}>
+                    <Box sx={{ width: '100%', aspectRatio: '1/1', bgcolor: '#e8e8e8' }}>
                         {profileImageUrl ? (
-                            <Box 
-                                component="img" 
-                                src={profileImageUrl} 
-                                sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                            />
+                            <Box component="img" src={profileImageUrl} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                             <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <Typography variant="h1" sx={{ color: '#ccc', fontWeight: 900 }}>{personalInfo.name?.charAt(0) || "U"}</Typography>
+                                <Typography variant="h1" sx={{ color: '#ccc', fontWeight: 900 }}>{getDisplayText(personalInfo.name)?.charAt(0) || "U"}</Typography>
                             </Box>
                         )}
                     </Box>
 
-                    {/* Contact Box (Thick Border) */}
-                    <Box sx={{ border: '3px solid #111', p: 2.5, flexGrow: 1 }}>
-                        {displayPhone && <ContactRow icon="📞" text={displayPhone} />}
-                        {displayEmail && <ContactRow icon="✉️" text={displayEmail} />}
-                        {displayAddress && <ContactRow icon="📍" text={displayAddress} />}
-                        {displayWebsite && <ContactRow icon="🌐" text={displayWebsite} />}
+                    {/* Contact Box (Bordered) */}
+                    <Box sx={{ border: '2px solid #111', p: 2, flexGrow: 1, overflow: 'hidden' }}>
+                        {displayPhone && <ContactRow icon={<PhoneIcon />} text={displayPhone} />}
+                        {displayEmail && <ContactRow icon={<EmailIcon />} text={displayEmail} />}
+                        {displayAddress && <ContactRow icon={<LocationIcon />} text={displayAddress} />}
+                        {displayWebsite && <ContactRow icon={<WebIcon />} text={displayWebsite} />}
                     </Box>
                 </Box>
 
                 {/* --- TOP RIGHT (Header, Profile, Education) --- */}
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     
-                    {/* Name Header Box (Thick Border) */}
-                    <Box sx={{ border: '3px solid #111', p: 3.5, textAlign: 'center', mb: 3 }}>
+                    {/* Name Header Box (Bordered) */}
+                    <Box sx={{ border: '2px solid #111', p: 3, textAlign: 'center', mb: 2 }}>
                         <Typography 
                             variant="h3" 
                             fontWeight="900" 
                             sx={{ 
                                 color: '#111', 
-                                letterSpacing: '5px', 
+                                letterSpacing: '4px', 
                                 textTransform: 'uppercase', 
                                 fontFamily: '"Times New Roman", Times, serif',
                                 mb: 1,
-                                minHeight: '48px',
                                 lineHeight: 1.1,
-                                wordBreak: 'break-word',
-                                overflowWrap: 'break-word'
+                                wordBreak: 'break-word'
                             }}
                         >
-                            {personalInfo.name}
+                            {getDisplayText(personalInfo.name)}
                         </Typography>
                         <Typography 
                             variant="subtitle1" 
                             fontWeight="800"
                             sx={{ 
                                 color: '#444', 
-                                letterSpacing: '6px', 
+                                letterSpacing: '4px', 
                                 textTransform: 'uppercase',
-                                minHeight: '28px',
-                                fontSize: '0.82rem',
-                                wordBreak: 'break-word',
-                                overflowWrap: 'break-word'
+                                fontSize: '0.85rem',
+                                wordBreak: 'break-word'
                             }}
                         >
-                            {personalInfo.title}
+                            {getDisplayText(personalInfo.title)}
                         </Typography>
                     </Box>
 
                     {/* Profile */}
                     {(personalInfo.about || personalInfo.summary) && (
-                        <Box sx={{ mb: 4 }}>
+                        <Box sx={{ mb: 2 }}>
                             <SectionTitle title="PROFILE" />
-                            <Typography variant="body2" sx={{ color: '#333', lineHeight: 1.75, textAlign: 'justify', fontSize: '0.9rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-                                {personalInfo.about || personalInfo.summary}
+                            <Typography variant="body2" sx={{ color: '#333', lineHeight: 1.7, textAlign: 'justify', fontSize: '0.85rem', whiteSpace: 'pre-wrap' }}>
+                                {getDisplayText(personalInfo.about || personalInfo.summary)}
                             </Typography>
+                            
+                            {/* HORIZONTAL LINE SEPARATOR (Matches Image) */}
+                            <Box sx={{ height: '2px', bgcolor: '#111', width: '100%', mt: 3, mb: 1 }} />
                         </Box>
                     )}
 
-                    {/* Education (2 Column Grid) */}
+                    {/* Education (2 Column Grid) - NO BORDER BOX HERE */}
                     {safeEducation.length > 0 && (
                         <Box>
                             <SectionTitle title="EDUCATION" />
                             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
                                 {safeEducation.map((edu, idx) => (
-                                    <Box key={idx}>
-                                        <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', mb: 0.5, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                    <Box key={idx} sx={{ overflow: 'hidden' }}>
+                                        <Typography sx={{ fontWeight: '900', fontSize: '0.85rem', color: '#111', mb: 0.5, whiteSpace: 'nowrap' }}>
                                             {getDisplayText(edu.year || edu.date)}
                                         </Typography>
-                                        <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', textTransform: 'uppercase', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                        {/* SINGLE LINE INSTITUTE NAME */}
+                                        <Typography sx={{ 
+                                            fontWeight: '900', 
+                                            fontSize: '0.85rem', 
+                                            color: '#111', 
+                                            textTransform: 'uppercase', 
+                                            mb: 0.5,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            width: '100%'
+                                        }}>
                                             {getDisplayText(edu.institute || edu.school)}
                                         </Typography>
-                                        <Box sx={{ pl: 2, mt: 0.5 }}>
-                                            <Typography variant="body2" sx={{ color: '#333', display: 'list-item', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                        <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+                                            <Typography component="li" sx={{ fontSize: '0.85rem', color: '#333' }}>
                                                 {getDisplayText(edu.degree || edu.course)}
                                             </Typography>
-                                            {edu.description && (
-                                                <Typography variant="body2" sx={{ color: '#333', display: 'list-item', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-                                                    {getDisplayText(edu.description)}
-                                                </Typography>
-                                            )}
                                         </Box>
                                     </Box>
                                 ))}
@@ -220,26 +240,25 @@ export default function MonochromeSimple({ data }) {
             </Box>
 
             {/* ================= BOTTOM SECTION (Giant Bordered Box) ================= */}
-            <Box sx={{ border: '3px solid #111', p: 4, display: 'flex', gap: 5 }}>
+            <Box sx={{ border: '2px solid #111', p: '24px 32px', display: 'flex', gap: '40px' }}>
                 
                 {/* --- BOTTOM LEFT (Work Experience) --- */}
-                <Box sx={{ flex: '1.5' }}>
+                <Box sx={{ flex: '1.6' }}>
                     {safeExperience.length > 0 && (
                         <>
                             <SectionTitle title="WORK EXPERIENCE" />
                             {safeExperience.map((exp, idx) => (
                                 <Box key={idx} sx={{ mb: 3 }}>
-                                    <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', textTransform: 'uppercase', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                    <Typography sx={{ fontWeight: '900', fontSize: '0.85rem', color: '#111', textTransform: 'uppercase', mb: 0.2 }}>
                                         {getDisplayText(exp.duration || exp.date)}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: '#333', mb: 0.5, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                    <Typography sx={{ fontSize: '0.85rem', color: '#333', mb: 0.5 }}>
                                         {getDisplayText(exp.company || exp.organization)}
                                     </Typography>
-                                    <Typography variant="subtitle1" fontWeight="900" sx={{ color: '#111', fontFamily: '"Times New Roman", Times, serif', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                    <Typography sx={{ fontWeight: '900', fontSize: '0.95rem', color: '#111', fontFamily: '"Times New Roman", Times, serif', mb: 1 }}>
                                         {getDisplayText(exp.role || exp.position)}
                                     </Typography>
                                     
-                                    {/* Render description as clean bullet points */}
                                     {renderBullets(getDisplayText(exp.description || exp.summary))}
                                 </Box>
                             ))}
@@ -248,15 +267,15 @@ export default function MonochromeSimple({ data }) {
                 </Box>
 
                 {/* --- BOTTOM RIGHT (Skills, References, Languages) --- */}
-                <Box sx={{ flex: '1', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <Box sx={{ flex: '1', display: 'flex', flexDirection: 'column' }}>
                     
                     {/* Skills */}
                     {safeSkills.length > 0 && (
-                        <Box>
+                        <Box sx={{ mb: 2 }}>
                             <SectionTitle title="SKILLS" />
-                            <Box sx={{ pl: 2 }}>
+                            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
                                 {safeSkills.map((skill, idx) => (
-                                    <Typography key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, display: 'list-item', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                    <Typography component="li" key={idx} sx={{ fontSize: '0.85rem', color: '#333', mb: 0.5 }}>
                                         {getDisplayText(skill)}
                                     </Typography>
                                 ))}
@@ -264,25 +283,25 @@ export default function MonochromeSimple({ data }) {
                         </Box>
                     )}
 
-                    {/* References (If available in data) */}
+                    {/* References */}
                     {safeReferences.length > 0 && (
-                        <Box>
+                        <Box sx={{ mb: 2 }}>
                             <SectionTitle title="REFERENCE" />
                             {safeReferences.map((ref, idx) => (
                                 <Box key={idx} sx={{ mb: 2 }}>
-                                    <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#111', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                    <Typography sx={{ fontWeight: '900', fontSize: '0.85rem', color: '#111' }}>
                                         {getDisplayText(ref.name)}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: '#333', mb: 0.5, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                    <Typography sx={{ fontSize: '0.85rem', color: '#333', mb: 0.5 }}>
                                         {getDisplayText(ref.company)} / {getDisplayText(ref.role)}
                                     </Typography>
                                     {ref.phone && (
-                                        <Typography variant="body2" sx={{ color: '#111', fontWeight: 600, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                        <Typography sx={{ fontSize: '0.85rem', color: '#111', fontWeight: 600 }}>
                                             Phone <span style={{ fontWeight: 'normal', color: '#333', marginLeft: 8 }}>{getDisplayText(ref.phone)}</span>
                                         </Typography>
                                     )}
                                     {ref.email && (
-                                        <Typography variant="body2" sx={{ color: '#111', fontWeight: 600, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                        <Typography sx={{ fontSize: '0.85rem', color: '#111', fontWeight: 600 }}>
                                             Email <span style={{ fontWeight: 'normal', color: '#333', marginLeft: 8 }}>{getDisplayText(ref.email)}</span>
                                         </Typography>
                                     )}
@@ -295,17 +314,19 @@ export default function MonochromeSimple({ data }) {
                     {safeLanguages.length > 0 && (
                         <Box>
                             <SectionTitle title="LANGUAGES" />
-                            <Box sx={{ pl: 2 }}>
+                            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
                                 {safeLanguages.map((lang, idx) => (
-                                    <Typography key={idx} variant="body2" sx={{ color: '#333', mb: 0.5, display: 'list-item', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                    <Typography component="li" key={idx} sx={{ fontSize: '0.85rem', color: '#333', mb: 0.5 }}>
                                         {getDisplayText(lang)}
                                     </Typography>
                                 ))}
                             </Box>
                         </Box>
                     )}
-                    <AdditionalSectionsBlock sections={data?.additionalSections} accentColor="#111827" />
-
+                    
+                    <Box sx={{ mt: 2 }}>
+                        <AdditionalSectionsBlock sections={data?.additionalSections} accentColor="#111" />
+                    </Box>
                 </Box>
             </Box>
         </Box>
