@@ -19,17 +19,15 @@ const uploadBlogImages = imageMulter(5, ["image/jpeg", "image/png", "image/webp"
 
 const blogRoutes = Router();
 
-blogRoutes.use(authMiddleWare);
-
 blogRoutes
   .route("/")
-  .post(uploadBlogImages, validate(createBlogSchema), createBlog)  // ✅ multer middleware add
+  .post(authMiddleWare, uploadBlogImages, validate(createBlogSchema), createBlog)
   .get(getAllBlogs);
 
 blogRoutes
   .route("/:id")
-  .put(uploadBlogImages, updateBlog)   // ✅ FIX: POST → PUT, multer add
-  .delete(deleteBlog)
+  .put(authMiddleWare, uploadBlogImages, updateBlog)
+  .delete(authMiddleWare, deleteBlog)
   .get(getSingleBlog);
 
 export default blogRoutes;

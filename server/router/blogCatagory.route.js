@@ -7,11 +7,9 @@ import updateBlogCategorySchema from "../schemas/createBlogCatogory.schema.js";
 
 export const catagoryRouter = Router();
 
-catagoryRouter.use(authMiddleware);
-
 catagoryRouter.route("/")
-    .post(validate(createBlogSchema), createBlogCategory)
+    .post(authMiddleware, validate(createBlogSchema), createBlogCategory)
     .get(getBlogCategorys);
 catagoryRouter.route("/:id")
-    .put(validate(updateBlogCategorySchema),updateBlogCategory)
+    .put(authMiddleware, validate(updateBlogCategorySchema), updateBlogCategory)
     .get(getSingleBlogCategory);
