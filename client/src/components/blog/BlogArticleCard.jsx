@@ -1,6 +1,6 @@
-import { 
-  Button, 
-  Avatar, 
+import {
+  Button,
+  Avatar,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -13,21 +13,19 @@ const BlogArticleCard = () => {
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       <div className="flex flex-col lg:flex-row gap-8 items-center">
-        
+
         {/* LEFT IMAGE SECTION */}
         <div className="w-full lg:w-1/2 relative">
-           {/* Placeholder image resembling the resume flat lay */}
-          <img 
-            src={blogimg} 
-            alt="Resume flat lay" 
+          <img
+            src={blogimg}
+            alt="Resume flat lay"
             className="w-full h-[400px] object-cover rounded-2xl shadow-sm"
           />
-          {/* Decorative graphic elements could go here */}
         </div>
 
         {/* RIGHT CONTENT SECTION */}
         <div className="w-full lg:w-1/2 flex flex-col items-start text-left">
-          
+
           {/* Category Tag */}
           <div className="px-3 py-1 rounded-md bg-blue-50 text-blue-600 text-xs font-bold tracking-wide uppercase mb-4">
             {t("CV Writing")}
@@ -47,21 +45,21 @@ const BlogArticleCard = () => {
           <div className="flex items-center gap-6 mb-8 text-sm text-gray-500">
             {/* Author */}
             <div className="flex items-center gap-2">
-              <Avatar 
-                src="https://i.pravatar.cc/150?u=a042581f4e29026024d" 
-                alt="Sarah Jonson" 
+              <Avatar
+                src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+                alt="Sarah Jonson"
                 sx={{ width: 32, height: 32 }}
               />
               <span className="font-semibold text-gray-900">Sarah Jonson</span>
             </div>
-            
-            {/* Date - ICON: Calendar Icon */}
+
+            {/* Date */}
             <div className="flex items-center gap-1.5">
               <CalendarTodayIcon fontSize="inherit" />
               <span>7 Jul 2025</span>
             </div>
 
-            {/* Read Time - ICON: Clock Icon */}
+            {/* Read Time */}
             <div className="flex items-center gap-1.5">
               <AccessTimeIcon fontSize="inherit" />
               <span>{t("5 min read")}</span>
@@ -69,11 +67,11 @@ const BlogArticleCard = () => {
           </div>
 
           {/* CTA Button */}
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             size="large"
             disableElevation
-            endIcon={<ArrowForwardIcon />} /* --- ICON: Arrow Icon --- */
+            endIcon={<ArrowForwardIcon />}
             sx={{
               textTransform: 'none',
               backgroundColor: '#3B82F6',

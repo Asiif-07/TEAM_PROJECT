@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   TextField,
@@ -8,9 +8,10 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
-const BlogHeroSection = ({ categories = [], onCategorySelect, selectedCategory }) => {
+const BlogHero = () => {
   const { t } = useTranslation();
-  const filters = ['All', ...categories.map(c => c.name)];
+  const [activeFilter, setActiveFilter] = useState('All');
+  const filters = ['All', 'CV Writing', 'Interview Tips', 'Career Advice', 'LinkedIn', 'Job Search'];
 
   return (
     <div className="relative w-full bg-white pt-20 pb-12 flex flex-col items-center text-center px-4 overflow-hidden">
@@ -19,7 +20,6 @@ const BlogHeroSection = ({ categories = [], onCategorySelect, selectedCategory }
       <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob pointer-events-none"></div>
 
       {/* TOP BADGE */}
-      {/* --- ICON: Sparkle Icon (AutoAwesome) --- */}
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-sm font-medium mb-6 z-10">
         <AutoAwesomeIcon fontSize="small" />
         <span>{t("AI Features")}</span>
@@ -67,14 +67,14 @@ const BlogHeroSection = ({ categories = [], onCategorySelect, selectedCategory }
             key={filter}
             label={t(filter)}
             clickable
-            onClick={() => onCategorySelect(filter)}
+            onClick={() => setActiveFilter(filter)}
             sx={{
-              backgroundColor: selectedCategory === filter ? '#3B82F6' : '#fff',
-              color: selectedCategory === filter ? '#fff' : '#4B5563',
-              border: selectedCategory === filter ? 'none' : '1px solid #E5E7EB',
+              backgroundColor: activeFilter === filter ? '#3B82F6' : '#fff',
+              color: activeFilter === filter ? '#fff' : '#4B5563',
+              border: activeFilter === filter ? 'none' : '1px solid #E5E7EB',
               fontWeight: 500,
               '&:hover': {
-                backgroundColor: selectedCategory === filter ? '#2563EB' : '#F3F4F6',
+                backgroundColor: activeFilter === filter ? '#2563EB' : '#F3F4F6',
               }
             }}
           />
@@ -84,4 +84,4 @@ const BlogHeroSection = ({ categories = [], onCategorySelect, selectedCategory }
   );
 };
 
-export default BlogHeroSection; 
+export default BlogHero;
