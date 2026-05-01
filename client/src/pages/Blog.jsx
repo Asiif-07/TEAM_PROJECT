@@ -8,6 +8,7 @@ export default function Blog() {
       <HeroSection />
       <ArticleCard />
       <BlogGrid />
+      <BlogGrid/>
     </div>
   );
 }
