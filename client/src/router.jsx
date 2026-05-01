@@ -75,11 +75,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'cv-templates',
-        element: (
-          <RequireAuth>
-            <CVTemplates />
-          </RequireAuth>
-        ),
+        element: <CVTemplates />,
       },
       {
         path: 'cv-builder',
