@@ -1,7 +1,7 @@
 import { apiRequest } from "./http";
 
 export function forgetPassword({ email }) {
-  return apiRequest("/api/v1/user/forget_password", {
+  return apiRequest("/user/forget_password", {
     method: "POST",
     body: { email },
     credentials: "include",
@@ -13,7 +13,7 @@ export function updateProfilePic({ accessToken, refreshAccessToken, file }) {
   const formData = new FormData();
   formData.append("profileImage", file);
 
-  return apiRequest("/api/v1/user/update-profile-pic", {
+  return apiRequest("/user/update-profile-pic", {
     method: "POST",
     accessToken,
     refreshAccessToken,
@@ -24,7 +24,7 @@ export function updateProfilePic({ accessToken, refreshAccessToken, file }) {
 }
 
 export function resetPassword({ token, password, confirmPassword }) {
-  return apiRequest(`/api/v1/user/resetpassword/${token}`, {
+  return apiRequest(`/user/resetpassword/${token}`, {
     method: "POST",
     body: { password, confirmPassword },
     credentials: "include",
@@ -33,7 +33,7 @@ export function resetPassword({ token, password, confirmPassword }) {
 }
 
 export function updateEmail({ accessToken, refreshAccessToken, email }) {
-  return apiRequest("/api/v1/user/update-email", {
+  return apiRequest("/user/update-email", {
     method: "PUT",
     accessToken,
     refreshAccessToken,
@@ -44,7 +44,7 @@ export function updateEmail({ accessToken, refreshAccessToken, email }) {
 }
 
 export function changePassword({ accessToken, refreshAccessToken, oldPassword, newPassword }) {
-  return apiRequest("/api/v1/user/change-password", {
+  return apiRequest("/user/change-password", {
     method: "POST",
     accessToken,
     refreshAccessToken,

@@ -343,7 +343,7 @@ const Signup = () => {
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                         <Button
                             component="a"
-                            href="https://team-project-qa0v.onrender.com/api/v1/auth/google/start"
+                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/google/start`}
                             fullWidth
                             variant="outlined"
                             startIcon={

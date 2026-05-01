@@ -1,7 +1,7 @@
 import { apiRequest } from "./http";
 
 export function createCheckoutSession({ planTitle, accessToken, refreshAccessToken }) {
-    return apiRequest("/api/v1/stripe/create-checkout-session", {
+    return apiRequest("/stripe/create-checkout-session", {
         method: "POST",
         accessToken,
         refreshAccessToken,
@@ -10,7 +10,7 @@ export function createCheckoutSession({ planTitle, accessToken, refreshAccessTok
 }
 
 export function verifySession({ sessionId, accessToken, refreshAccessToken }) {
-    return apiRequest("/api/v1/stripe/verify-session", {
+    return apiRequest("/stripe/verify-session", {
         method: "POST",
         accessToken,
         refreshAccessToken,
@@ -19,7 +19,7 @@ export function verifySession({ sessionId, accessToken, refreshAccessToken }) {
 }
 
 export function cancelSubscription({ accessToken, refreshAccessToken }) {
-    return apiRequest("/api/v1/stripe/cancel-subscription", {
+    return apiRequest("/stripe/cancel-subscription", {
         method: "POST",
         accessToken,
         refreshAccessToken,

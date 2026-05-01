@@ -11,8 +11,8 @@ const sendEmail = async (useremail, subject, html) => {
         console.log(`email send successfully`)
         return true
     } catch (err) {
-        console.log(`failed to send email due to error ${err}`)
-        throw err
+        console.error(`[ERROR] Failed to send email to ${useremail} due to error:`, err.message || err);
+        throw err;
     }
 }
 

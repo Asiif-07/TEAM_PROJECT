@@ -38,15 +38,11 @@ const router = createBrowserRouter([
         element: <HowItWorksPage />,
       },
       {
-        path: 'blog',
+        path: 'blogs',
         element: <Blog />,
       },
       {
-        path: 'blog/:id',
-        element: <BlogCard />,
-      },
-      {
-        path: 'blog/details/:id',
+        path: 'blogs/:id',
         element: <BlogDetails />,
       },
       {

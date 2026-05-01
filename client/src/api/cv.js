@@ -22,7 +22,7 @@ function fileToBase64(file) {
  */
 export async function parseCvUpload({ accessToken, refreshAccessToken, file }) {
   const fileBase64 = await fileToBase64(file);
-  return apiRequest("/api/v1/cv/parse-upload-json", {
+  return apiRequest("/cv/parse-upload-json", {
     method: "POST",
     body: {
       fileBase64,
@@ -35,7 +35,7 @@ export async function parseCvUpload({ accessToken, refreshAccessToken, file }) {
 }
 
 export function getMyCvs({ accessToken, refreshAccessToken }) {
-  return apiRequest("/api/v1/cv/cv", {
+  return apiRequest("/cv/cv", {
     method: "GET",
     accessToken,
     refreshAccessToken,
@@ -43,7 +43,7 @@ export function getMyCvs({ accessToken, refreshAccessToken }) {
 }
 
 export function createCv({ accessToken, refreshAccessToken, cv }) {
-  return apiRequest("/api/v1/cv/cv", {
+  return apiRequest("/cv/cv", {
     method: "POST",
     body: cv,
     accessToken,
@@ -52,7 +52,7 @@ export function createCv({ accessToken, refreshAccessToken, cv }) {
 }
 
 export function deleteCv({ accessToken, refreshAccessToken, id }) {
-  return apiRequest(`/api/v1/cv/cv/${id}`, {
+  return apiRequest(`/cv/cv/${id}`, {
     method: "DELETE",
     accessToken,
     refreshAccessToken,
@@ -60,7 +60,7 @@ export function deleteCv({ accessToken, refreshAccessToken, id }) {
 }
 
 export function getCvById({ accessToken, refreshAccessToken, id }) {
-  return apiRequest(`/api/v1/cv/${id}`, {
+  return apiRequest(`/cv/${id}`, {
     method: "GET",
     accessToken,
     refreshAccessToken,
@@ -68,7 +68,7 @@ export function getCvById({ accessToken, refreshAccessToken, id }) {
 }
 
 export function updateCv({ accessToken, refreshAccessToken, id, cvData }) {
-  return apiRequest(`/api/v1/cv/${id}`, {
+  return apiRequest(`/cv/${id}`, {
     method: "PUT",
     body: cvData,
     accessToken,
@@ -93,7 +93,7 @@ async function withRetry(requestFn, retries = 2, delayMs = 900) {
 // Draft API Functions
 export function saveDraft({ accessToken, refreshAccessToken, cv }) {
   return withRetry(() =>
-    apiRequest("/api/v1/cv/save-draft", {
+    apiRequest("/cv/save-draft", {
       method: "POST",
       body: cv,
       accessToken,
@@ -103,7 +103,7 @@ export function saveDraft({ accessToken, refreshAccessToken, cv }) {
 }
 
 export function getMyDrafts({ accessToken, refreshAccessToken }) {
-  return apiRequest("/api/v1/cv/my-drafts", {
+  return apiRequest("/cv/my-drafts", {
     method: "GET",
     accessToken,
     refreshAccessToken,
@@ -112,7 +112,7 @@ export function getMyDrafts({ accessToken, refreshAccessToken }) {
 
 export function updateDraft({ accessToken, refreshAccessToken, id, cvData }) {
   return withRetry(() =>
-    apiRequest(`/api/v1/cv/${id}`, {
+    apiRequest(`/cv/${id}`, {
       method: "PUT",
       body: cvData,
       accessToken,
@@ -122,7 +122,7 @@ export function updateDraft({ accessToken, refreshAccessToken, id, cvData }) {
 }
 
 export function finalizeCV({ accessToken, refreshAccessToken, id }) {
-  return apiRequest(`/api/v1/cv/finalize/${id}`, {
+  return apiRequest(`/cv/finalize/${id}`, {
     method: "PUT",
     accessToken,
     refreshAccessToken,

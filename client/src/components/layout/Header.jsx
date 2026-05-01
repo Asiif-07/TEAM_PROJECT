@@ -33,7 +33,7 @@ const navLinks = [
   { pageName: "Services", path: "/services" },
   { pageName: "About", path: "/about" },
   { pageName: "Contact Us", path: "/contact-us" },
-  { pageName: "Blog", path: "/blog" }
+  { pageName: "Blog", path: "/blogs" }
 ];
 
 const Header = () => {

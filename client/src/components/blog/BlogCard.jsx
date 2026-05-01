@@ -6,35 +6,42 @@ import { Link } from 'react-router-dom';
 // ==========================================
 // 1. REUSABLE CHILD COMPONENT (BlogCard)
 // ==========================================
-const BlogCard = ({ 
+const BlogCard = ({
   id,
-  image, 
-  category, 
-  title, 
-  description, 
-  authorName, 
-  authorAvatar, 
-  readTime 
+  image,
+  category,
+  title,
+  description,
+  authorName,
+  authorAvatar,
+  createdAt
 }) => {
+  const readTime = Math.ceil(description.split(" ").length / 200) + " min read";
+  const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
   return (
     <div className="flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 h-full">
-      
+
       {/* Card Image */}
       <div className="relative h-48 overflow-hidden">
-        <img 
-          src={image} 
-          alt={title} 
+        <img
+          src={image || 'https://via.placeholder.com/400x200?text=No+Image'}
+          alt={title}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
         />
       </div>
 
       {/* Card Content */}
       <div className="p-6 flex flex-col flex-grow">
-        
+
         {/* Category Badge */}
         <div className="mb-3">
-          <Chip 
-            label={category} 
+          <Chip
+            label={category}
             size="small"
             sx={{
               backgroundColor: '#EFF6FF', // Tailwind blue-50
@@ -48,29 +55,32 @@ const BlogCard = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-xl font-bold text-gray-900 mb-2 leading-snug">
+        <h3 className="text-xl font-bold text-gray-900 mb-2 leading-snug line-clamp-2">
           {title}
         </h3>
 
         {/* Description */}
         <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3">
-          {description}
+          {description.replace(/<[^>]*>?/gm, '')}
         </p>
 
         {/* Meta Section (Author + Time) */}
         <div className="mt-auto">
           <div className="flex items-center justify-between mb-6">
-            
+
             {/* Author */}
             <div className="flex items-center gap-2">
-              <Avatar 
-                src={authorAvatar} 
+              <Avatar
+                src={authorAvatar}
                 alt={authorName}
-                sx={{ width: 24, height: 24 }} 
+                sx={{ width: 24, height: 24 }}
               />
-              <span className="text-sm font-semibold text-gray-900">
-                {authorName}
-              </span>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-gray-900">
+                  {authorName}
+                </span>
+                <span className="text-[10px] text-gray-400">{formattedDate}</span>
+              </div>
             </div>
 
             {/* Read Time */}
@@ -81,10 +91,10 @@ const BlogCard = ({
           </div>
 
           {/* Read More Button */}
-          <Button 
+          <Button
             component={Link}
-            to={`/blog/details/${id}`}
-            variant="outlined" 
+            to={`/blogs/${id}`}
+            variant="outlined"
             fullWidth
             sx={{
               textTransform: 'none',

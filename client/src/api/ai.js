@@ -1,7 +1,7 @@
 import { apiRequest } from "./http";
 
 export async function generateContent({ accessToken, refreshAccessToken, type, data }) {
-    return apiRequest("/api/v1/ai/ai-generate", {
+    return apiRequest("/ai/ai-generate", {
         method: "POST",
         accessToken,
         refreshAccessToken,
@@ -14,7 +14,7 @@ export async function extractFromPdf({ accessToken, refreshAccessToken, file }) 
     // Multer on the server expects the field name 'resume_file'
     formData.append("resume_file", file);
 
-    return apiRequest("/api/v1/ai/upload-and-extract", {
+    return apiRequest("/ai/upload-and-extract", {
         method: "POST",
         accessToken,
         refreshAccessToken,
