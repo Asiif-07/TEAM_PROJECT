@@ -40,9 +40,11 @@ const RegisterUser = AsyncHandler(async (req, res, next) => {
   const appUrl = getAppUrlFromRequest(req)
   const welcomeEmail = welcomeEmailTemplate(user.name, user.email, appUrl)
 
-  // Do not block signup on email sending (faster UX).
-  sendEmail(user.email, "welcome to our application", welcomeEmail)
-    .catch((error) => console.error("Welcome email failed:", error?.message || error))
+  console.log(`[AUTH] Sending welcome email to ${user.email} for traditional signup...`);
+  // Await email sending to guarantee completion on platforms like Render/Vercel
+  await sendEmail(user.email, "welcome to our application", welcomeEmail)
+    .then(() => console.log(`[AUTH] Welcome email sent for ${user.email}`))
+    .catch((error) => console.error("[AUTH] Welcome email failed:", error?.message || error))
 
   res.status(201).json({
     success: true,
@@ -133,9 +135,11 @@ async function issueSessionForUser(req, res, user) {
   if (isNewUser) {
     const appUrl = getAppUrlFromRequest(req);
     const welcomeEmail = welcomeEmailTemplate(user.name, user.email, appUrl);
-    // Do not block session issuance on email sending.
-    sendEmail(user.email, "welcome to our application", welcomeEmail)
-      .catch((error) => console.error("Google welcome email failed:", error?.message || error));
+    console.log(`[AUTH] Sending welcome email to ${user.email} for Google OAuth signup...`);
+    // Await email sending to guarantee completion
+    await sendEmail(user.email, "welcome to our application", welcomeEmail)
+      .then(() => console.log(`[AUTH] Google welcome email sent for ${user.email}`))
+      .catch((error) => console.error("[AUTH] Google welcome email failed:", error?.message || error));
   }
 
   res.cookie("refreshToken", refreshToken, CookieOptions);
