@@ -6,6 +6,6 @@ function AsyncHandler(fn){
         })
         }
 
-    }
+    } // this is async handlear
 
 export default AsyncHandler;
