@@ -8,6 +8,8 @@ import forgetPasswordSchema from "../schemas/forgetPassword.schema.js"
 import resetPasswordSchema from "../schemas/resetPassword.schema.js";
 import { forgetPasswordLimiter, resetPasswordLimiter } from "../middleWare/rateLimiters.js";
 import multer from "multer";
+import { contactValidationSchema } from "../schemas/contact.schema.js";
+import { submitContactForm } from "../controller/contact.controller.js";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -20,5 +22,6 @@ userRouter.route("/update-email").put(validate(updateEmailSchema), authMiddleWar
 userRouter.route("/update-profile-pic").post(authMiddleWare, upload.single("profileImage"), UpdateProfilePic)
 userRouter.route("/forget_password").post(forgetPasswordLimiter, validate(forgetPasswordSchema), forgetPassword)
 userRouter.route("/resetpassword/:token").post(resetPasswordLimiter, validate(resetPasswordSchema), resetPassword)
+userRouter.route("/contact").post(authMiddleWare, validate(contactValidationSchema),submitContactForm)
 
 export default userRouter;
