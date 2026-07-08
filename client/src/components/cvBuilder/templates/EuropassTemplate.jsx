@@ -18,19 +18,19 @@ import AdditionalSectionsBlock from "./AdditionalSectionsBlock";
 
 // Official Europass Section Component
 const EuropassSection = (props) => {
-  const { title, icon: SectionIcon, children } = props;
+  const { title, icon: SectionIcon, children, accentColor = "#0055a4" } = props;
   if (!children || (Array.isArray(children) && children.length === 0)) return null;
   return (
     <Grid container sx={{ mb: 4 }}>
       <Grid item xs={3.5} sx={{ textAlign: "right", pr: 4 }}>
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
-          {SectionIcon && <SectionIcon size={22} color="#0055a4" strokeWidth={1.5} />}
-          <Typography variant="body2" sx={{ fontWeight: 800, color: "#0055a4", textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: 0.5, lineHeight: 1.2, wordBreak: "break-word", overflowWrap: "break-word" }}>
+          {SectionIcon && <SectionIcon size={22} color={accentColor} strokeWidth={1.5} />}
+          <Typography variant="body2" sx={{ fontWeight: 800, color: accentColor, textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: 0.5, lineHeight: 1.2, wordBreak: "break-word", overflowWrap: "break-word" }}>
             {title}
           </Typography>
         </Box>
       </Grid>
-      <Grid item xs={8.5} sx={{ borderLeft: "2px solid #0055a4", pl: 4, pb: 2, position: "relative" }}>
+      <Grid item xs={8.5} sx={{ borderLeft: `2px solid ${accentColor}`, pl: 4, pb: 2, position: "relative" }}>
         {/* Section Bullet Node */}
         <Box sx={{
           position: "absolute",
@@ -39,7 +39,7 @@ const EuropassSection = (props) => {
           width: 10,
           height: 10,
           borderRadius: "50%",
-          bgcolor: "#0055a4",
+          bgcolor: accentColor,
           border: "2px solid #fff"
         }} />
         {children}
@@ -49,11 +49,11 @@ const EuropassSection = (props) => {
 };
 
 const ContactItem = (props) => {
-  const { icon: ContactIcon, text, link } = props;
+  const { icon: ContactIcon, text, link, accentColor = "#0055a4" } = props;
   if (!text) return null;
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1.5 }}>
-      <Box sx={{ color: "#0055a4", display: "flex", alignItems: "center", minWidth: 20 }}>
+      <Box sx={{ color: accentColor, display: "flex", alignItems: "center", minWidth: 20 }}>
         <ContactIcon size={18} strokeWidth={2} />
       </Box>
       <Typography
@@ -77,7 +77,7 @@ const ContactItem = (props) => {
   );
 };
 
-export default function EuropassTemplate({ data }) {
+export default function EuropassTemplate({ data, accentColor = "#0055a4" }) {
   const personalInfo = data?.personalInfo || {};
   const experience = data?.experience || [];
   const education = data?.education || [];
@@ -85,8 +85,6 @@ export default function EuropassTemplate({ data }) {
   const languages = data?.languages || "";
   const projects = data?.projects || "";
   const certifications = data?.certifications || "";
-
-  const accentColor = "#0055a4";
 
   const profileImageUrl = React.useMemo(() => {
     const img = personalInfo.profileImage;
@@ -103,7 +101,7 @@ export default function EuropassTemplate({ data }) {
   return (
     <Box sx={{ bgcolor: "#fff", minHeight: "297mm", width: "100%", fontFamily: "'Inter', 'Arial', sans-serif", color: "#000" }}>
       {/* HEADER SECTION (Official Europass Style) */}
-      <Box sx={{ bgcolor: "#F8FAFC", p: 7, borderBottom: "4px solid #0055a4", position: "relative" }}>
+      <Box sx={{ bgcolor: "#F8FAFC", p: 7, borderBottom: `4px solid ${accentColor}`, position: "relative" }}>
         <Grid container spacing={5} alignItems="flex-start">
           <Grid item xs={3.5}>
             <Box sx={{
@@ -147,11 +145,11 @@ export default function EuropassTemplate({ data }) {
 
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <ContactItem icon={Mail} text={personalInfo.email} link={`mailto:${personalInfo.email}`} />
-                <ContactItem icon={Smartphone} text={personalInfo.phone} />
+                <ContactItem icon={Mail} text={personalInfo.email} link={`mailto:${personalInfo.email}`} accentColor={accentColor} />
+                <ContactItem icon={Smartphone} text={personalInfo.phone} accentColor={accentColor} />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <ContactItem icon={Home} text={personalInfo.address} />
+                <ContactItem icon={Home} text={personalInfo.address} accentColor={accentColor} />
                 {(personalInfo.linkedin || personalInfo.github) && (
                   <Box sx={{ display: "flex", gap: 3, pt: 1, borderTop: "1px solid #E2E8F0" }}>
                     {personalInfo.linkedin && (
@@ -177,7 +175,16 @@ export default function EuropassTemplate({ data }) {
       {/* CONTENT AREA */}
       <Box sx={{ p: 6, pt: 8 }}>
 
-        <EuropassSection title="Work Experience" icon={Briefcase}>
+        {/* About Me / Summary */}
+        {(personalInfo.about || personalInfo.summary) && (
+          <EuropassSection title="About Me" icon={User} accentColor={accentColor}>
+            <Typography variant="body2" sx={{ color: "#374151", lineHeight: 1.6, textAlign: "justify", wordBreak: "break-word", overflowWrap: "break-word" }}>
+              {personalInfo.about || personalInfo.summary}
+            </Typography>
+          </EuropassSection>
+        )}
+
+        <EuropassSection title="Work Experience" icon={Briefcase} accentColor={accentColor}>
           {experience?.map((exp, idx) => (
             <Box key={idx} sx={{ mb: 4, position: "relative" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
@@ -193,7 +200,7 @@ export default function EuropassTemplate({ data }) {
           {experience.length === 0 && <Typography variant="body2" color="text.secondary">No experience listed.</Typography>}
         </EuropassSection>
 
-        <EuropassSection title="Education and training" icon={GraduationCap}>
+        <EuropassSection title="Education and training" icon={GraduationCap} accentColor={accentColor}>
           {education?.map((edu, idx) => (
             <Box key={idx} sx={{ mb: 3 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: accentColor, mb: 0.5 }}>{edu.year}</Typography>

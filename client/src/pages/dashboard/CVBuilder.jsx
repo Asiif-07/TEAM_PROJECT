@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { Box, Button, Typography, Paper, Container } from "@mui/material";
+import { Box, Button, Typography, Paper, Container, Skeleton } from "@mui/material";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -17,7 +17,6 @@ import ExperienceStep from "../../components/cvBuilder/steps/ExperienceStep";
 import SkillsEducationStep from "../../components/cvBuilder/steps/SkillsEducationStep";
 import GenerateStep from "../../components/cvBuilder/steps/GenerateStep";
 import PreviewCV from "../../components/cvBuilder/PreviewCV";
-
 export default function CVBuilder() {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
@@ -188,6 +187,17 @@ export default function CVBuilder() {
 
     const persistDraft = useCallback(async () => {
         if (!accessToken) return null;
+
+        let profileImage = formData.personalInfo.profileImage;
+        if (profileImage instanceof File || profileImage instanceof Blob) {
+            try {
+                const base64 = await cvApi.fileToBase64(profileImage);
+                profileImage = `data:${profileImage.type};base64,${base64}`;
+            } catch (e) {
+                console.error("Error converting file to base64:", e);
+            }
+        }
+
         const cvData = buildCvData("draft");
         try {
             const res = await cvApi.saveDraft({
@@ -196,6 +206,7 @@ export default function CVBuilder() {
                 cv: {
                     ...cvData,
                     draftId: draftId || undefined,
+                    profileImage: profileImage || undefined,
                 },
             });
             if (res?.data?._id) {
@@ -206,7 +217,7 @@ export default function CVBuilder() {
         } catch {
             return null;
         }
-    }, [accessToken, refreshAccessToken, buildCvData, draftId]);
+    }, [accessToken, refreshAccessToken, buildCvData, draftId, formData.personalInfo.profileImage]);
 
     useEffect(() => {
         if (!accessToken) return;
@@ -235,11 +246,11 @@ export default function CVBuilder() {
                 const config = getTemplateConfig(selectedTemplate);
 
                 setFormData(prev => {
-                    // Step 1: Merge Experience & Education (Safety Rule)
-                    const mergedExperience = [...(prev.experience || [])];
+                    // Step 1: Merge Experience & Education — first strip blank default placeholder rows
+                    const existingExp = (prev.experience || []).filter(e => e.role?.trim() || e.company?.trim());
+                    const mergedExperience = [...existingExp];
                     if (mappedData.experience?.length) {
                         mappedData.experience.forEach(newItem => {
-                            // Check if this experience already exists (basic check by role and company)
                             const exists = mergedExperience.find(e =>
                                 e.role?.toLowerCase() === newItem.role?.toLowerCase() &&
                                 e.company?.toLowerCase() === newItem.company?.toLowerCase()
@@ -250,7 +261,8 @@ export default function CVBuilder() {
                         });
                     }
 
-                    const mergedEducation = [...(prev.education || [])];
+                    const existingEdu = (prev.education || []).filter(e => e.degree?.trim() || e.institute?.trim());
+                    const mergedEducation = [...existingEdu];
                     if (mappedData.education?.length) {
                         mappedData.education.forEach(newItem => {
                             const exists = mergedEducation.find(e =>
@@ -304,8 +316,8 @@ export default function CVBuilder() {
                         ...prev,
                         ...mappedData,
                         personalInfo: { ...prev.personalInfo, ...mappedData.personalInfo },
-                        experience: mergedExperience.length ? mergedExperience : prev.experience,
-                        education: mergedEducation.length ? mergedEducation : prev.education,
+                        experience: mergedExperience,
+                        education: mergedEducation,
                         skills: mergedSkills,
                         additionalSections: updatedAdditional
                     };
@@ -414,7 +426,19 @@ export default function CVBuilder() {
                         <CustomStepper activeStep={activeStep} onStepClick={setActiveStep} />
 
                         <Box sx={{ minHeight: 400, mt: 4 }}>
-                            {renderStepContent(activeStep)}
+                            {loading ? (
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5 }}>
+                                    <Box sx={{ display: 'flex', gap: 2 }}>
+                                        <Skeleton variant="rectangular" height={55} sx={{ borderRadius: '12px', flex: 1 }} />
+                                        <Skeleton variant="rectangular" height={55} sx={{ borderRadius: '12px', flex: 1 }} />
+                                    </Box>
+                                    <Skeleton variant="rectangular" height={45} sx={{ borderRadius: '8px', width: '60%' }} />
+                                    <Skeleton variant="rectangular" height={150} sx={{ borderRadius: '16px' }} />
+                                    <Skeleton variant="rectangular" height={50} sx={{ borderRadius: '10px' }} />
+                                </Box>
+                            ) : (
+                                renderStepContent(activeStep)
+                            )}
                         </Box>
 
                         {lastSavedAt && (

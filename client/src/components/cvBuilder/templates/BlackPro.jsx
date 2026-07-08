@@ -79,7 +79,7 @@ export default function BlackPro({ data }) {
         }
         setProfileImageUrl(url);
         return () => {
-            if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+            if (url && url.startsWith('blob:') && url !== profileImagePreview) URL.revokeObjectURL(url);
         };
     }, [profileImage, profileImagePreview]);
 

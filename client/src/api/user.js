@@ -53,3 +53,24 @@ export function changePassword({ accessToken, refreshAccessToken, oldPassword, n
     retryOn401: true,
   });
 }
+
+export function getBlogProfile({ accessToken, refreshAccessToken }) {
+  return apiRequest("/user/blog-profile", {
+    method: "GET",
+    accessToken,
+    refreshAccessToken,
+    credentials: "include",
+    retryOn401: true,
+  });
+}
+
+export function updateBlogProfile({ accessToken, refreshAccessToken, formData }) {
+  return apiRequest("/user/blog-profile", {
+    method: "PUT",
+    accessToken,
+    refreshAccessToken,
+    body: formData,
+    credentials: "include",
+    retryOn401: true,
+  });
+}

@@ -17,7 +17,9 @@ import {
 import LanguageIcon from "@mui/icons-material/Language";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useAuth } from "../../context/AuthContext";
+import useBlogStore from "../../store/useBlogStore";
 import logo from "../../assets/images/newlogo.png";
+import NotificationDropdown from "./NotificationDropdown";
 
 
 const languages = [
@@ -43,6 +45,10 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, logout } = useAuth();
+
+  // High-performance Selectors for Home Page elements
+  const postsCount = useBlogStore((state) => state.posts.length);
+  console.log("Selector active: Header only re-renders if post count changes. Count:", postsCount);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -249,7 +255,8 @@ const Header = () => {
         {/* Auth (desktop) */}
         <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: "12px", flexShrink: 0 }}>
           {user ? (
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <NotificationDropdown />
               <Button
                 onClick={handleUserMenuClick}
                 endIcon={<ArrowDropDownIcon />}
@@ -293,6 +300,12 @@ const Header = () => {
                 </MenuItem>
                 <MenuItem component={Link} to="/my-cvs" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5 }}>
                   My CVs
+                </MenuItem>
+                <MenuItem component={Link} to="/my-blogs" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5 }}>
+                  My Articles
+                </MenuItem>
+                <MenuItem component={Link} to="/blog-profile" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5 }}>
+                  Blog Profile
                 </MenuItem>
                 <Box sx={{ borderTop: "1px solid #E5E7EB", my: 1 }} />
                 <MenuItem
@@ -464,6 +477,9 @@ const Header = () => {
           {/* Mobile Auth */}
           {user ? (
             <>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+                <NotificationDropdown />
+              </Box>
               <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, py: 2 }}>
                 <Avatar
                   src={user.profileImage?.secure_url}
@@ -519,6 +535,46 @@ const Header = () => {
                   }}
                 >
                   My CVs Dashboard
+                </Button>
+              </Link>
+              <Link to="/my-blogs" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    backgroundColor: "#2563EB",
+                    color: "white",
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    py: "12px",
+                    mb: 1,
+                    "&:hover": { backgroundColor: "#1D4ED8" },
+                  }}
+                >
+                  My Articles Dashboard
+                </Button>
+              </Link>
+              <Link to="/blog-profile" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    color: "#2563EB",
+                    borderColor: "#2563EB",
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    py: "12px",
+                    mb: 1.5,
+                    "&:hover": { backgroundColor: "#EFF6FF" },
+                  }}
+                >
+                  Blog Profile
                 </Button>
               </Link>
               <Button

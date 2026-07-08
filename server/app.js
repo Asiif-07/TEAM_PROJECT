@@ -11,6 +11,8 @@ import cvRouter from "./router/cv.route.js";
 import aiRouter from "./router/ai.route.js";
 import stripeRouter from "./router/stripe.route.js";
 import { stripeWebhook } from "./controller/stripe.controller.js";
+import blogRouter from "./router/blog.route.js";
+import notificationRouter from "./router/notification.route.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -62,6 +64,10 @@ app.use('/api/v1/user', userRouter);
 app.use('/api/v1/cv', cvRouter);
 app.use('/api/v1/ai', aiRouter);
 app.use('/api/v1/stripe', stripeRouter);
+import { apiLimiter } from "./middleWare/rateLimiters.js";
+
+app.use('/api/v1/blog', apiLimiter, blogRouter);
+app.use('/api/v1/notification', notificationRouter);
 
 
 app.get('/api/v1/health', (req, res) => {

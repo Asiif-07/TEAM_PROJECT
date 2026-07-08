@@ -17,7 +17,6 @@ export default function Profile() {
     const fileInputRef = useRef(null);
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // New states for email and password updates
     const [showEmailForm, setShowEmailForm] = useState(false);
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [emailData, setEmailData] = useState({ email: "" });
@@ -40,7 +39,6 @@ export default function Profile() {
                         localStorage.setItem("currentUser", JSON.stringify(res.user));
                         toast.success(t("Payment Successful! Premium activated."), { id: "verify-payment" });
                     }
-                    // Clean the URL without causing a full reload
                     searchParams.delete("session_id");
                     searchParams.delete("success");
                     setSearchParams(searchParams, { replace: true });
@@ -375,11 +373,14 @@ export default function Profile() {
 
                     <Divider sx={{ mb: 4 }} />
 
-                    <Link to="/my-cvs" style={{ textDecoration: "none" }}>
-                        <Button variant="contained" fullWidth startIcon={<FileText size={18} />} sx={{ py: 1.5, borderRadius: "12px", textTransform: "none", fontWeight: 700, bgcolor: "#111827" }}>
-                            {t("My CV Dashboard")}
-                        </Button>
-                    </Link>
+                    {/* Action Buttons */}
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <Link to="/my-cvs" style={{ textDecoration: "none" }}>
+                            <Button variant="contained" fullWidth startIcon={<FileText size={18} />} sx={{ py: 1.2, borderRadius: "12px", textTransform: "none", fontWeight: 700, bgcolor: "#111827" }}>
+                                {t("My CV Dashboard")}
+                            </Button>
+                        </Link>
+                    </Box>
                 </Paper>
             </Container>
         </Box>

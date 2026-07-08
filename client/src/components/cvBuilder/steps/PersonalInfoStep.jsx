@@ -111,7 +111,11 @@ export default function PersonalInfoStep({ formData, handleChange, selectedTempl
             </Button>
             {formData.personalInfo?.profileImage && (
               <Typography variant="caption" display="block" sx={{ mt: 1, color: "#16A34A", fontWeight: 700 }}>
-                {formData.personalInfo.profileImage.name || "Image"} {t("Selected")}
+                {formData.personalInfo.profileImage instanceof File
+                  ? formData.personalInfo.profileImage.name
+                  : formData.personalInfo.profileImage?.secure_url
+                    ? t("Image Saved")
+                    : t("Image Selected")}
               </Typography>
             )}
           </Box>

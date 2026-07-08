@@ -42,7 +42,6 @@ import toast from "react-hot-toast";
 import { createCheckoutSession } from "../../api/stripe";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 
 export default function Services() {
   const { t } = useTranslation();
@@ -50,19 +49,6 @@ export default function Services() {
   const navigate = useNavigate();
   const { accessToken, refreshAccessToken, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // Ping the server on mount to wake it up if it's sleeping (Render cold start)
-    // This reduces delay when the user finally clicks "Get Started"
-    const pingServer = async () => {
-      try {
-        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/health`);
-      } catch {
-        // Silent catch: if ping fails, the actual request will handle errors
-      }
-    };
-    pingServer();
-  }, []);
 
   const handleSubscribe = async (planTitle) => {
     if (!isAuthenticated) {

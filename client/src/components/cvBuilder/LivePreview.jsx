@@ -16,7 +16,7 @@ import OrangeWhite from "./templates/OrangeWhite";
 import RoyalBlue from "./templates/RoyalBlue";
 import RoyalBrown from "./templates/RoyalBrown";
 
-export default function LivePreview({ formData, selectedTemplate, selectedCategory, ...props }) {
+export default function LivePreview({ formData, selectedTemplate, selectedCategory, accentColor, ...props }) {
     const theme = useTheme();
     const isLg = useMediaQuery(theme.breakpoints.up('lg'));
     const isMobile = !isLg;
@@ -65,21 +65,21 @@ export default function LivePreview({ formData, selectedTemplate, selectedCatego
         const tCat = String(selectedCategory || "").toLowerCase();
 
 
-        if (tId === 'black-pro' || tId.includes('black-pro')) return <BlackPro data={normalizedData} />;
-        if (tId === 'black-white' || tId.includes('black-white')) return <BlackWhite data={normalizedData} />;
-        if (tId === 'monochrome-simple' || tId.includes('monochrome')) return <MonochromeSimple data={normalizedData} />;
-        if (tId === 'orange-white' || tId.includes('orange')) return <OrangeWhite data={normalizedData} />;
-        if (tId === 'royal-blue' || tId.includes('royal-blue')) return <RoyalBlue data={normalizedData} />;
-        if (tId === 'royal-brown' || tId.includes('royal-brown')) return <RoyalBrown data={normalizedData} />;
+        if (tId === 'black-pro' || tId.includes('black-pro')) return <BlackPro data={normalizedData} accentColor={accentColor} />;
+        if (tId === 'black-white' || tId.includes('black-white')) return <BlackWhite data={normalizedData} accentColor={accentColor} />;
+        if (tId === 'monochrome-simple' || tId.includes('monochrome')) return <MonochromeSimple data={normalizedData} accentColor={accentColor} />;
+        if (tId === 'orange-white' || tId.includes('orange')) return <OrangeWhite data={normalizedData} accentColor={accentColor} />;
+        if (tId === 'royal-blue' || tId.includes('royal-blue')) return <RoyalBlue data={normalizedData} accentColor={accentColor} />;
+        if (tId === 'royal-brown' || tId.includes('royal-brown')) return <RoyalBrown data={normalizedData} accentColor={accentColor} />;
 
-        if (tId.includes('euro') || tCat.includes('euro')) return <EuropassTemplate data={normalizedData} />;
-        if (tId.includes('korean') || tCat.includes('korean')) return <KoreanTemplate data={normalizedData} />;
-        if (tId.includes('modern') || tCat.includes('modern')) return <ModernTemplate data={normalizedData} />;
-        if (tId.includes('minimalist') || tCat.includes('minimalist')) return <MinimalistTemplate data={normalizedData} />;
-        if (tId.includes('creative') || tCat.includes('creative')) return <CreativeTemplate data={normalizedData} />;
+        if (tId.includes('euro') || tCat.includes('euro')) return <EuropassTemplate data={normalizedData} accentColor={accentColor} />;
+        if (tId.includes('korean') || tCat.includes('korean')) return <KoreanTemplate data={normalizedData} accentColor={accentColor} />;
+        if (tId.includes('modern') || tCat.includes('modern')) return <ModernTemplate data={normalizedData} accentColor={accentColor} />;
+        if (tId.includes('minimalist') || tCat.includes('minimalist')) return <MinimalistTemplate data={normalizedData} accentColor={accentColor} />;
+        if (tId.includes('creative') || tCat.includes('creative')) return <CreativeTemplate data={normalizedData} accentColor={accentColor} />;
 
         // Fallback default
-        return <ClassicTemplate data={normalizedData} />;
+        return <ClassicTemplate data={normalizedData} accentColor={accentColor} />;
     };
 
     return (

@@ -77,7 +77,7 @@ export const verifyCheckoutSession = async (req, res) => {
             const updatedUser = await User.findByIdAndUpdate(userId, {
                 stripeCustomerId: session.customer,
                 subscriptionStatus: "active",
-            }, { new: true });
+            }, { returnDocument: 'after' });
 
             return res.status(200).json({ success: true, user: updatedUser });
         }

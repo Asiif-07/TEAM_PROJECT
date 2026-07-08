@@ -1,6 +1,6 @@
 import { apiRequest } from "./http";
 
-function fileToBase64(file) {
+export function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {

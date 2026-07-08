@@ -77,11 +77,14 @@ export default function BlackWhite({ data }) {
     const displayEmail = personalInfo.email;
 
     const profileImage = personalInfo.profileImage;
+    const profileImagePreview = personalInfo.profileImagePreview;
     const [profileImageUrl, setProfileImageUrl] = React.useState(null);
 
     React.useEffect(() => {
         let url = null;
-        if (profileImage) {
+        if (profileImagePreview) {
+            url = profileImagePreview;
+        } else if (profileImage) {
             if (typeof profileImage === 'string') {
                 url = profileImage;
             } else if (profileImage.secure_url) {
@@ -92,9 +95,9 @@ export default function BlackWhite({ data }) {
         }
         setProfileImageUrl(url);
         return () => {
-            if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+            if (url && url.startsWith('blob:') && url !== profileImagePreview) URL.revokeObjectURL(url);
         };
-    }, [profileImage]);
+    }, [profileImage, profileImagePreview]);
 
     // 🎨 CUSTOM DESIGN COMPONENTS FOR EXACT MATCH
     // Moved outside the component
