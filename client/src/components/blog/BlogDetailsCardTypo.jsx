@@ -2,7 +2,7 @@ import React from "react";
 import toast from "react-hot-toast";
 import { Avatar, Button, IconButton } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import TwitterIcon from "@mui/icons-material/Twitter";
+import GitHubIcon from "@mui/icons-material/GitHub";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
@@ -102,7 +102,7 @@ const BlogDetailsCardTypo = ({ blog }) => {
 
             {/* Social Icons with light gray borders */}
             {[
-              <TwitterIcon />,
+              <GitHubIcon />,
               <FacebookIcon />,
               <LinkedInIcon />,
               <WhatsAppIcon />,

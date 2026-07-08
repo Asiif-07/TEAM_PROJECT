@@ -18,7 +18,7 @@ const RightHeader = ({ icon: IconComponent, title, mainColor }) => (
     </Box>
 );
 
-export default function CreativeTemplate({ data }) {
+export default function CreativeTemplate({ data, accentColor = "#1B629A" }) {
     const {
         personalInfo = {},
         experience = [],
@@ -32,7 +32,7 @@ export default function CreativeTemplate({ data }) {
         certificates = []
     } = data || {};
 
-    const mainColor = "#1B629A";
+    const mainColor = accentColor;
 
     const parseArray = (item) => {
         if (Array.isArray(item)) return item;
@@ -82,7 +82,7 @@ export default function CreativeTemplate({ data }) {
         }
         setProfileImageUrl(url);
         return () => {
-            if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+            if (url && url.startsWith('blob:') && url !== profileImagePreview) URL.revokeObjectURL(url);
         };
     }, [profileImage, profileImagePreview]);
 

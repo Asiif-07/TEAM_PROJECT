@@ -1,82 +1,71 @@
 import { createBrowserRouter } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
 import { LayoutPage } from './components/layout/layout.jsx';
 import HomePage from './pages/Home.jsx';
-import AboutPage from './pages/About.jsx';
-import Blog from './pages/Blog.jsx';
-import BlogCard from './components/blog/BlogCard.jsx';
-import BlogDetails from './pages/Blog_Details.jsx';
-import Contact from './pages/ContactUs.jsx';
-import HowItWorksPage from './pages/HowItWorks.jsx';
-import Services from './pages/Service.jsx';
-import NotFound from './pages/NotFound.jsx';
-import Login from './pages/auth/Login.jsx';
-import Signup from './pages/auth/Signup.jsx';
-import CVBuilder from './pages/dashboard/CVBuilder.jsx';
-import MyCvs from './pages/dashboard/MyCvs.jsx';
-import RequireAuth from './components/auth/RequireAuth.jsx';
-import CVTemplates from './pages/dashboard/CVTemplates.jsx';
-import ForgotPassword from './pages/auth/ForgotPassword.jsx';
-import ResetPassword from './pages/auth/ResetPassword.jsx';
-import OAuthGoogleDone from './pages/auth/OAuthGoogleDone.jsx';
-import Profile from './pages/dashboard/Profile.jsx';
+import PageLoader from './components/layout/PageLoader.jsx';
+
+// Lazy-loaded pages
+const AboutPage = lazy(() => import('./pages/About.jsx'));
+const Blog = lazy(() => import('./pages/Blog/BlogFeed.jsx'));
+const BlogDetails = lazy(() => import('./pages/Blog/PostDetail.jsx'));
+const PostEditor = lazy(() => import('./pages/Blog/PostEditor.jsx'));
+const Contact = lazy(() => import('./pages/ContactUs.jsx'));
+const HowItWorksPage = lazy(() => import('./pages/HowItWorks.jsx'));
+const Services = lazy(() => import('./pages/Service.jsx'));
+const NotFound = lazy(() => import('./pages/NotFound.jsx'));
+const Login = lazy(() => import('./pages/auth/Login.jsx'));
+const Signup = lazy(() => import('./pages/auth/Signup.jsx'));
+const CVBuilder = lazy(() => import('./pages/dashboard/CVBuilder.jsx'));
+const MyCvs = lazy(() => import('./pages/dashboard/MyCvs.jsx'));
+const RequireAuth = lazy(() => import('./components/auth/RequireAuth.jsx'));
+const CVTemplates = lazy(() => import('./pages/dashboard/CVTemplates.jsx'));
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword.jsx'));
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword.jsx'));
+const OAuthGoogleDone = lazy(() => import('./pages/auth/OAuthGoogleDone.jsx'));
+const Profile = lazy(() => import('./pages/dashboard/Profile.jsx'));
+const BlogProfile = lazy(() => import('./pages/dashboard/BlogProfile.jsx'));
+const MyBlogs = lazy(() => import('./pages/dashboard/MyBlogs.jsx'));
+const AuthorProfile = lazy(() => import('./pages/Blog/AuthorProfile.jsx'));
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <LayoutPage />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <LayoutPage />
+      </Suspense>
+    ),
     children: [
+      { path: '/', element: <HomePage /> },
+      { path: 'about', element: <AboutPage /> },
+      { path: 'how-it-works', element: <HowItWorksPage /> },
+      { path: 'blogs', element: <Blog /> },
+      { path: 'blogs/:slug', element: <BlogDetails /> },
+      { path: 'author/:id', element: <AuthorProfile /> },
       {
-        path: '/',
-        element: <HomePage />,
+        path: 'blogs/create',
+        element: (
+          <RequireAuth>
+            <PostEditor />
+          </RequireAuth>
+        ),
       },
       {
-        path: 'about',
-        element: <AboutPage />,
+        path: 'blogs/edit/:slug',
+        element: (
+          <RequireAuth>
+            <PostEditor />
+          </RequireAuth>
+        ),
       },
-      {
-        path: 'how-it-works',
-        element: <HowItWorksPage />,
-      },
-      {
-        path: 'blogs',
-        element: <Blog />,
-      },
-      {
-        path: 'blogs/:id',
-        element: <BlogDetails />,
-      },
-      {
-        path: 'contact-us',
-        element: <Contact />,
-      },
-      {
-        path: 'services',
-        element: <Services />,
-      },
-      {
-        path: 'login',
-        element: <Login />,
-      },
-      {
-        path: 'oauth/google-done',
-        element: <OAuthGoogleDone />,
-      },
-      {
-        path: 'signup',
-        element: <Signup />,
-      },
-      {
-        path: 'forgot-password',
-        element: <ForgotPassword />,
-      },
-      {
-        path: 'reset-password/:token',
-        element: <ResetPassword />,
-      },
-      {
-        path: 'cv-templates',
-        element: <CVTemplates />,
-      },
+      { path: 'contact-us', element: <Contact /> },
+      { path: 'services', element: <Services /> },
+      { path: 'login', element: <Login /> },
+      { path: 'oauth/google-done', element: <OAuthGoogleDone /> },
+      { path: 'signup', element: <Signup /> },
+      { path: 'forgot-password', element: <ForgotPassword /> },
+      { path: 'reset-password/:token', element: <ResetPassword /> },
+      { path: 'cv-templates', element: <CVTemplates /> },
       {
         path: 'cv-builder',
         element: (
@@ -94,10 +83,26 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: 'blog-profile',
+        element: (
+          <RequireAuth>
+            <BlogProfile />
+          </RequireAuth>
+        ),
+      },
+      {
         path: 'my-cvs',
         element: (
           <RequireAuth>
             <MyCvs />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: 'my-blogs',
+        element: (
+          <RequireAuth>
+            <MyBlogs />
           </RequireAuth>
         ),
       }

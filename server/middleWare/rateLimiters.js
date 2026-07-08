@@ -49,5 +49,17 @@ const resetPasswordLimiter = limiter({
         }),
 });
 
-export { authRegisterLimiter, authLoginLimiter, forgetPasswordLimiter, resetPasswordLimiter };
+const apiLimiter = limiter({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 100, // Limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) =>
+        res.status(429).json({
+            success: false,
+            message: "Too many requests from this IP, please try again after 15 minutes.",
+        }),
+});
+
+export { authRegisterLimiter, authLoginLimiter, forgetPasswordLimiter, resetPasswordLimiter, apiLimiter };
 

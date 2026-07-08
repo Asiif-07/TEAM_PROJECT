@@ -61,7 +61,7 @@ const googleClient = process.env.GOOGLE_CLIENT_ID
   : null;
 
 const GOOGLE_CALLBACK_URI = process.env.CALLBACK_URL || "https://team-project-qa0v.onrender.com/api/v1/auth/google/callback";
-const FRONTEND_BASE = process.env.CLIENT_URL || process.env.FRONTEND_URL || process.env.APP_URL || "https://carrerforge.vercel.app";
+const  FRONTEND_BASE = process.env.CLIENT_URL || process.env.FRONTEND_URL || process.env.APP_URL || "https://carrerforge.vercel.app";
 
 const googleOAuthStateCookie = {
   httpOnly: true,

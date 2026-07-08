@@ -96,7 +96,11 @@ export const mapParsedDataToTemplate = (data) => {
 
     const incomingCerts = Array.isArray(data.certificates)
         ? data.certificates.map(c => `${c.name}${c.issuer ? ` | ${c.issuer}` : ""}${c.date ? ` (${c.date})` : ""}`)
-        : (Array.isArray(data.certifications) ? data.certifications : (typeof data.certifications === 'string' ? [data.certifications] : []));
+        : Array.isArray(data.certifications)
+            ? data.certifications
+            : typeof data.certifications === "string" && data.certifications.trim()
+                ? data.certifications.split("\n").map(c => c.trim()).filter(Boolean)
+                : [];
 
     // 80% Similarity Deduplication Check
     const allCertsRaw = [...certsFromEdu, ...incomingCerts].filter(Boolean);
@@ -144,7 +148,8 @@ export const mapParsedDataToTemplate = (data) => {
             linkedin: data.linkedin || "",
             github: data.github || "",
             address: locationStr,
-            about: data.summary || data.about || ""
+            about: data.summary || data.about || "",
+            profileImage: data.profileImage || null
         },
 
         experience: (data.experience || []).map((exp) => {

@@ -28,7 +28,7 @@ const MainSection = ({ title, accentColor, children }) => (
     </Box>
 );
 
-export default function MinimalistTemplate({ data }) {
+export default function MinimalistTemplate({ data, accentColor = "#2C3E50" }) {
     const {
         personalInfo = {},
         experience = [],
@@ -42,8 +42,6 @@ export default function MinimalistTemplate({ data }) {
         certificates = [],
         awards = []
     } = data || {};
-
-    const accentColor = "#2C3E50";
 
     const parseArray = (item) => {
         if (Array.isArray(item)) return item;
@@ -92,14 +90,14 @@ export default function MinimalistTemplate({ data }) {
         }
         setProfileImageUrl(url);
         return () => {
-            if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+            if (url && url.startsWith('blob:') && url !== profileImagePreview) URL.revokeObjectURL(url);
         };
     }, [profileImage, profileImagePreview]);
 
     return (
         <Box className="cv-document" sx={{ display: 'flex', minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Helvetica", sans-serif', bgcolor: 'white', '@media print': { boxShadow: 0 } }}>
             {/* SIDEBAR */}
-            <Box sx={{ width: '34%', flexShrink: 0, background: 'linear-gradient(180deg, #2C3E50 0%, #1a252f 100%)', color: 'white', p: 5, pt: 6 }}>
+            <Box sx={{ width: '34%', flexShrink: 0, background: `linear-gradient(180deg, ${accentColor} 0%, #1a252f 100%)`, color: 'white', p: 5, pt: 6 }}>
                 {/* Profile Picture */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', mb: 5 }}>
                     {profileImageUrl ? (

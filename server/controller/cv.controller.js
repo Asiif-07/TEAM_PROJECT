@@ -4,6 +4,48 @@ import CustomError from '../handler/CustomError.js'
 import User from '../model/user.model.js';
 import uploadToCloudinary from '../utils/uploadToCloudinary.js';
 
+const processProfileImage = async (profileImage) => {
+    if (!profileImage) return null;
+    
+    // If it's already in the correct object format
+    if (typeof profileImage === "object" && profileImage.secure_url) {
+        return {
+            secure_url: profileImage.secure_url,
+            public_id: profileImage.public_id || ""
+        };
+    }
+    
+    // If it's a base64 image data URI string
+    if (typeof profileImage === "string" && profileImage.startsWith("data:image/")) {
+        try {
+            const base64Data = profileImage.replace(/^data:image\/[a-zA-Z+]+;base64,/, "");
+            const buffer = Buffer.from(base64Data, "base64");
+            const uploadResult = await uploadToCloudinary({
+                resource_type: "image",
+                buffer,
+                folder: "cv_profile_images"
+            });
+            return {
+                secure_url: uploadResult.secure_url,
+                public_id: uploadResult.public_id
+            };
+        } catch (err) {
+            console.error("Cloudinary helper upload failed:", err);
+            return null;
+        }
+    }
+    
+    // If it's just a raw URL string (fallback/legacy)
+    if (typeof profileImage === "string" && (profileImage.startsWith("http://") || profileImage.startsWith("https://"))) {
+        return {
+            secure_url: profileImage,
+            public_id: ""
+        };
+    }
+    
+    return null;
+};
+
 const CreateCv = AsyncHandler(async (req, res, next) => {
     const userId = req.userId;
     const {
@@ -18,16 +60,23 @@ const CreateCv = AsyncHandler(async (req, res, next) => {
         throw new CustomError(404, 'User not found');
     }
 
-    let profileImage;
+    let profileImage = null;
     if (req.file) {
-        const result = await uploadToCloudinary(
-            {
+        try {
+            const result = await uploadToCloudinary({
                 resource_type: "image",
-                public_id: `profile_${Date.now()}`
-            },
-           req.file.buffer
-        );
-        profileImage = result.secure_url;
+                buffer: req.file.buffer,
+                folder: "cv_profile_images"
+            });
+            profileImage = {
+                secure_url: result.secure_url,
+                public_id: result.public_id
+            };
+        } catch (err) {
+            console.error("Cloudinary CreateCv upload failed:", err);
+        }
+    } else if (req.body.profileImage) {
+        profileImage = await processProfileImage(req.body.profileImage);
     }
 
     const formattedEducation = education?.map(edu => ({
@@ -79,15 +128,27 @@ const updateCv = AsyncHandler(async (req, res, next) => {
         throw new CustomError(403, "Not authorized to update this CV");
     }
 
+    let profileImageObj;
     if (req.file) {
-        const result = await uploadToCloudinary(
-            {
+        try {
+            const result = await uploadToCloudinary({
                 resource_type: "image",
-                public_id: `profile_${Date.now()}`
-            },
-            req.file.buffer
-        );
-        updateData.profileImage = result.secure_url;
+                buffer: req.file.buffer,
+                folder: "cv_profile_images"
+            });
+            profileImageObj = {
+                secure_url: result.secure_url,
+                public_id: result.public_id
+            };
+        } catch (err) {
+            console.error("Cloudinary updateCv upload failed:", err);
+        }
+    } else if (req.body.profileImage !== undefined) {
+        profileImageObj = await processProfileImage(req.body.profileImage);
+    }
+
+    if (profileImageObj !== undefined) {
+        updateData.profileImage = profileImageObj;
     }
 
     const updatedCv = await Cv.findByIdAndUpdate(id, updateData, { returnDocument: 'after' });
@@ -160,6 +221,7 @@ const buildDraftPayload = (body = {}, userId) => ({
     github: body?.github || "",
     linkedin: body?.linkedin || "",
     summary: body?.summary || "",
+    profileImage: body?.profileImage || null,
     education: Array.isArray(body?.education) ? body.education : [],
     skills: Array.isArray(body?.skills) ? body.skills : [],
     projects: Array.isArray(body?.projects) ? body.projects : [],
@@ -178,7 +240,9 @@ const saveDraft = AsyncHandler(async (req, res, next) => {
     const userId = req.userId;
     const { draftId, id } = req.body || {};
     const targetId = draftId || id;
-    const payload = buildDraftPayload(req.body, userId);
+
+    const processedImg = await processProfileImage(req.body.profileImage);
+    const payload = buildDraftPayload({ ...req.body, profileImage: processedImg }, userId);
     payload.status = "draft";
 
     let cv;
@@ -217,7 +281,8 @@ const getMyDrafts = AsyncHandler(async (req, res, next) => {
 const updateDraft = AsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const userId = req.userId;
-    const updateData = buildDraftPayload(req.body, userId);
+    const processedImg = await processProfileImage(req.body.profileImage);
+    const updateData = buildDraftPayload({ ...req.body, profileImage: processedImg }, userId);
     updateData.status = "draft";
 
     const findCv = await Cv.findById(id);

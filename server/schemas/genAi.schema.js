@@ -16,9 +16,11 @@ export const aiGenSchema = z.object({
   data: z.object({
     name: z.string().optional(),
     
-    // 2. CHANGED TO STRING (to match the Postman test payload)
-    // If your frontend actually sends an array, you can change this back to z.array(z.string()).optional()
-    skills: z.string().optional(), 
+    // Accept either a string or an array of strings (coerce array → comma-separated string)
+    skills: z.preprocess(
+      (val) => Array.isArray(val) ? val.join(", ") : val,
+      z.string().optional()
+    ),
     
     experience: z.string().optional(),
     title: z.string().optional(),
@@ -28,7 +30,6 @@ export const aiGenSchema = z.object({
     work: z.string().optional(),
     rawDescription: z.string().optional(),
     
-    // 3. ADDED THE NEW FIELDS USED IN POSTMAN
     description: z.string().optional(),
     organization: z.string().optional(),
     position: z.string().optional(),

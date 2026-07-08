@@ -32,14 +32,14 @@ function splitDatesRB(dateStr) {
     return { top: parts[0], bottom: 'now' };
 }
 
-function renderBulletsRB(text) {
+function renderBulletsRB(text, color = royalBlue) {
     if (!text) return null;
     const bullets = text.split(/\n|•/).filter(b => b.trim() !== '');
     return (
         <Box sx={{ mt: 0.8 }}>
             {bullets.map((b, idx) => (
                 <Box key={idx} sx={{ display: 'flex', gap: 1, mb: 0.6 }}>
-                    <Box sx={{ width: 5, height: 5, bgcolor: royalBlue, borderRadius: '50%', mt: '7px', flexShrink: 0, opacity: 0.7 }} />
+                    <Box sx={{ width: 5, height: 5, bgcolor: color, borderRadius: '50%', mt: '7px', flexShrink: 0, opacity: 0.7 }} />
                     <Typography variant="body2" sx={{ color: '#555', lineHeight: 1.65, fontSize: '0.87rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{b.trim()}</Typography>
                 </Box>
             ))}
@@ -60,51 +60,51 @@ function RBSidebarHeader({ title }) {
 }
 
 // eslint-disable-next-line
-function RBTimelineHeader({ icon: IconComponent, title }) {
+function RBTimelineHeader({ icon: IconComponent, title, color = royalBlue }) {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <Box sx={{
-                width: '32px', height: '32px', borderRadius: '50%', bgcolor: royalBlue,
+                width: '32px', height: '32px', borderRadius: '50%', bgcolor: color,
                 display: 'flex', justifyContent: 'center', alignItems: 'center',
-                ml: '44px', zIndex: 2, boxShadow: `0 4px 12px ${royalBlue}44`
+                ml: '44px', zIndex: 2, boxShadow: `0 4px 12px ${color}44`
             }}>
                 <IconComponent size={16} color="white" strokeWidth={2.5} />
             </Box>
-            <Typography variant="subtitle1" fontWeight="900" sx={{ color: royalBlue, ml: 2, letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.8rem' }}>
+            <Typography variant="subtitle1" fontWeight="900" sx={{ color: color, ml: 2, letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.8rem' }}>
                 {title}
             </Typography>
         </Box>
     );
 }
 
-function RBTimelineItem({ dates, title, subtitle, description, isLast }) {
+function RBTimelineItem({ dates, title, subtitle, description, isLast, color = royalBlue }) {
     const { top, bottom } = splitDatesRB(dates);
     return (
         <Box sx={{ display: 'flex', position: 'relative', mb: isLast ? 0 : 3 }}>
             <Box sx={{ width: '62px', flexShrink: 0, textAlign: 'right', pr: 2, pt: 0.5 }}>
-                <Typography variant="caption" fontWeight="900" sx={{ color: royalBlue, display: 'block', lineHeight: 1.2, fontSize: '0.75rem' }}>{top}</Typography>
-                <Typography variant="caption" fontWeight="700" sx={{ color: royalBlue, display: 'block', lineHeight: 1.2, opacity: 0.7, fontSize: '0.75rem' }}>{bottom}</Typography>
+                <Typography variant="caption" fontWeight="900" sx={{ color: color, display: 'block', lineHeight: 1.2, fontSize: '0.75rem' }}>{top}</Typography>
+                <Typography variant="caption" fontWeight="700" sx={{ color: color, display: 'block', lineHeight: 1.2, opacity: 0.7, fontSize: '0.75rem' }}>{bottom}</Typography>
             </Box>
             <Box sx={{ width: '20px', position: 'relative', flexShrink: 0 }}>
-                {!isLast && <Box sx={{ position: 'absolute', top: 0, bottom: '-24px', left: '0px', borderLeft: `2px solid ${royalBlue}40` }} />}
-                {isLast && <Box sx={{ position: 'absolute', top: 0, bottom: '0px', left: '0px', borderLeft: `2px solid ${royalBlue}40` }} />}
-                <Box sx={{ position: 'absolute', top: '8px', left: '-4px', width: 10, height: 10, borderRadius: '50%', bgcolor: royalBlue }} />
+                {!isLast && <Box sx={{ position: 'absolute', top: 0, bottom: '-24px', left: '0px', borderLeft: `2px solid ${color}40` }} />}
+                {isLast && <Box sx={{ position: 'absolute', top: 0, bottom: '0px', left: '0px', borderLeft: `2px solid ${color}40` }} />}
+                <Box sx={{ position: 'absolute', top: '8px', left: '-4px', width: 10, height: 10, borderRadius: '50%', bgcolor: color }} />
             </Box>
             <Box sx={{ flex: 1, pb: 3, pl: 1.5 }}>
                 <Typography variant="subtitle2" fontWeight="900" sx={{ color: '#1a1a1a', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.82rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                     {title}
                 </Typography>
-                <Typography variant="body2" sx={{ color: royalBlue, fontWeight: 700, mb: 0.5, fontSize: '0.85rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                <Typography variant="body2" sx={{ color: color, fontWeight: 700, mb: 0.5, fontSize: '0.85rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                     {subtitle}
                 </Typography>
-                {renderBulletsRB(description)}
+                {renderBulletsRB(description, color)}
             </Box>
         </Box>
     );
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function RoyalBlue({ data }) {
+export default function RoyalBlue({ data, accentColor = "#1A3F7B" }) {
     const {
         personalInfo = {},
         experience = [],
@@ -138,7 +138,7 @@ export default function RoyalBlue({ data }) {
     return (
         <Box className="cv-document" sx={{ minHeight: '297mm', width: '100%', fontFamily: '"Inter", "Arial", sans-serif', display: 'flex', bgcolor: 'white', '@media print': { boxShadow: 0 } }}>
             {/* SIDEBAR */}
-            <Box sx={{ width: '34%', background: `linear-gradient(175deg, ${royalBlue} 0%, #0f2847 100%)`, color: 'white', p: 4, pt: 5, flexShrink: 0 }}>
+            <Box sx={{ width: '34%', background: `linear-gradient(175deg, ${accentColor} 0%, #0f2847 100%)`, color: 'white', p: 4, pt: 5, flexShrink: 0 }}>
                 {/* Profile */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
                     {profileImageUrl ? (
@@ -217,13 +217,13 @@ export default function RoyalBlue({ data }) {
             <Box sx={{ flex: 1, p: 5, pt: 5, display: 'flex', flexDirection: 'column' }}>
                 {/* Header */}
                 <Box sx={{ mb: 5 }}>
-                    <Typography variant="h3" fontWeight="900" sx={{ color: royalBlue, textTransform: 'uppercase', mb: 0.3, letterSpacing: '2px', lineHeight: 1.1, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                    <Typography variant="h3" fontWeight="900" sx={{ color: accentColor, textTransform: 'uppercase', mb: 0.3, letterSpacing: '2px', lineHeight: 1.1, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                         {personalInfo.name}
                     </Typography>
                     <Typography variant="h6" sx={{ color: '#666', letterSpacing: '3px', fontWeight: 400, fontSize: '0.82rem', textTransform: 'uppercase', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                         {personalInfo.title}
                     </Typography>
-                    <Box sx={{ width: '100%', height: '2px', background: `linear-gradient(90deg, ${royalBlue}, transparent)`, mt: 2, mb: 1.5 }} />
+                    <Box sx={{ width: '100%', height: '2px', background: `linear-gradient(90deg, ${accentColor}, transparent)`, mt: 2, mb: 1.5 }} />
                     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                         {displayEmail && <Typography variant="caption" sx={{ color: '#555', fontSize: '0.78rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{displayEmail}</Typography>}
                         {displayPhone && <Typography variant="caption" sx={{ color: '#555', fontSize: '0.78rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>• {displayPhone}</Typography>}
@@ -235,7 +235,7 @@ export default function RoyalBlue({ data }) {
                 {/* Education */}
                 {safeEducation.length > 0 && (
                     <Box sx={{ mb: 3 }}>
-                        <RBTimelineHeader icon={GraduationCap} title="Education" />
+                        <RBTimelineHeader icon={GraduationCap} title="Education" color={accentColor} />
                         {safeEducation.map((edu, idx) => (
                             <RBTimelineItem
                                 key={idx}
@@ -244,6 +244,7 @@ export default function RoyalBlue({ data }) {
                                 subtitle={getDisplayText(edu.institute || edu.school)}
                                 description={getDisplayText(edu.description || edu.summary)}
                                 isLast={idx === safeEducation.length - 1}
+                                color={accentColor}
                             />
                         ))}
                     </Box>
@@ -252,7 +253,7 @@ export default function RoyalBlue({ data }) {
                 {/* Experience */}
                 {safeExperience.length > 0 && (
                     <Box>
-                        <RBTimelineHeader icon={Settings} title="Experience" />
+                        <RBTimelineHeader icon={Settings} title="Experience" color={accentColor} />
                         {safeExperience.map((exp, idx) => (
                             <RBTimelineItem
                                 key={idx}
@@ -261,11 +262,12 @@ export default function RoyalBlue({ data }) {
                                 subtitle={getDisplayText(exp.company || exp.organization)}
                                 description={getDisplayText(exp.description || exp.summary)}
                                 isLast={idx === safeExperience.length - 1}
+                                color={accentColor}
                             />
                         ))}
                     </Box>
                 )}
-                <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={royalBlue} />
+                <AdditionalSectionsBlock sections={data?.additionalSections} accentColor={accentColor} />
             </Box>
         </Box>
     );
