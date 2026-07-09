@@ -22,6 +22,7 @@ const CVTemplates = lazy(() => import('./pages/dashboard/CVTemplates.jsx'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword.jsx'));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword.jsx'));
 const OAuthGoogleDone = lazy(() => import('./pages/auth/OAuthGoogleDone.jsx'));
+const OAuthLinkedInDone = lazy(() => import('./pages/auth/OAuthLinkedInDone.jsx'));
 const Profile = lazy(() => import('./pages/dashboard/Profile.jsx'));
 const BlogProfile = lazy(() => import('./pages/dashboard/BlogProfile.jsx'));
 const MyBlogs = lazy(() => import('./pages/dashboard/MyBlogs.jsx'));
@@ -62,6 +63,7 @@ const router = createBrowserRouter([
       { path: 'services', element: <Services /> },
       { path: 'login', element: <Login /> },
       { path: 'oauth/google-done', element: <OAuthGoogleDone /> },
+      { path: 'oauth/linkedin-done', element: <OAuthLinkedInDone /> },
       { path: 'signup', element: <Signup /> },
       { path: 'forgot-password', element: <ForgotPassword /> },
       { path: 'reset-password/:token', element: <ResetPassword /> },

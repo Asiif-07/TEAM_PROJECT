@@ -360,6 +360,151 @@ const LogoutUser = AsyncHandler(async (req, res, next) => {
   });
 })
 
+const LINKEDIN_CALLBACK_URI = process.env.LINKEDIN_CALLBACK_URL || "https://team-project-qa0v.onrender.com/api/v1/auth/linkedin/callback";
+
+async function findOrCreateUserFromLinkedInPayload(payload) {
+  if (!payload?.email || !payload?.sub) {
+    throw new CustomError(400, "Invalid LinkedIn account data");
+  }
+  const email = String(payload.email).toLowerCase().trim();
+  const linkedInName = payload.name || `${payload.given_name || ""} ${payload.family_name || ""}`.trim() || email.split("@")[0];
+  const linkedInPicture = payload.picture || "";
+
+  let user = await User.findOne({ $or: [{ linkedinId: payload.sub }, { email }] });
+
+  if (!user) {
+    return new User({
+      name: linkedInName,
+      email,
+      linkedinId: payload.sub,
+      gender: "other",
+      profileImage: {
+        secure_url: linkedInPicture,
+        public_id: ""
+      }
+    });
+  }
+
+  if (user.linkedinId && user.linkedinId !== payload.sub) {
+    throw new CustomError(403, "This email is already linked to a different LinkedIn account");
+  }
+
+  if (!user.linkedinId) {
+    user.linkedinId = payload.sub;
+  }
+  if (!user.name || user.name === "hi" || user.name === "Hi" || user.name === email.split("@")[0]) {
+    user.name = linkedInName;
+  }
+  if (!user.profileImage?.secure_url && linkedInPicture) {
+    user.profileImage = {
+      secure_url: linkedInPicture,
+      public_id: ""
+    };
+  }
+
+  return user;
+}
+
+const LinkedInOAuthStart = AsyncHandler(async (req, res, next) => {
+  if (!process.env.LINKEDIN_CLIENT_ID || !process.env.LINKEDIN_CLIENT_SECRET) {
+    return next(new CustomError(503, "LinkedIn OAuth is not configured."));
+  }
+
+  const state = crypto.randomBytes(24).toString("hex");
+  res.cookie("linkedin_oauth_state", state, googleOAuthStateCookie); // Reuse same cookie options
+
+  const params = new URLSearchParams({
+    response_type: "code",
+    client_id: process.env.LINKEDIN_CLIENT_ID,
+    redirect_uri: LINKEDIN_CALLBACK_URI,
+    state,
+    scope: "openid profile email",
+  });
+
+  res.redirect(302, `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`);
+});
+
+const LinkedInOAuthCallback = AsyncHandler(async (req, res) => {
+  const cookieState = req.cookies?.linkedin_oauth_state;
+
+  const redirectLogin = (msg) =>
+    res.redirect(302, `${FRONTEND_BASE}/login?oauth_error=${encodeURIComponent(msg)}`);
+
+  const clearOAuthCookies = () =>
+    res.clearCookie("linkedin_oauth_state", { httpOnly: true, path: "/", sameSite: "lax" });
+
+  if (req.query.error) {
+    clearOAuthCookies();
+    return redirectLogin(String(req.query.error_description || req.query.error));
+  }
+
+  const { code, state } = req.query;
+  if (!code || !state || !cookieState || state !== cookieState) {
+    clearOAuthCookies();
+    return redirectLogin("Invalid or expired sign-in session. Please try again.");
+  }
+
+  if (!process.env.LINKEDIN_CLIENT_ID || !process.env.LINKEDIN_CLIENT_SECRET) {
+    clearOAuthCookies();
+    return redirectLogin("LinkedIn OAuth is not configured on the server.");
+  }
+
+  // Exchange code for token
+  const tokenBody = new URLSearchParams({
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: LINKEDIN_CALLBACK_URI,
+    client_id: process.env.LINKEDIN_CLIENT_ID,
+    client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+  });
+
+  let tokenResponse;
+  try {
+    const fetchResponse = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: tokenBody.toString(),
+    });
+    tokenResponse = await fetchResponse.json();
+    if (!fetchResponse.ok || tokenResponse.error) {
+      throw new Error(tokenResponse.error_description || "Token request failed");
+    }
+  } catch (err) {
+    clearOAuthCookies();
+    return redirectLogin("Could not complete LinkedIn sign-in. Please try again.");
+  }
+
+  // Fetch full user info using access token
+  let userInfo;
+  try {
+    const userFetch = await fetch("https://api.linkedin.com/v2/userinfo", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${tokenResponse.access_token}`
+      }
+    });
+    userInfo = await userFetch.json();
+    if (!userFetch.ok) {
+      throw new Error("Failed to fetch LinkedIn user info");
+    }
+  } catch (err) {
+    clearOAuthCookies();
+    return redirectLogin("Could not retrieve your LinkedIn profile details.");
+  }
+
+  let user;
+  try {
+    user = await findOrCreateUserFromLinkedInPayload(userInfo);
+  } catch (err) {
+    clearOAuthCookies();
+    return redirectLogin(err instanceof CustomError ? err.message : "Sign-in failed.");
+  }
+
+  clearOAuthCookies();
+  await issueSessionForUser(req, res, user);
+  res.redirect(302, `${FRONTEND_BASE}/oauth/linkedin-done`);
+});
+
 export {
   RegisterUser,
   LoginUser,
@@ -368,4 +513,6 @@ export {
   GoogleLoginUser,
   GoogleOAuthStart,
   GoogleOAuthCallback,
+  LinkedInOAuthStart,
+  LinkedInOAuthCallback,
 }
