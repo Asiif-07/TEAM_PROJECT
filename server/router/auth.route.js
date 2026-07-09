@@ -7,6 +7,8 @@ import {
   GoogleLoginUser,
   GoogleOAuthStart,
   GoogleOAuthCallback,
+  LinkedInOAuthStart,
+  LinkedInOAuthCallback,
 } from "../controller/auth.controller.js";
 import validate from "../middleWare/validate.js";
 import registerSchema from "../schemas/registerSchema.schema.js";
@@ -21,6 +23,9 @@ authRouter.route("/login").post(authLoginLimiter, validate(LoginSchema), LoginUs
 authRouter.get("/google/start", GoogleOAuthStart)
 authRouter.get("/google/callback", GoogleOAuthCallback)
 authRouter.route("/google").post(authLoginLimiter, validate(googleAuthSchema), GoogleLoginUser)
+
+authRouter.get("/linkedin/start", LinkedInOAuthStart)
+authRouter.get("/linkedin/callback", LinkedInOAuthCallback)
 authRouter.route("/refresh-Token").post(RefreshToken)
 authRouter.route("/logout").post(LogoutUser)
 

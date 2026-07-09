@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box, Container, Paper, Typography, Avatar, Divider, Button, IconButton, CircularProgress, TextField, Collapse } from "@mui/material";
 import { useAuth } from "../../context/AuthContext";
-import { FileText, User, Mail, Calendar, Camera, XCircle, Lock, ChevronDown, ChevronUp } from "lucide-react";
+import { FileText, User, Mail, Calendar, Camera, XCircle, Lock, ChevronDown, ChevronUp, Linkedin } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { updateProfilePic, updateEmail, changePassword } from "../../api/user";
 import { verifySession, cancelSubscription } from "../../api/stripe";
@@ -360,13 +360,38 @@ export default function Profile() {
                             </Box>
                         </Box>
 
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                             <Calendar size={20} color="#6B7280" />
                             <Box>
                                 <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Member Since")}</Typography>
                                 <Typography variant="body1" fontWeight="600">
                                     {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Active Member"}
                                 </Typography>
+                            </Box>
+                        </Box>
+
+                        {/* Linked Accounts */}
+                        <Typography variant="overline" sx={{ mt: 2, mb: 1.5, display: 'block', color: '#9CA3AF', fontWeight: 800 }}>Linked Accounts</Typography>
+                        <Box sx={{ display: "flex", flexWrap: 'wrap', gap: 2 }}>
+                            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid #E5E7EB', borderRadius: '12px', bgcolor: user.googleId ? '#F0FDF4' : 'transparent', opacity: user.googleId ? 1 : 0.6 }}>
+                                <svg width="20" height="20" viewBox="0 0 18 18">
+                                    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285f4" />
+                                    <path d="M9 18c2.43 0 4.467-.806 5.956-2.184L12.048 13.558c-.824.551-1.879.878-3.048.878-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.34 18 9 18z" fill="#34a853" />
+                                    <path d="M3.964 10.725A5.456 5.456 0 013.682 9c0-.6.103-1.176.282-1.725V4.943H.957A8.996 8.996 0 000 9c0 1.451.347 2.822.957 4.032l3.007-2.307z" fill="#fbbc05" />
+                                    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.34 0 2.438 2.017.957 4.943L3.964 7.275C4.672 5.148 6.656 3.58 9 3.58z" fill="#ea4335" />
+                                </svg>
+                                <Box>
+                                    <Typography variant="body2" fontWeight="700">Google</Typography>
+                                    <Typography variant="caption" sx={{ color: user.googleId ? '#15803D' : '#9CA3AF' }}>{user.googleId ? "Connected" : "Not Linked"}</Typography>
+                                </Box>
+                            </Box>
+
+                            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid #E5E7EB', borderRadius: '12px', bgcolor: user.linkedinId ? '#F0F9FF' : 'transparent', opacity: user.linkedinId ? 1 : 0.6 }}>
+                                <Linkedin size={20} color="#0077b5" />
+                                <Box>
+                                    <Typography variant="body2" fontWeight="700">LinkedIn</Typography>
+                                    <Typography variant="caption" sx={{ color: user.linkedinId ? '#0369A1' : '#9CA3AF' }}>{user.linkedinId ? "Connected" : "Not Linked"}</Typography>
+                                </Box>
                             </Box>
                         </Box>
                     </Box>

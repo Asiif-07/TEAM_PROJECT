@@ -20,10 +20,15 @@ const userSchema = new mongoose.Schema({
         sparse: true,
         unique: true,
     },
+    linkedinId: {
+        type: String,
+        sparse: true,
+        unique: true,
+    },
     password: {
         type: String,
         required: function passwordRequired() {
-            return !this.googleId;
+            return !this.googleId && !this.linkedinId;
         },
         minlength: 6,
         select: false
