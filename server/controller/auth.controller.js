@@ -66,8 +66,15 @@ const  FRONTEND_BASE = process.env.CLIENT_URL || process.env.FRONTEND_URL || pro
 const googleOAuthStateCookie = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   maxAge: 10 * 60 * 1000,
+  path: "/",
+};
+
+const clearOAuthCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   path: "/",
 };
 
@@ -173,7 +180,7 @@ const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
     res.redirect(302, `${FRONTEND_BASE}/login?oauth_error=${encodeURIComponent(msg)}`);
 
   const clearOAuthCookies = () =>
-    res.clearCookie("google_oauth_state", { httpOnly: true, path: "/", sameSite: "lax" });
+    res.clearCookie("google_oauth_state", clearOAuthCookieOptions);
 
   if (req.query.error) {
     clearOAuthCookies();
@@ -302,17 +309,27 @@ const RefreshToken = AsyncHandler(async (req, res, next) => {
 
   const incomingRefreshToken = req.cookies.refreshToken
 
+  console.log("[Refresh Token] Cookie received:", !!incomingRefreshToken);
+
   if (!incomingRefreshToken) {
     return next(new CustomError(400, "Refresh token not found"))
   }
 
-  const decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+  let decoded;
+  try {
+    decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+  } catch (err) {
+    console.error("[Refresh Token] JWT verification failed:", err.message);
+    return next(new CustomError(400, "Invalid or expired refresh token"))
+  }
 
   if (!decoded.userId) {
     return next(new CustomError(400, "Invalid refresh token"))
   }
 
   const isTokenValid = await User.findOne({ "refreshToken.token": incomingRefreshToken });
+
+  console.log("[Refresh Token] User found:", !!isTokenValid);
 
   if (!isTokenValid) {
     return next(new CustomError(400, "Invalid refresh token"))
@@ -335,6 +352,8 @@ const RefreshToken = AsyncHandler(async (req, res, next) => {
   if (!updatedUser) {
     return next(new CustomError(400, "Invalid refresh token"))
   }
+
+  console.log("[Refresh Token] Success - tokens refreshed for user:", updatedUser.email);
 
   res.cookie("refreshToken", newRefreshToken, CookieOptions).status(200).json({
     success: true,
@@ -431,7 +450,7 @@ const LinkedInOAuthCallback = AsyncHandler(async (req, res) => {
     res.redirect(302, `${FRONTEND_BASE}/login?oauth_error=${encodeURIComponent(msg)}`);
 
   const clearOAuthCookies = () =>
-    res.clearCookie("linkedin_oauth_state", { httpOnly: true, path: "/", sameSite: "lax" });
+    res.clearCookie("linkedin_oauth_state", clearOAuthCookieOptions);
 
   if (req.query.error) {
     clearOAuthCookies();
@@ -466,10 +485,12 @@ const LinkedInOAuthCallback = AsyncHandler(async (req, res) => {
       body: tokenBody.toString(),
     });
     tokenResponse = await fetchResponse.json();
+    console.log("[LinkedIn OAuth] Token response:", tokenResponse);
     if (!fetchResponse.ok || tokenResponse.error) {
-      throw new Error(tokenResponse.error_description || "Token request failed");
+      throw new Error(tokenResponse.error_description || tokenResponse.error || "Token request failed");
     }
   } catch (err) {
+    console.error("[LinkedIn OAuth] Token exchange error:", err);
     clearOAuthCookies();
     return redirectLogin("Could not complete LinkedIn sign-in. Please try again.");
   }
