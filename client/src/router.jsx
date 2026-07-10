@@ -68,14 +68,7 @@ const router = createBrowserRouter([
       { path: 'forgot-password', element: <ForgotPassword /> },
       { path: 'reset-password/:token', element: <ResetPassword /> },
       { path: 'cv-templates', element: <CVTemplates /> },
-      {
-        path: 'cv-builder',
-        element: (
-          <RequireAuth>
-            <CVBuilder />
-          </RequireAuth>
-        ),
-      },
+      { path: 'cv-builder', element: <CVBuilder /> },
       {
         path: 'profile',
         element: (
