@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Box, Button, Typography, Paper, Container, Skeleton } from "@mui/material";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from "react-i18next";
 import * as cvApi from "../../api/cv";
@@ -19,12 +19,13 @@ import GenerateStep from "../../components/cvBuilder/steps/GenerateStep";
 import PreviewCV from "../../components/cvBuilder/PreviewCV";
 export default function CVBuilder() {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const selectedCategory = searchParams.get("category");
     const selectedTemplate = searchParams.get("template") || "classic-red";
     const cvId = searchParams.get("cvId");
 
-    const { accessToken, refreshAccessToken } = useAuth();
+    const { accessToken, refreshAccessToken, isAuthenticated } = useAuth();
     const [activeStep, setActiveStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [isExtracting, setIsExtracting] = useState(false);
@@ -337,6 +338,15 @@ export default function CVBuilder() {
     const handleNext = () => setActiveStep((prev) => prev + 1);
     const handleBack = () => setActiveStep((prev) => prev - 1);
 
+    const handleGenerateCV = () => {
+        if (!isAuthenticated) {
+            toast.error(t("Please login to generate your CV"));
+            navigate('/login', { replace: true, state: { from: window.location.pathname + window.location.search } });
+            return;
+        }
+        setActiveStep(4);
+    };
+
     const renderStepContent = (step) => {
         switch (step) {
             case 0:
@@ -370,13 +380,19 @@ export default function CVBuilder() {
                     />
                 );
             case 3:
-                return <GenerateStep generateCV={() => setActiveStep(4)} loading={loading} />;
+                return <GenerateStep generateCV={handleGenerateCV} loading={loading} />;
             default:
                 return null;
         }
     };
 
     const handleSaveCV = async () => {
+        if (!isAuthenticated) {
+            toast.error(t("Please login to save your CV"));
+            navigate('/login', { replace: true, state: { from: window.location.pathname + window.location.search } });
+            return;
+        }
+
         setLoading(true);
         const loadingToast = toast.loading(t("Saving CV..."));
         try {
