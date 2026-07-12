@@ -45,12 +45,28 @@ const Login = () => {
     const googleSignIn = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             setLoading(true);
-            const result = await googleLogin(tokenResponse.credential);
-            setLoading(false);
-            if (result.success) {
-                navigate(from, { replace: true });
-            } else {
-                setError(result.message);
+            try {
+                // tokenResponse should include an ID token in `credential` for the default flow.
+                // Log the response for debugging when the server returns 400.
+                console.debug("Google token response:", tokenResponse);
+                const credential = tokenResponse?.credential || tokenResponse?.id_token || tokenResponse?.access_token || tokenResponse?.code;
+                if (!credential) {
+                    setError("Google sign-in did not return a token. Please try again.");
+                    setLoading(false);
+                    return;
+                }
+
+                const result = await googleLogin(credential);
+                setLoading(false);
+                if (result.success) {
+                    navigate(from, { replace: true });
+                } else {
+                    setError(result.message);
+                }
+            } catch (err) {
+                console.error("Google sign-in error:", err);
+                setLoading(false);
+                setError("Google sign-in failed. Please try again.");
             }
         },
         onError: () => {

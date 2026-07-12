@@ -55,10 +55,24 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // Avoid calling refresh-token on initial mount. Instead, refresh is triggered only when an API
-        // returns 401 (see `client/src/api/http.js`), preventing startup timing/proxy errors.
-        setLoading(false);
-    }, []);
+        // Try a silent refresh on initial mount when we don't already have an access token.
+        // This allows reloading the app without forcing the user to sign in again if a refresh
+        // cookie is present. If refresh fails, continue without blocking the UI.
+        let mounted = true;
+        (async () => {
+            try {
+                if (!accessToken) {
+                    setLoading(true);
+                    await refreshAccessToken();
+                }
+            } catch (err) {
+                // ignore - user will remain unauthenticated
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        })();
+        return () => { mounted = false; };
+    }, [accessToken, refreshAccessToken]);
 
     const signup = useCallback(async (name, email, password, gender) => {
         try {
@@ -127,6 +141,8 @@ export const AuthProvider = ({ children }) => {
         refreshAccessToken,
         signup,
         login,
+        // Backwards-compatible alias expected by some components
+        googleLogin: loginWithGoogle,
         loginWithGoogle,
         logout,
         loading,

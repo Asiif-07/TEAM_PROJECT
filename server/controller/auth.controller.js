@@ -69,6 +69,7 @@ const googleOAuthStateCookie = {
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   maxAge: 10 * 60 * 1000,
   path: "/",
+  domain: process.env.COOKIE_DOMAIN || undefined,
 };
 
 const clearOAuthCookieOptions = {
@@ -76,6 +77,7 @@ const clearOAuthCookieOptions = {
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   path: "/",
+  domain: process.env.COOKIE_DOMAIN || undefined,
 };
 
 function getOAuth2ClientForRedirect() {
@@ -219,7 +221,8 @@ const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
       idToken: tokens.id_token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-  } catch {
+  } catch (err) {
+    console.error("[Google OAuth Callback] verifyIdToken failed:", err?.message || err);
     clearOAuthCookies();
     return redirectLogin("Could not verify Google sign-in.");
   }
@@ -243,15 +246,46 @@ const GoogleLoginUser = AsyncHandler(async (req, res, next) => {
     return next(new CustomError(503, "Google sign-in is not configured on the server"));
   }
 
-  const { credential } = req.body;
+  // Accept either an ID token in `credential` (implicit/credential flow)
+  // or an authorization `code` (auth-code flow). If a code is provided,
+  // exchange it server-side for tokens, then verify the returned id_token.
+  const { credential, code } = req.body;
+
+  let idTokenToVerify = credential;
+
+  if (!idTokenToVerify && code) {
+    // Try exchanging the auth code for tokens
+    const oauth2ForCode = getOAuth2ClientForRedirect();
+    if (!oauth2ForCode) {
+      console.error("[Google Login] OAuth2 client not configured for code exchange.");
+      return next(new CustomError(503, "Google sign-in is not configured on the server"));
+    }
+    try {
+      const tokenResp = await oauth2ForCode.getToken(code);
+      const tokens = tokenResp.tokens || tokenResp;
+      idTokenToVerify = tokens.id_token;
+      console.debug("[Google Login] exchanged code for tokens; id_token length:", idTokenToVerify ? String(idTokenToVerify).length : 0);
+    } catch (err) {
+      console.error("[Google Login] Failed to exchange code for tokens:", err?.message || err);
+      return next(new CustomError(400, "Could not verify Google sign-in"));
+    }
+  }
+
+  if (!idTokenToVerify) {
+    console.error("[Google Login] No credential or code provided in request body.");
+    return next(new CustomError(400, "Missing Google credential or authorization code"));
+  }
 
   let ticket;
   try {
     ticket = await googleClient.verifyIdToken({
-      idToken: credential,
+      idToken: idTokenToVerify,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-  } catch {
+  } catch (err) {
+    console.error("[Google Login] verifyIdToken failed:", err?.message || err);
+    // Never log full tokens; only log presence/length for debugging
+    console.debug("[Google Login] id_token present:", Boolean(idTokenToVerify), "type:", typeof idTokenToVerify, "length:", idTokenToVerify ? String(idTokenToVerify).length : 0);
     return next(new CustomError(400, "Could not verify Google sign-in"));
   }
 
