@@ -237,6 +237,16 @@ export default function CVBuilder() {
 
     const handleMagicImport = async (file) => {
         if (!file) return;
+
+        // Ensure we have a valid access token (try refreshing silently)
+        if (!accessToken) {
+            const refreshed = await refreshAccessToken();
+            if (!refreshed?.accessToken) {
+                toast.error(t("Please login to use AI Extraction"));
+                return;
+            }
+        }
+
         setIsExtracting(true);
         let loadingToast = null;
         try {

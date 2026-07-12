@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const Signup = () => {
     const { t } = useTranslation();
@@ -14,13 +15,15 @@ const Signup = () => {
         gender: "male",
     });
 
-    const { signup } = useAuth();
+    const { signup, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const from = location.state?.from || "/";
     const [searchParams, setSearchParams] = useSearchParams();
     const [error, setError] = useState(() => searchParams.get("oauth_error") || "");
     const [successMessage, setSuccessMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
 
     useEffect(() => {
         if (searchParams.has("oauth_error")) {
@@ -36,6 +39,23 @@ const Signup = () => {
         setError("");
         setSuccessMessage("");
     };
+
+    const googleSignIn = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            setGoogleLoading(true);
+            const result = await loginWithGoogle(tokenResponse.credential);
+            setGoogleLoading(false);
+            if (result.success) {
+                navigate(from, { replace: true });
+            } else {
+                setError(result.message);
+            }
+        },
+        onError: () => {
+            setGoogleLoading(false);
+            setError("Google sign-in failed. Please try again.");
+        },
+    });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -342,8 +362,8 @@ const Signup = () => {
 
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                         <Button
-                            component="a"
-                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/google/start`}
+                            onClick={() => googleSignIn()}
+                            disabled={googleLoading}
                             fullWidth
                             variant="outlined"
                             startIcon={
@@ -361,11 +381,10 @@ const Signup = () => {
                                 fontWeight: 600,
                                 borderColor: "rgba(0,0,0,0.12)",
                                 color: "#374151",
-                                textDecoration: "none",
                                 gap: 1
                             }}
                         >
-                            Continue with Google
+                            {googleLoading ? "Signing in..." : "Continue with Google"}
                         </Button>
                         <Button
                             component="a"

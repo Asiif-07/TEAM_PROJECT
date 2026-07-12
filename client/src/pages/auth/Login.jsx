@@ -3,17 +3,19 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
     const { t } = useTranslation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { login } = useAuth();
+    const { login, googleLogin } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from || "/";
     const [searchParams, setSearchParams] = useSearchParams();
     const [error, setError] = useState(() => searchParams.get("oauth_error") || "");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (searchParams.has("oauth_error")) {
@@ -39,6 +41,39 @@ const Login = () => {
             setError(result.message);
         }
     };
+
+    const googleSignIn = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            setLoading(true);
+            try {
+                // tokenResponse should include an ID token in `credential` for the default flow.
+                // Log the response for debugging when the server returns 400.
+                console.debug("Google token response:", tokenResponse);
+                const credential = tokenResponse?.credential || tokenResponse?.id_token || tokenResponse?.access_token || tokenResponse?.code;
+                if (!credential) {
+                    setError("Google sign-in did not return a token. Please try again.");
+                    setLoading(false);
+                    return;
+                }
+
+                const result = await googleLogin(credential);
+                setLoading(false);
+                if (result.success) {
+                    navigate(from, { replace: true });
+                } else {
+                    setError(result.message);
+                }
+            } catch (err) {
+                console.error("Google sign-in error:", err);
+                setLoading(false);
+                setError("Google sign-in failed. Please try again.");
+            }
+        },
+        onError: () => {
+            setLoading(false);
+            setError("Google sign-in failed. Please try again.");
+        },
+    });
 
 
     return (
@@ -218,8 +253,8 @@ const Login = () => {
 
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                         <Button
-                            component="a"
-                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/google/start`}
+                            onClick={() => googleSignIn()}
+                            disabled={loading}
                             fullWidth
                             variant="outlined"
                             startIcon={
@@ -237,11 +272,10 @@ const Login = () => {
                                 fontWeight: 600,
                                 borderColor: "rgba(0,0,0,0.12)",
                                 color: "#374151",
-                                textDecoration: "none",
                                 gap: 1
                             }}
                         >
-                            {t("Continue with Google")}
+                            {loading ? "Signing in..." : t("Continue with Google")}
                         </Button>
                         <Button
                             component="a"
