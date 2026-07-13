@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 import Footer from "./Footer.jsx";
 import Header from "./Header.jsx";
 import { useEffect } from "react";
@@ -17,6 +17,7 @@ export function LayoutPage() {
 
   return (
     <div className={i18n.language === 'ur' ? 'font-urdu' : ''}>
+      <ScrollRestoration />
       <Header />
       <Outlet />
       <Footer />

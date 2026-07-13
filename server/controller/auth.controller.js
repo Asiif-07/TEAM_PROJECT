@@ -332,7 +332,12 @@ const GoogleLoginUser = AsyncHandler(async (req, res, next) => {
 });
 
 const LinkedinStart = AsyncHandler(async (req, res) => {
-  const linkedinAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.LINKEDIN_CLIENT_ID}&redirect_uri=${process.env.LINKEDIN_CALLBACK_URL}&state=some_random_state&scope=openid%20profile%20email`;
+  // Encode the frontend origin into state so the callback can redirect back to the correct URL
+  const clientOrigin = req.headers.referer
+    ? new URL(req.headers.referer).origin
+    : (process.env.CLIENT_URL || "http://localhost:5173");
+  const state = Buffer.from(JSON.stringify({ clientOrigin })).toString("base64");
+  const linkedinAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.LINKEDIN_CALLBACK_URL)}&state=${state}&scope=openid%20profile%20email`;
   res.redirect(linkedinAuthUrl);
 });
 
@@ -341,12 +346,26 @@ const LinkedinCallback = AsyncHandler(async (req, res, next) => {
     return next(new CustomError(503, "LinkedIn is not configured on the server"));
   }
 
-  const { code } = req.query;
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  const { code, state } = req.query;
+
+  // Decode the client origin from state (encoded by LinkedinStart)
+  let clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  if (state && state !== "some_random_state") {
+    try {
+      const decoded = JSON.parse(Buffer.from(state, "base64").toString());
+      if (decoded?.clientOrigin) clientUrl = decoded.clientOrigin;
+    } catch {
+      // ignore decode errors, use default clientUrl
+    }
+  }
 
   if (!code) {
     return res.redirect(`${clientUrl}/login?oauth_error=LinkedIn+authorization+code+missing`);
   }
+
+  // Strip any surrounding quotes from the secret (dotenv quirk)
+  const clientSecret = process.env.LINKEDIN_CLIENT_SECRET.replace(/^"|"$/g, "");
+  const callbackUrl = process.env.LINKEDIN_CALLBACK_URL;
 
   let accessTokenData;
   try {
@@ -356,9 +375,9 @@ const LinkedinCallback = AsyncHandler(async (req, res, next) => {
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code,
-        redirect_uri: process.env.LINKEDIN_CALLBACK_URL,
+        redirect_uri: callbackUrl,
         client_id: process.env.LINKEDIN_CLIENT_ID,
-        client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+        client_secret: clientSecret,
       }),
     });
     
