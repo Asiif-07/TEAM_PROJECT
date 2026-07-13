@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
                     setLoading(true);
                     await refreshAccessToken();
                 }
-            } catch (err) {
+            } catch {
                 // ignore - user will remain unauthenticated
             } finally {
                 if (mounted) setLoading(false);
@@ -90,16 +90,31 @@ export const AuthProvider = ({ children }) => {
                 setAccessToken(data.accessToken);
                 localStorage.setItem("accessToken", data.accessToken);
             }
-            await refreshAccessToken();
+            if (data?.user) {
+                setUser(data.user);
+                localStorage.setItem("currentUser", JSON.stringify(data.user));
+            }
+            // Also try to refresh to get latest token + user from cookie (best-effort)
+            await refreshAccessToken().catch(() => { });
             return { success: true };
         } catch (err) {
             return { success: false, message: err?.message || "An error occurred during login." };
         }
     }, [refreshAccessToken]);
 
-    const loginWithGoogle = useCallback(async (credential) => {
+    const loginWithGoogle = useCallback(async (credentialOrPayload) => {
         try {
-            const data = await authApi.googleLogin({ credential });
+            // Accept either a plain credential string or an object { credential } / { code }
+            let payload;
+            if (typeof credentialOrPayload === "string") {
+                payload = { credential: credentialOrPayload };
+            } else if (typeof credentialOrPayload === "object" && credentialOrPayload !== null) {
+                payload = credentialOrPayload;
+            } else {
+                payload = {};
+            }
+
+            const data = await authApi.googleLogin(payload);
             if (data?.accessToken) {
                 setAccessToken(data.accessToken);
                 localStorage.setItem("accessToken", data.accessToken);

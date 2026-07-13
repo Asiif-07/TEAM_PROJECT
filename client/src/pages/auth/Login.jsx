@@ -3,19 +3,17 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
     const { t } = useTranslation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { login, googleLogin } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from || "/";
     const [searchParams, setSearchParams] = useSearchParams();
     const [error, setError] = useState(() => searchParams.get("oauth_error") || "");
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (searchParams.has("oauth_error")) {
@@ -42,38 +40,6 @@ const Login = () => {
         }
     };
 
-    const googleSignIn = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            setLoading(true);
-            try {
-                // tokenResponse should include an ID token in `credential` for the default flow.
-                // Log the response for debugging when the server returns 400.
-                console.debug("Google token response:", tokenResponse);
-                const credential = tokenResponse?.credential || tokenResponse?.id_token || tokenResponse?.access_token || tokenResponse?.code;
-                if (!credential) {
-                    setError("Google sign-in did not return a token. Please try again.");
-                    setLoading(false);
-                    return;
-                }
-
-                const result = await googleLogin(credential);
-                setLoading(false);
-                if (result.success) {
-                    navigate(from, { replace: true });
-                } else {
-                    setError(result.message);
-                }
-            } catch (err) {
-                console.error("Google sign-in error:", err);
-                setLoading(false);
-                setError("Google sign-in failed. Please try again.");
-            }
-        },
-        onError: () => {
-            setLoading(false);
-            setError("Google sign-in failed. Please try again.");
-        },
-    });
 
 
     return (
@@ -253,8 +219,8 @@ const Login = () => {
 
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                         <Button
-                            onClick={() => googleSignIn()}
-                            disabled={loading}
+                            component="a"
+                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/google/start`}
                             fullWidth
                             variant="outlined"
                             startIcon={
@@ -272,33 +238,10 @@ const Login = () => {
                                 fontWeight: 600,
                                 borderColor: "rgba(0,0,0,0.12)",
                                 color: "#374151",
-                                gap: 1
+                                gap: 1,
                             }}
                         >
-                            {loading ? "Signing in..." : t("Continue with Google")}
-                        </Button>
-                        <Button
-                            component="a"
-                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/linkedin/start`}
-                            fullWidth
-                            variant="outlined"
-                            startIcon={
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#0077b5">
-                                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                                </svg>
-                            }
-                            sx={{
-                                py: 1.5,
-                                borderRadius: "12px",
-                                textTransform: "none",
-                                fontWeight: 600,
-                                borderColor: "rgba(0,0,0,0.12)",
-                                color: "#374151",
-                                textDecoration: "none",
-                                gap: 1
-                            }}
-                        >
-                            Continue with LinkedIn
+                            {t("Continue with Google")}
                         </Button>
                     </Box>
                 </Box>
