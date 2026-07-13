@@ -16,10 +16,18 @@ export function login({ email, password }) {
   });
 }
 
-export function googleLogin({ credential }) {
+export function googleLogin(payload) {
   return apiRequest("/auth/google", {
     method: "POST",
-    body: { credential },
+    body: payload,
+    credentials: "include",
+  });
+}
+
+export function linkedinLogin({ code, redirect_uri }) {
+  return apiRequest("/auth/linkedin", {
+    method: "POST",
+    body: { code, redirect_uri },
     credentials: "include",
   });
 }

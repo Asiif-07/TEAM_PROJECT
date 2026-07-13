@@ -129,6 +129,23 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
+    const loginWithLinkedin = useCallback(async (code, redirect_uri) => {
+        try {
+            const data = await authApi.linkedinLogin({ code, redirect_uri });
+            if (data?.accessToken) {
+                setAccessToken(data.accessToken);
+                localStorage.setItem("accessToken", data.accessToken);
+            }
+            if (data?.user) {
+                setUser(data.user);
+                localStorage.setItem("currentUser", JSON.stringify(data.user));
+            }
+            return { success: true };
+        } catch (err) {
+            return { success: false, message: err?.message || "LinkedIn sign-in failed." };
+        }
+    }, []);
+
     const logout = useCallback(async () => {
         try {
             await authApi.logout();
@@ -159,10 +176,11 @@ export const AuthProvider = ({ children }) => {
         // Backwards-compatible alias expected by some components
         googleLogin: loginWithGoogle,
         loginWithGoogle,
+        loginWithLinkedin,
         logout,
         loading,
         isAuthenticated: Boolean(accessToken),
-    }), [user, accessToken, loading, refreshAccessToken, signup, login, loginWithGoogle, logout]);
+    }), [user, accessToken, loading, refreshAccessToken, signup, login, loginWithGoogle, loginWithLinkedin, logout]);
 
     return (
         <AuthContext.Provider value={value}>

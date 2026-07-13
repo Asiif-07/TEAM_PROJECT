@@ -236,6 +236,45 @@ async function issueSessionForUser(req, res, user) {
   return { accessToken, user: sanitizeUser(user) };
 }
 
+async function findOrCreateUserFromLinkedInPayload({ sub, email, name, picture }) {
+  if (!email || !sub) {
+    throw new CustomError(400, "Invalid LinkedIn account data");
+  }
+
+  const normalizedEmail = String(email).toLowerCase().trim();
+
+  let user = await User.findOne({ 
+    $or: [{ linkedinId: sub }, { email: normalizedEmail }] 
+  });
+
+  if (!user) {
+    return new User({
+      name: name || normalizedEmail.split("@")[0],
+      email: normalizedEmail,
+      linkedinId: sub,
+      gender: "other",
+      profileImage: {
+        secure_url: picture || "",
+        public_id: "",
+      },
+    });
+  }
+
+  if (user.linkedinId && user.linkedinId !== sub) {
+    throw new CustomError(403, "This email is already linked to a different LinkedIn account");
+  }
+
+  if (!user.linkedinId) user.linkedinId = sub;
+  if (!user.name || user.name === "hi" || user.name === "Hi" || user.name === normalizedEmail.split("@")[0]) {
+    user.name = name;
+  }
+  if (!user.profileImage?.secure_url && picture) {
+    user.profileImage = { secure_url: picture, public_id: "" };
+  }
+
+  return user;
+}
+
 const googleClient = process.env.GOOGLE_CLIENT_ID
   ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
   : null;
@@ -245,19 +284,36 @@ const GoogleLoginUser = AsyncHandler(async (req, res, next) => {
     return next(new CustomError(503, "Google sign-in is not configured on the server"));
   }
 
-  const { credential } = req.body;
+  const { credential, access_token } = req.body;
+  let payload;
 
-  let ticket;
-  try {
-    ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-  } catch (err) {
-    return next(new CustomError(400, "Could not verify Google sign-in"));
+  if (credential) {
+    // ID token from standard GoogleLogin widget
+    let ticket;
+    try {
+      ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+    } catch (err) {
+      return next(new CustomError(400, "Could not verify Google sign-in"));
+    }
+    payload = ticket.getPayload();
+  } else if (access_token) {
+    // Access token from useGoogleLogin implicit flow
+    try {
+      const resp = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+      if (!resp.ok) throw new Error("Invalid token");
+      payload = await resp.json();
+    } catch (err) {
+      return next(new CustomError(400, "Could not verify Google access token"));
+    }
+  } else {
+    return next(new CustomError(400, "Missing Google credentials"));
   }
 
-  const payload = ticket.getPayload();
   let user;
   try {
     user = await findOrCreateUserFromGooglePayload(payload);
@@ -275,11 +331,87 @@ const GoogleLoginUser = AsyncHandler(async (req, res, next) => {
   });
 });
 
+const LinkedinStart = AsyncHandler(async (req, res) => {
+  const linkedinAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.LINKEDIN_CLIENT_ID}&redirect_uri=${process.env.LINKEDIN_CALLBACK_URL}&state=some_random_state&scope=openid%20profile%20email`;
+  res.redirect(linkedinAuthUrl);
+});
+
+const LinkedinCallback = AsyncHandler(async (req, res, next) => {
+  if (!process.env.LINKEDIN_CLIENT_ID || !process.env.LINKEDIN_CLIENT_SECRET) {
+    return next(new CustomError(503, "LinkedIn is not configured on the server"));
+  }
+
+  const { code } = req.query;
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+
+  if (!code) {
+    return res.redirect(`${clientUrl}/login?oauth_error=LinkedIn+authorization+code+missing`);
+  }
+
+  let accessTokenData;
+  try {
+    const tokenResponse = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: process.env.LINKEDIN_CALLBACK_URL,
+        client_id: process.env.LINKEDIN_CLIENT_ID,
+        client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+      }),
+    });
+    
+    if (!tokenResponse.ok) {
+      console.error("[AUTH] LinkedIn token error:", await tokenResponse.text());
+      return res.redirect(`${clientUrl}/login?oauth_error=LinkedIn+verification+failed`);
+    }
+    accessTokenData = await tokenResponse.json();
+  } catch (err) {
+    return res.redirect(`${clientUrl}/login?oauth_error=LinkedIn+verification+failed`);
+  }
+
+  let linkedinProfile;
+  try {
+    const profileResponse = await fetch("https://api.linkedin.com/v2/userinfo", {
+      headers: { Authorization: `Bearer ${accessTokenData.access_token}` },
+    });
+    if (!profileResponse.ok) {
+      throw new Error("Invalid LinkedIn access token for profile");
+    }
+    linkedinProfile = await profileResponse.json();
+  } catch (err) {
+    return res.redirect(`${clientUrl}/login?oauth_error=LinkedIn+profile+fetch+failed`);
+  }
+
+  let user;
+  try {
+    user = await findOrCreateUserFromLinkedInPayload({
+      sub: linkedinProfile.sub,
+      email: linkedinProfile.email,
+      name: linkedinProfile.name,
+      picture: linkedinProfile.picture
+    });
+  } catch (err) {
+    return res.redirect(`${clientUrl}/login?oauth_error=${encodeURIComponent(err.message)}`);
+  }
+
+  const { accessToken, user: safeUser } = await issueSessionForUser(req, res, user);
+
+  // Encode the token and user to pass to frontend cleanly, bypassing cross-site cookie drops
+  const payloadStr = JSON.stringify({ accessToken, user: safeUser });
+  const b64Payload = Buffer.from(payloadStr).toString('base64');
+
+  res.redirect(`${clientUrl}/oauth/linkedin-done?t=${b64Payload}`);
+});
+
 export {
   RegisterUser,
   LoginUser,
   RefreshToken,
   LogoutUser,
   GoogleLoginUser,
+  LinkedinStart,
+  LinkedinCallback,
 }
 
