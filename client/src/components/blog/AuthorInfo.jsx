@@ -1,6 +1,15 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const normalizeUrl = (value) => {
+    const v = (value || '').trim();
+    if (!v) return '';
+    if (/^https?:\/\//i.test(v)) return v;
+    // Allow users to paste domains like `github.com/name`
+    if (/^[\w.-]+\.[a-z]{2,}([\/].*)?$/i.test(v)) return `https://${v}`;
+    return v;
+};
 
 const AuthorInfo = ({ author }) => {
     if (!author) return null;
@@ -8,6 +17,22 @@ const AuthorInfo = ({ author }) => {
     const displayName = author.blogProfile?.displayName || author.name;
     const bio = author.blogProfile?.bio || "Career expert and contributor at CareerForge. Passionate about helping professionals land their dream jobs through expert guidance and better designs.";
     const avatar = author.blogProfile?.avatar?.secure_url || author.profileImage?.secure_url;
+
+    const social = useMemo(() => {
+        const github = normalizeUrl(author.blogProfile?.socialLinks?.github);
+        const linkedin = normalizeUrl(author.blogProfile?.socialLinks?.linkedin);
+        const website = normalizeUrl(author.blogProfile?.socialLinks?.website);
+        return { github, linkedin, website };
+    }, [author]);
+
+    const initials = useMemo(() => {
+        const n = (displayName || '').trim();
+        if (!n) return '';
+        const parts = n.split(/\s+/).filter(Boolean);
+        const first = parts[0]?.[0] || '';
+        const second = parts.length > 1 ? parts[parts.length - 1]?.[0] || '' : '';
+        return (first + second).toUpperCase();
+    }, [displayName]);
 
     return (
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-xl shadow-gray-100/50 flex flex-col sm:flex-row items-center sm:items-start gap-8 text-center sm:text-left transition-all hover:border-blue-100">
@@ -39,19 +64,42 @@ const AuthorInfo = ({ author }) => {
                         All Articles
                     </Link>
 
-                    {(author.blogProfile?.socialLinks?.github || author.blogProfile?.socialLinks?.linkedin || author.blogProfile?.socialLinks?.website) && (
+                    {(social.github || social.linkedin || social.website) && (
                         <div className="h-4 w-[1px] bg-gray-100 hidden sm:block"></div>
                     )}
 
-                    <div className="flex gap-4">
-                        {author.blogProfile?.socialLinks?.github && (
-                            <a href={author.blogProfile.socialLinks.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
-                                <i className="fab fa-github"></i>
+                    <div className="flex flex-wrap gap-2 sm:gap-4">
+                        {social.github && (
+                            <a
+                                href={social.github}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 text-gray-500 hover:text-gray-900 hover:bg-blue-50 transition-colors"
+                                aria-label="GitHub"
+                            >
+                                <i className="fab fa-github" />
                             </a>
                         )}
-                        {author.blogProfile?.socialLinks?.linkedin && (
-                            <a href={author.blogProfile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#0077b5] transition-colors">
-                                <i className="fab fa-linkedin"></i>
+                        {social.linkedin && (
+                            <a
+                                href={social.linkedin}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 text-gray-500 hover:text-[#0077b5] hover:bg-blue-50 transition-colors"
+                                aria-label="LinkedIn"
+                            >
+                                <i className="fab fa-linkedin" />
+                            </a>
+                        )}
+                        {social.website && (
+                            <a
+                                href={social.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 text-gray-500 hover:text-gray-900 hover:bg-blue-50 transition-colors"
+                                aria-label="Website"
+                            >
+                                <span className="text-[11px] font-black">WWW</span>
                             </a>
                         )}
                     </div>
