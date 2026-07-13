@@ -5,12 +5,13 @@ import { FileText, User, Mail, Calendar, Camera, XCircle, Lock, ChevronDown, Che
 import { Link, useSearchParams } from "react-router-dom";
 import { updateProfilePic, updateEmail, changePassword } from "../../api/user";
 import { verifySession, cancelSubscription } from "../../api/stripe";
+import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 
 export default function Profile() {
     const { t } = useTranslation();
-    const { user, setUser, accessToken, refreshAccessToken } = useAuth();
+    const { user, setUser, accessToken, refreshAccessToken, loginWithGoogle } = useAuth();
     const [uploading, setUploading] = useState(false);
     const [verifying, setVerifying] = useState(false);
     const [canceling, setCanceling] = useState(false);
@@ -23,6 +24,20 @@ export default function Profile() {
     const [passwordData, setPasswordData] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
     const [updatingEmail, setUpdatingEmail] = useState(false);
     const [updatingPassword, setUpdatingPassword] = useState(false);
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const result = await loginWithGoogle(credentialResponse.credential);
+            if (result && result.success) {
+                toast.success("Google account linked successfully!");
+                refreshAccessToken();
+            } else {
+                toast.error("Failed to link Google account");
+            }
+        } catch {
+            toast.error("Something went wrong");
+        }
+    };
 
     useEffect(() => {
         const sessionId = searchParams.get("session_id");
@@ -380,17 +395,44 @@ export default function Profile() {
                                     <path d="M3.964 10.725A5.456 5.456 0 013.682 9c0-.6.103-1.176.282-1.725V4.943H.957A8.996 8.996 0 000 9c0 1.451.347 2.822.957 4.032l3.007-2.307z" fill="#fbbc05" />
                                     <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.34 0 2.438 2.017.957 4.943L3.964 7.275C4.672 5.148 6.656 3.58 9 3.58z" fill="#ea4335" />
                                 </svg>
-                                <Box>
-                                    <Typography variant="body2" fontWeight="700">Google</Typography>
-                                    <Typography variant="caption" sx={{ color: user.googleId ? '#15803D' : '#9CA3AF' }}>{user.googleId ? "Connected" : "Not Linked"}</Typography>
+                                <Box sx={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <Box>
+                                        <Typography variant="body2" fontWeight="700">Google</Typography>
+                                        <Typography variant="caption" sx={{ color: user.googleId ? '#15803D' : '#9CA3AF' }}>{user.googleId ? "Connected" : "Not Linked"}</Typography>
+                                    </Box>
+                                    {!user.googleId && (
+                                        <Box sx={{ transform: "scale(0.8)", transformOrigin: "right" }}>
+                                            <GoogleLogin
+                                                onSuccess={handleGoogleSuccess}
+                                                onError={() => toast.error("Google sign-in failed.")}
+                                                theme="outline"
+                                                size="medium"
+                                                type="standard"
+                                                width="120"
+                                            />
+                                        </Box>
+                                    )}
                                 </Box>
                             </Box>
 
                             <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid #E5E7EB', borderRadius: '12px', bgcolor: user.linkedinId ? '#F0F9FF' : 'transparent', opacity: user.linkedinId ? 1 : 0.6 }}>
                                 <Linkedin size={20} color="#0077b5" />
-                                <Box>
-                                    <Typography variant="body2" fontWeight="700">LinkedIn</Typography>
-                                    <Typography variant="caption" sx={{ color: user.linkedinId ? '#0369A1' : '#9CA3AF' }}>{user.linkedinId ? "Connected" : "Not Linked"}</Typography>
+                                <Box sx={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <Box>
+                                        <Typography variant="body2" fontWeight="700">LinkedIn</Typography>
+                                        <Typography variant="caption" sx={{ color: user.linkedinId ? '#0369A1' : '#9CA3AF' }}>{user.linkedinId ? "Connected" : "Not Linked"}</Typography>
+                                    </Box>
+                                    {!user.linkedinId && (
+                                        <Button
+                                            component="a"
+                                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/linkedin/start`}
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{ textTransform: "none", borderRadius: "8px", borderColor: "#0077b5", color: "#0077b5", px: 2 }}
+                                        >
+                                            Link Account
+                                        </Button>
+                                    )}
                                 </Box>
                             </Box>
                         </Box>

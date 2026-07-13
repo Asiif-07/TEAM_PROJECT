@@ -7,6 +7,10 @@ const sanitizeUser = (userDoc) => {
         email: userDoc.email,
         gender: userDoc.gender,
         profileImage: userDoc.profileImage,
+        googleId: userDoc.googleId,
+        linkedinId: userDoc.linkedinId,
+        subscriptionStatus: userDoc.subscriptionStatus,
+        subscriptionPlan: userDoc.subscriptionPlan,
         createdAt: userDoc.createdAt,
         updatedAt: userDoc.updatedAt,
     };
