@@ -8,7 +8,8 @@ import AsyncHandler from '../handler/AsyncHandler.js'
 import User from '../model/user.model.js'
 import CustomError from '../handler/CustomError.js'
 import { generateAccessToken, generateRefreshToken } from "../utils/genrateAccessToken.js"
-import { CookieOptions } from '../utils/cookiesOption.js'
+import { getCookieOptions } from '../utils/cookiesOption.js'
+
 import jwt from 'jsonwebtoken'
 import { welcomeEmailTemplate } from "../template/registration.js"
 import sendEmail from "../utils/sendMail.js"
@@ -86,7 +87,8 @@ const LoginUser = AsyncHandler(async (req, res, next) => {
 
   await user.save({ validateBeforeSave: false })
 
-  res.cookie("refreshToken", refreshToken, CookieOptions).status(200).json({
+  res.cookie("refreshToken", refreshToken, getCookieOptions(req)).status(200).json({
+
     success: true,
     message: "User logged in successfully",
     accessToken: accessToken,
@@ -100,6 +102,8 @@ const RefreshToken = AsyncHandler(async (req, res, next) => {
   const incomingRefreshToken = req.cookies.refreshToken
 
   console.log("[Refresh Token] Cookie received:", !!incomingRefreshToken);
+  console.log("[Refresh Token] Incoming cookie keys:", Object.keys(req.cookies || {}));
+  console.log("[Refresh Token] Request host:", req.hostname, "protocol:", req.protocol);
 
   if (!incomingRefreshToken) {
     return next(new CustomError(400, "Refresh token not found"))
@@ -145,7 +149,7 @@ const RefreshToken = AsyncHandler(async (req, res, next) => {
 
   console.log("[Refresh Token] Success - tokens refreshed for user:", updatedUser.email);
 
-  res.cookie("refreshToken", newRefreshToken, CookieOptions).status(200).json({
+  res.cookie("refreshToken", newRefreshToken, getCookieOptions(req)).status(200).json({
     success: true,
     message: "Tokens refreshed successfully",
     accessToken: newAccessToken,
@@ -233,9 +237,10 @@ async function issueSessionForUser(req, res, user) {
     await sendEmail(user.email, "welcome to our application", welcomeEmail).catch(() => {});
   }
 
-  res.cookie("refreshToken", refreshToken, CookieOptions);
+  res.cookie("refreshToken", refreshToken, getCookieOptions(req));
   return { accessToken, user: sanitizeUser(user) };
 }
+
 
 async function findOrCreateUserFromLinkedInPayload({ sub, email, name, picture }) {
   if (!email || !sub) {
