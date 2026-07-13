@@ -15,7 +15,8 @@ import blogRouter from "./router/blog.route.js";
 import notificationRouter from "./router/notification.route.js";
 
 const app = express();
-app.set("trust proxy", 1);
+app.set("trust proxy", true);
+
 
 const allowedOrigins = [
     process.env.FRONTEND_URL,

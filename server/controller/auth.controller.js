@@ -176,13 +176,8 @@ const LogoutUser = AsyncHandler(async (req, res, next) => {
 
 
 
-const googleOAuthStateCookie = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "none",
-  maxAge: 10 * 60 * 1000,
-  path: "/",
-};
+
+
 
 async function findOrCreateUserFromGooglePayload(payload) {
   if (!payload?.email || !payload?.sub) {
