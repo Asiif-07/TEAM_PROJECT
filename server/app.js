@@ -26,12 +26,18 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-    origin: true, // Reflects the origin of the request
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 200,
 }));
+
 
 const rateLimiter = limiter({
     windowMs: 15 * 60 * 1000,

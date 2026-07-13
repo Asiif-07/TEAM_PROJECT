@@ -55,10 +55,24 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // Avoid calling refresh-token on initial mount. Instead, refresh is triggered only when an API
-        // returns 401 (see `client/src/api/http.js`), preventing startup timing/proxy errors.
-        setLoading(false);
-    }, []);
+        // Try a silent refresh on initial mount when we don't already have an access token.
+        // This allows reloading the app without forcing the user to sign in again if a refresh
+        // cookie is present. If refresh fails, continue without blocking the UI.
+        let mounted = true;
+        (async () => {
+            try {
+                if (!accessToken) {
+                    setLoading(true);
+                    await refreshAccessToken();
+                }
+            } catch {
+                // ignore - user will remain unauthenticated
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        })();
+        return () => { mounted = false; };
+    }, [accessToken, refreshAccessToken]);
 
     const signup = useCallback(async (name, email, password, gender) => {
         try {
@@ -76,16 +90,49 @@ export const AuthProvider = ({ children }) => {
                 setAccessToken(data.accessToken);
                 localStorage.setItem("accessToken", data.accessToken);
             }
-            await refreshAccessToken();
+            if (data?.user) {
+                setUser(data.user);
+                localStorage.setItem("currentUser", JSON.stringify(data.user));
+            }
+            // Also try to refresh to get latest token + user from cookie (best-effort)
+            await refreshAccessToken().catch(() => { });
             return { success: true };
         } catch (err) {
             return { success: false, message: err?.message || "An error occurred during login." };
         }
     }, [refreshAccessToken]);
 
-    const loginWithGoogle = useCallback(async (credential) => {
+    const loginWithGoogle = useCallback(async (credentialOrPayload) => {
         try {
-            const data = await authApi.googleLogin({ credential });
+            // Accept either a plain credential string or an object { credential } / { code }
+            let payload;
+            if (typeof credentialOrPayload === "string") {
+                payload = { credential: credentialOrPayload };
+            } else if (typeof credentialOrPayload === "object" && credentialOrPayload !== null) {
+                payload = credentialOrPayload;
+            } else {
+                payload = {};
+            }
+
+            const data = await authApi.googleLogin(payload);
+            if (data?.accessToken) {
+                setAccessToken(data.accessToken);
+                localStorage.setItem("accessToken", data.accessToken);
+            }
+            if (data?.user) {
+                setUser(data.user);
+                localStorage.setItem("currentUser", JSON.stringify(data.user));
+            }
+            await refreshAccessToken().catch(() => { });
+            return { success: true };
+        } catch (err) {
+            return { success: false, message: err?.message || "Google sign-in failed." };
+        }
+    }, []);
+
+    const loginWithLinkedin = useCallback(async (code, redirect_uri) => {
+        try {
+            const data = await authApi.linkedinLogin({ code, redirect_uri });
             if (data?.accessToken) {
                 setAccessToken(data.accessToken);
                 localStorage.setItem("accessToken", data.accessToken);
@@ -96,7 +143,7 @@ export const AuthProvider = ({ children }) => {
             }
             return { success: true };
         } catch (err) {
-            return { success: false, message: err?.message || "Google sign-in failed." };
+            return { success: false, message: err?.message || "LinkedIn sign-in failed." };
         }
     }, []);
 
@@ -127,11 +174,14 @@ export const AuthProvider = ({ children }) => {
         refreshAccessToken,
         signup,
         login,
+        // Backwards-compatible alias expected by some components
+        googleLogin: loginWithGoogle,
         loginWithGoogle,
+        loginWithLinkedin,
         logout,
         loading,
         isAuthenticated: Boolean(accessToken),
-    }), [user, accessToken, loading, refreshAccessToken, signup, login, loginWithGoogle, logout]);
+    }), [user, accessToken, loading, refreshAccessToken, signup, login, loginWithGoogle, loginWithLinkedin, logout]);
 
     return (
         <AuthContext.Provider value={value}>

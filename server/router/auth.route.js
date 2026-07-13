@@ -5,10 +5,8 @@ import {
   RefreshToken,
   LogoutUser,
   GoogleLoginUser,
-  GoogleOAuthStart,
-  GoogleOAuthCallback,
-  LinkedInOAuthStart,
-  LinkedInOAuthCallback,
+  LinkedinStart,
+  LinkedinCallback,
 } from "../controller/auth.controller.js";
 import validate from "../middleWare/validate.js";
 import registerSchema from "../schemas/registerSchema.schema.js";
@@ -20,15 +18,13 @@ const authRouter = Router();
 
 authRouter.route("/register").post(authRegisterLimiter, validate(registerSchema), RegisterUser)
 authRouter.route("/login").post(authLoginLimiter, validate(LoginSchema), LoginUser)
-authRouter.get("/google/start", GoogleOAuthStart)
-authRouter.get("/google/callback", GoogleOAuthCallback)
-authRouter.route("/google").post(authLoginLimiter, validate(googleAuthSchema), GoogleLoginUser)
 
-authRouter.get("/linkedin/start", LinkedInOAuthStart)
-authRouter.get("/linkedin/callback", LinkedInOAuthCallback)
+authRouter.route("/google").post(authLoginLimiter, validate(googleAuthSchema), GoogleLoginUser)
+authRouter.route("/linkedin/start").get(LinkedinStart)
+authRouter.route("/linkedin/callback").get(LinkedinCallback)
+
 authRouter.route("/refresh-Token").post(RefreshToken)
 authRouter.route("/logout").post(LogoutUser)
 
-
-
 export default authRouter;
+

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const Signup = () => {
     const { t } = useTranslation();
@@ -14,7 +15,7 @@ const Signup = () => {
         gender: "male",
     });
 
-    const { signup } = useAuth();
+    const { signup, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -29,7 +30,6 @@ const Signup = () => {
             setSearchParams(next, { replace: true });
         }
     }, [searchParams, setSearchParams]);
-
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -78,6 +78,17 @@ const Signup = () => {
         setTimeout(() => navigate("/login", { state: { from: location.state?.from || "/" } }), 1200);
     };
 
+    const handleGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            const result = await loginWithGoogle({ access_token: tokenResponse.access_token });
+            if (result.success) {
+                navigate(location.state?.from || "/", { replace: true });
+            } else {
+                setError(result.message || "Google sign-in failed.");
+            }
+        },
+        onError: () => setError("Google sign-in failed. Please try again.")
+    });
     return (
         <Box
             className="bg-mesh"
@@ -92,7 +103,6 @@ const Signup = () => {
                 overflow: 'hidden'
             }}
         >
-            {/* Ambient Background Elements */}
             <Box sx={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%)' }} />
             <Box sx={{ position: 'absolute', bottom: -100, left: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, transparent 70%)' }} />
 
@@ -200,7 +210,6 @@ const Signup = () => {
                             }}
                         />
                     </Box>
-
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
                             {t("Email Address")}
@@ -227,7 +236,6 @@ const Signup = () => {
                             }}
                         />
                     </Box>
-
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <Box sx={{ flex: 1 }}>
                             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
@@ -282,10 +290,9 @@ const Signup = () => {
                             />
                         </Box>
                     </Box>
-
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                            Gender
+                            {t("Gender")}
                         </Typography>
                         <TextField
                             fullWidth
@@ -313,26 +320,26 @@ const Signup = () => {
                         </TextField>
                     </Box>
 
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        disabled={isSubmitting}
-                        sx={{
-                            bgcolor: "#111827",
-                            fontSize: "16px",
-                            fontWeight: 700,
-                            borderRadius: "16px",
-                            py: 2,
-                            mt: 1,
-                            textTransform: "none",
-                            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                            "&:hover": { bgcolor: "#1F2937", transform: 'translateY(-2px)' },
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        {isSubmitting ? t("Signing Up") : t("Create Elite Account")}
-                    </Button>
+                    <Box>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{
+                                bgcolor: "#111827",
+                                fontSize: "16px",
+                                fontWeight: 700,
+                                borderRadius: "16px",
+                                py: 2,
+                                textTransform: "none",
+                                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                                "&:hover": { bgcolor: "#1F2937", transform: 'translateY(-2px)' },
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            {isSubmitting ? t("Signing Up") : t("Create Elite Account")}
+                        </Button>
+                    </Box>
 
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
@@ -342,16 +349,17 @@ const Signup = () => {
 
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                         <Button
-                            component="a"
-                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/google/start`}
+                            type="button"
+                            onClick={() => handleGoogleLogin()}
+                            disabled={isSubmitting}
                             fullWidth
                             variant="outlined"
                             startIcon={
-                                <svg width="18" height="18" viewBox="0 0 18 18">
-                                    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285f4" />
-                                    <path d="M9 18c2.43 0 4.467-.806 5.956-2.184L12.048 13.558c-.824.551-1.879.878-3.048.878-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.34 18 9 18z" fill="#34a853" />
-                                    <path d="M3.964 10.725A5.456 5.456 0 013.682 9c0-.6.103-1.176.282-1.725V4.943H.957A8.996 8.996 0 000 9c0 1.451.347 2.822.957 4.032l3.007-2.307z" fill="#fbbc05" />
-                                    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.34 0 2.438 2.017.957 4.943L3.964 7.275C4.672 5.148 6.656 3.58 9 3.58z" fill="#ea4335" />
+                                <svg width="18" height="18" viewBox="0 0 48 48">
+                                    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z" />
+                                    <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                                    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.3 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8H6.1c3.4 6.5 10.2 11 17.9 11z" />
+                                    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.4 4.3-4.4 5.7l6.2 5.2C41 35 44 30 44 24c0-1.2-.1-2.4-.4-3.5z" />
                                 </svg>
                             }
                             sx={{
@@ -361,7 +369,6 @@ const Signup = () => {
                                 fontWeight: 600,
                                 borderColor: "rgba(0,0,0,0.12)",
                                 color: "#374151",
-                                textDecoration: "none",
                                 gap: 1
                             }}
                         >
@@ -370,6 +377,7 @@ const Signup = () => {
                         <Button
                             component="a"
                             href={`${import.meta.env.VITE_API_BASE_URL}/auth/linkedin/start`}
+                            disabled={isSubmitting}
                             fullWidth
                             variant="outlined"
                             startIcon={
@@ -395,7 +403,7 @@ const Signup = () => {
 
                 <Box sx={{ textAlign: "center" }}>
                     <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500 }}>
-                        {t("Already have an account?")}{" "}
+                        {t("Already have an account?")} {" "}
                         <Box
                             component={Link}
                             to="/login"
