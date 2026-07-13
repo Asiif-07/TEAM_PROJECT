@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
     const { t } = useTranslation();
@@ -41,14 +41,17 @@ const Login = () => {
         }
     };
 
-    const handleGoogleSuccess = async (credentialResponse) => {
-        const result = await loginWithGoogle(credentialResponse.credential);
-        if (result.success) {
-            navigate(from, { replace: true });
-        } else {
-            setError(result.message);
-        }
-    };
+    const handleGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            const result = await loginWithGoogle({ access_token: tokenResponse.access_token });
+            if (result.success) {
+                navigate(from, { replace: true });
+            } else {
+                setError(result.message || "Google sign-in failed.");
+            }
+        },
+        onError: () => setError("Google sign-in failed. Please try again.")
+    });
 
 
     return (
@@ -227,14 +230,31 @@ const Login = () => {
                     </Box>
 
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                        <Box sx={{ display: "flex", justifyContent: "center" }}>
-                            <GoogleLogin
-                                onSuccess={handleGoogleSuccess}
-                                onError={() => setError("Google sign-in failed.")}
-                                theme="outline"
-                                size="large"
-                            />
-                        </Box>
+                        <Button
+                            onClick={() => handleGoogleLogin()}
+                            type="button"
+                            fullWidth
+                            variant="outlined"
+                            startIcon={
+                                <svg width="18" height="18" viewBox="0 0 48 48">
+                                    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z" />
+                                    <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                                    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.3 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8H6.1c3.4 6.5 10.2 11 17.9 11z" />
+                                    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.4 4.3-4.4 5.7l6.2 5.2C41 35 44 30 44 24c0-1.2-.1-2.4-.4-3.5z" />
+                                </svg>
+                            }
+                            sx={{
+                                py: 1.5,
+                                borderRadius: "12px",
+                                textTransform: "none",
+                                fontWeight: 600,
+                                borderColor: "rgba(0,0,0,0.12)",
+                                color: "#374151",
+                                gap: 1
+                            }}
+                        >
+                            Continue with Google
+                        </Button>
                         <Button
                             component="a"
                             href={`${import.meta.env.VITE_API_BASE_URL}/auth/linkedin/start`}
