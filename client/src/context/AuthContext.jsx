@@ -63,6 +63,7 @@ export const AuthProvider = ({ children }) => {
             try {
                 if (!accessToken) {
                     setLoading(true);
+                    // Best-effort refresh cookie read; never block UI.
                     await refreshAccessToken();
                 }
             } catch {
