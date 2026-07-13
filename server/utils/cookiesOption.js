@@ -7,7 +7,9 @@ function getCookieOptions(req) {
     const proto = req?.headers?.["x-forwarded-proto"];
     const protocol = Array.isArray(proto) ? proto[0] : proto;
 
-    const isSecure = req?.secure === true || protocol === "https";
+    // If we're in production and can't reliably detect protocol, default to secure cookies.
+    const isSecure = req?.secure === true || protocol === "https" || (isProduction && !protocol);
+
 
     return {
         httpOnly: true,
