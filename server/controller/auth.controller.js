@@ -163,11 +163,12 @@ const LogoutUser = AsyncHandler(async (req, res, next) => {
     );
   }
 
-  res.clearCookie("refreshToken", CookieOptions).status(200).json({
+  res.clearCookie("refreshToken", { path: "/" }).status(200).json({
     success: true,
     message: "User logged out successfully",
   });
 })
+
 
 
 
