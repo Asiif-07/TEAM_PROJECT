@@ -22,14 +22,17 @@ const allowedOrigins = [
     process.env.CLIENT_URL,
     process.env.APP_URL,
     "https://carrerforge.vercel.app", // Explicit fallback
-
 ].filter(Boolean);
+
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, curl, server-to-server)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) return callback(null, true);
+        // Explicitly allow Vercel frontend even if env vars are missing/mismatched.
+        if (origin === "https://carrerforge.vercel.app") return callback(null, true);
+
         return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
