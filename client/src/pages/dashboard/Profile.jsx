@@ -5,13 +5,12 @@ import { FileText, User, Mail, Calendar, Camera, XCircle, Lock, ChevronDown, Che
 import { Link, useSearchParams } from "react-router-dom";
 import { updateProfilePic, updateEmail, changePassword } from "../../api/user";
 import { verifySession, cancelSubscription } from "../../api/stripe";
-import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 
 export default function Profile() {
     const { t } = useTranslation();
-    const { user, setUser, accessToken, refreshAccessToken, loginWithGoogle } = useAuth();
+    const { user, setUser, accessToken, refreshAccessToken } = useAuth();
     const [uploading, setUploading] = useState(false);
     const [verifying, setVerifying] = useState(false);
     const [canceling, setCanceling] = useState(false);
@@ -25,19 +24,6 @@ export default function Profile() {
     const [updatingEmail, setUpdatingEmail] = useState(false);
     const [updatingPassword, setUpdatingPassword] = useState(false);
 
-    const handleGoogleSuccess = async (credentialResponse) => {
-        try {
-            const result = await loginWithGoogle(credentialResponse.credential);
-            if (result && result.success) {
-                toast.success("Google account linked successfully!");
-                refreshAccessToken();
-            } else {
-                toast.error("Failed to link Google account");
-            }
-        } catch {
-            toast.error("Something went wrong");
-        }
-    };
 
     useEffect(() => {
         const sessionId = searchParams.get("session_id");
@@ -179,20 +165,55 @@ export default function Profile() {
     }
 
     return (
-        <Box sx={{ minHeight: "100vh", py: 12, bgcolor: "#F8FAF8" }} className="bg-mesh">
-            <Container maxWidth="sm">
-                <Paper elevation={0} sx={{ p: { xs: 4, md: 6 }, borderRadius: "24px", border: "1px solid #E5E7EB", textAlign: "center" }}>
-                    <Box sx={{ position: "relative", width: 120, height: 120, mx: "auto", mb: 3 }}>
+        <Box sx={{ minHeight: "100vh", position: "relative", py: { xs: 8, md: 12 }, overflow: "hidden" }} className="bg-mesh">
+            {/* Ambient Background Orbs */}
+            <Box sx={{ position: "absolute", top: "-10%", left: "-10%", width: "50vw", height: "50vw", background: "radial-gradient(circle, rgba(66,133,244,0.1) 0%, rgba(255,255,255,0) 70%)", borderRadius: "50%", zIndex: 0 }} />
+            <Box sx={{ position: "absolute", bottom: "-10%", right: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(16,185,129,0.08) 0%, rgba(255,255,255,0) 70%)", borderRadius: "50%", zIndex: 0 }} />
+            <Box sx={{ position: "absolute", top: "40%", left: "60%", width: "30vw", height: "30vw", background: "radial-gradient(circle, rgba(236,72,153,0.06) 0%, rgba(255,255,255,0) 70%)", borderRadius: "50%", zIndex: 0 }} />
+
+            <Container maxWidth="sm" sx={{ position: "relative", zIndex: 1 }}>
+                <Paper elevation={0} sx={{
+                    p: { xs: 4, md: 5 },
+                    borderRadius: "32px",
+                    background: "rgba(255, 255, 255, 0.65)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    boxShadow: "0 24px 64px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.6)",
+                    textAlign: "center"
+                }}>
+
+                    {/* Animated Gradient Avatar */}
+                    <Box sx={{ position: "relative", width: 140, height: 140, mx: "auto", mb: 4 }}>
+                        <Box sx={{
+                            position: "absolute", top: -4, left: -4, right: -4, bottom: -4,
+                            background: "linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #FFBE0B)",
+                            backgroundSize: "400% 400%",
+                            animation: "gradientBG 10s ease infinite",
+                            borderRadius: "50%",
+                            zIndex: 0
+                        }}>
+                            <style>
+                                {`
+                                @keyframes gradientBG {
+                                    0% { background-position: 0% 50%; }
+                                    50% { background-position: 100% 50%; }
+                                    100% { background-position: 0% 50%; }
+                                }
+                                `}
+                            </style>
+                        </Box>
+
                         <Avatar
                             src={user.profileImage?.secure_url}
                             sx={{
-                                width: 120,
-                                height: 120,
-                                bgcolor: "#2563EB",
-                                fontSize: "48px",
-                                fontWeight: 700,
-                                border: "4px solid #fff",
-                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                                width: 140, height: 140,
+                                bgcolor: "#111827",
+                                fontSize: "56px",
+                                fontWeight: 800,
+                                border: "4px solid #ffffff",
+                                position: "relative",
+                                zIndex: 1,
+                                boxShadow: "0 8px 24px rgba(0,0,0,0.15)"
                             }}
                         >
                             {!user.profileImage?.secure_url && user.name?.charAt(0).toUpperCase()}
@@ -210,36 +231,42 @@ export default function Profile() {
                             onClick={() => fileInputRef.current.click()}
                             disabled={uploading}
                             sx={{
-                                position: "absolute",
-                                bottom: 0,
-                                right: 0,
-                                bgcolor: "#111827",
-                                color: "white",
-                                p: 1,
-                                "&:hover": { bgcolor: "#374151" },
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+                                position: "absolute", bottom: 4, right: 4,
+                                bgcolor: "#111827", color: "white", p: 1.2,
+                                zIndex: 2,
+                                transition: "all 0.3s ease",
+                                "&:hover": { bgcolor: "#374151", transform: "scale(1.1)" },
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
                             }}
                         >
-                            {uploading ? <CircularProgress size={20} color="inherit" /> : <Camera size={18} />}
+                            {uploading ? <CircularProgress size={20} color="inherit" /> : <Camera size={20} />}
                         </IconButton>
                     </Box>
 
-                    <Typography variant="h4" fontWeight="900" color="#111827" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                    {/* Header Info */}
+                    <Typography variant="h4" fontWeight="800" color="#111827" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, letterSpacing: "-0.5px" }}>
                         {user.name}
                     </Typography>
-                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, mb: 4, mt: 1 }}>
+
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, mb: 5, mt: 1.5 }}>
                         <Typography variant="body2" sx={{
-                            bgcolor: user.subscriptionStatus === "active" ? "#10B98120" : "#E5E7EB",
-                            color: user.subscriptionStatus === "active" ? "#059669" : "#6B7280",
-                            px: 1.5,
-                            py: 0.5,
+                            background: user.subscriptionStatus === "active"
+                                ? "linear-gradient(90deg, #F59E0B, #EF4444, #EC4899)"
+                                : "#E5E7EB",
+                            color: user.subscriptionStatus === "active" ? "#ffffff" : "#6B7280",
+                            px: 2, py: 0.6,
                             borderRadius: "100px",
-                            fontWeight: "bold",
+                            fontWeight: "800",
                             fontSize: "12px",
+                            letterSpacing: "0.5px",
+                            textTransform: "uppercase",
                             display: "inline-flex",
-                            alignItems: "center"
+                            alignItems: "center",
+                            boxShadow: user.subscriptionStatus === "active" ? "0 4px 14px rgba(239, 68, 68, 0.4)" : "none",
+                            transition: "all 0.3s ease",
+                            "&:hover": { transform: "translateY(-1px)", boxShadow: user.subscriptionStatus === "active" ? "0 6px 20px rgba(239, 68, 68, 0.5)" : "none" }
                         }}>
-                            {user.subscriptionStatus === "active" ? `🌟 ${t("Premium Member")}` : t("Free Plan")}
+                            {user.subscriptionStatus === "active" ? `👑 ${t("Premium Member")}` : t("Free Plan")}
                         </Typography>
 
                         {user.subscriptionStatus === "active" && (
@@ -249,201 +276,122 @@ export default function Profile() {
                                 color="error"
                                 size="small"
                                 startIcon={canceling ? <CircularProgress size={12} color="inherit" /> : <XCircle size={14} />}
-                                sx={{ textTransform: 'none', fontSize: '11px', fontWeight: 600, mt: 0.5, opacity: 0.8, borderRadius: '8px' }}>
+                                sx={{ textTransform: 'none', fontSize: '11px', fontWeight: 600, mt: 0.5, opacity: 0.6, "&:hover": { opacity: 1, backgroundColor: "rgba(239, 68, 68, 0.08)" }, borderRadius: '8px', px: 1.5 }}
+                            >
                                 {canceling ? t("Canceling...") : t("Cancel Premium")}
                             </Button>
                         )}
                     </Box>
 
-                    <Divider sx={{ mb: 4 }} />
+                    <Divider sx={{ mb: 4, borderColor: "rgba(0,0,0,0.06)" }} />
 
+                    {/* Data List container */}
                     <Box sx={{ textAlign: "left", mb: 4 }}>
                         {/* Email Row */}
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                <Mail size={20} color="#6B7280" />
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1, p: 2, borderRadius: "16px", transition: "all 0.3s ease", "&:hover": { background: "rgba(255, 255, 255, 0.8)", transform: "translateX(4px)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" } }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 2.5 }}>
+                                <Box sx={{ p: 1.2, borderRadius: "12px", background: "rgba(37, 99, 235, 0.1)", color: "#2563EB" }}>
+                                    <Mail size={20} />
+                                </Box>
                                 <Box>
-                                    <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Email Address")}</Typography>
-                                    <Typography variant="body1" fontWeight="600">{user.email}</Typography>
+                                    <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>{t("Email Address")}</Typography>
+                                    <Typography variant="body1" fontWeight="700" color="#1F2937">{user.email}</Typography>
                                 </Box>
                             </Box>
-                            <Button
-                                size="small"
-                                onClick={() => setShowEmailForm(!showEmailForm)}
-                                sx={{ textTransform: "none", fontSize: "12px", borderRadius: "8px", color: "#2563EB" }}
-                                endIcon={showEmailForm ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                            >
+                            <Button size="small" onClick={() => setShowEmailForm(!showEmailForm)} sx={{ textTransform: "none", fontSize: "12px", fontWeight: 600, borderRadius: "20px", color: "#2563EB", bgcolor: "rgba(37, 99, 235, 0.05)", px: 2 }} endIcon={showEmailForm ? <ChevronUp size={14} /> : <ChevronDown size={14} />}>
                                 {t("Edit")}
                             </Button>
                         </Box>
 
                         <Collapse in={showEmailForm}>
-                            <Box component="form" onSubmit={handleUpdateEmail} sx={{ mb: 4, mt: -1, p: 2, bgcolor: "#F9FAFB", borderRadius: "12px", border: "1px solid #E5E7EB" }}>
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    type="email"
-                                    placeholder={t("Enter new email")}
-                                    value={emailData.email}
-                                    onChange={(e) => setEmailData({ email: e.target.value })}
-                                    sx={{
-                                        mb: 2,
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: "8px",
-                                            bgcolor: "#fff"
-                                        }
-                                    }}
+                            <Box component="form" onSubmit={handleUpdateEmail} sx={{ mb: 3, ml: 2, mr: 2, p: 2.5, background: "rgba(255,255,255,0.9)", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" }}>
+                                <TextField fullWidth size="small" type="email" placeholder={t("Enter new email")} value={emailData.email} onChange={(e) => setEmailData({ email: e.target.value })}
+                                    sx={{ mb: 2, "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "#fff", transition: "all 0.2s", "&:focus-within": { boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.1)" } } }}
                                 />
-                                <Button
-                                    fullWidth
-                                    type="submit"
-                                    variant="contained"
-                                    disabled={updatingEmail}
-                                    sx={{ borderRadius: "8px", bgcolor: "#111827", textTransform: "none", py: 1 }}
-                                >
+                                <Button fullWidth type="submit" variant="contained" disabled={updatingEmail} sx={{ borderRadius: "10px", bgcolor: "#111827", textTransform: "none", py: 1.2, fontWeight: 700, boxShadow: "0 4px 12px rgba(17, 24, 39, 0.2)", "&:hover": { bgcolor: "#1F2937" } }}>
                                     {updatingEmail ? <CircularProgress size={20} color="inherit" /> : t("Update Email")}
                                 </Button>
                             </Box>
                         </Collapse>
 
                         {/* Password Row */}
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                <Lock size={20} color="#6B7280" />
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1, p: 2, borderRadius: "16px", transition: "all 0.3s ease", "&:hover": { background: "rgba(255, 255, 255, 0.8)", transform: "translateX(4px)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" } }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 2.5 }}>
+                                <Box sx={{ p: 1.2, borderRadius: "12px", background: "rgba(239, 68, 68, 0.1)", color: "#EF4444" }}>
+                                    <Lock size={20} />
+                                </Box>
                                 <Box>
-                                    <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Password")}</Typography>
-                                    <Typography variant="body1" fontWeight="600">••••••••</Typography>
+                                    <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>{t("Password")}</Typography>
+                                    <Typography variant="body1" fontWeight="800" sx={{ letterSpacing: "2px" }} color="#1F2937">••••••••</Typography>
                                 </Box>
                             </Box>
-                            <Button
-                                size="small"
-                                onClick={() => setShowPasswordForm(!showPasswordForm)}
-                                sx={{ textTransform: "none", fontSize: "12px", borderRadius: "8px", color: "#2563EB" }}
-                                endIcon={showPasswordForm ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                            >
+                            <Button size="small" onClick={() => setShowPasswordForm(!showPasswordForm)} sx={{ textTransform: "none", fontSize: "12px", fontWeight: 600, borderRadius: "20px", color: "#EF4444", bgcolor: "rgba(239, 68, 68, 0.05)", px: 2 }} endIcon={showPasswordForm ? <ChevronUp size={14} /> : <ChevronDown size={14} />}>
                                 {t("Change")}
                             </Button>
                         </Box>
 
                         <Collapse in={showPasswordForm}>
-                            <Box component="form" onSubmit={handleUpdatePassword} sx={{ mb: 4, mt: -1, p: 2, bgcolor: "#F9FAFB", borderRadius: "12px", border: "1px solid #E5E7EB" }}>
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    type="password"
-                                    placeholder={t("Current Password")}
-                                    value={passwordData.oldPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                                    sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: "8px", bgcolor: "#fff" } }}
+                            <Box component="form" onSubmit={handleUpdatePassword} sx={{ mb: 3, ml: 2, mr: 2, p: 2.5, background: "rgba(255,255,255,0.9)", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" }}>
+                                <TextField fullWidth size="small" type="password" placeholder={t("Current Password")} value={passwordData.oldPassword} onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                                    sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "#fff", transition: "all 0.2s", "&:focus-within": { boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.1)" } } }}
                                 />
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    type="password"
-                                    placeholder={t("New Password")}
-                                    value={passwordData.newPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: "8px", bgcolor: "#fff" } }}
+                                <TextField fullWidth size="small" type="password" placeholder={t("New Password")} value={passwordData.newPassword} onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                    sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "#fff", transition: "all 0.2s", "&:focus-within": { boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.1)" } } }}
                                 />
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    type="password"
-                                    placeholder={t("Confirm New Password")}
-                                    value={passwordData.confirmPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    sx={{ mb: 2, "& .MuiOutlinedInput-root": { borderRadius: "8px", bgcolor: "#fff" } }}
+                                <TextField fullWidth size="small" type="password" placeholder={t("Confirm New Password")} value={passwordData.confirmPassword} onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                    sx={{ mb: 2.5, "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "#fff", transition: "all 0.2s", "&:focus-within": { boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.1)" } } }}
                                 />
-                                <Button
-                                    fullWidth
-                                    type="submit"
-                                    variant="contained"
-                                    disabled={updatingPassword}
-                                    sx={{ borderRadius: "8px", bgcolor: "#111827", textTransform: "none", py: 1 }}
-                                >
+                                <Button fullWidth type="submit" variant="contained" disabled={updatingPassword} sx={{ borderRadius: "10px", bgcolor: "#EF4444", textTransform: "none", py: 1.2, fontWeight: 700, boxShadow: "0 4px 12px rgba(239, 68, 68, 0.2)", "&:hover": { bgcolor: "#DC2626" } }}>
                                     {updatingPassword ? <CircularProgress size={20} color="inherit" /> : t("Change Password")}
                                 </Button>
                             </Box>
                         </Collapse>
 
                         {/* Username Row */}
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-                            <User size={20} color="#6B7280" />
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, mb: 1, p: 2, borderRadius: "16px", transition: "all 0.3s ease", "&:hover": { background: "rgba(255, 255, 255, 0.8)", transform: "translateX(4px)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" } }}>
+                            <Box sx={{ p: 1.2, borderRadius: "12px", background: "rgba(16, 185, 129, 0.1)", color: "#10B981" }}>
+                                <User size={20} />
+                            </Box>
                             <Box>
-                                <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Username")}</Typography>
-                                <Typography variant="body1" fontWeight="600">{user.username || user.email.split("@")[0]}</Typography>
+                                <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>{t("Username")}</Typography>
+                                <Typography variant="body1" fontWeight="700" color="#1F2937">@{user.username || user.email.split("@")[0]}</Typography>
                             </Box>
                         </Box>
 
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-                            <Calendar size={20} color="#6B7280" />
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, mb: 1, p: 2, borderRadius: "16px", transition: "all 0.3s ease", "&:hover": { background: "rgba(255, 255, 255, 0.8)", transform: "translateX(4px)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" } }}>
+                            <Box sx={{ p: 1.2, borderRadius: "12px", background: "rgba(139, 92, 246, 0.1)", color: "#8B5CF6" }}>
+                                <Calendar size={20} />
+                            </Box>
                             <Box>
-                                <Typography variant="caption" color="textSecondary" fontWeight="bold">{t("Member Since")}</Typography>
-                                <Typography variant="body1" fontWeight="600">
-                                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Active Member"}
+                                <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>{t("Member Since")}</Typography>
+                                <Typography variant="body1" fontWeight="700" color="#1F2937">
+                                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : "Active Member"}
                                 </Typography>
                             </Box>
                         </Box>
 
-                        {/* Linked Accounts */}
-                        <Typography variant="overline" sx={{ mt: 2, mb: 1.5, display: 'block', color: '#9CA3AF', fontWeight: 800 }}>Linked Accounts</Typography>
-                        <Box sx={{ display: "flex", flexWrap: 'wrap', gap: 2 }}>
-                            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid #E5E7EB', borderRadius: '12px', bgcolor: user.googleId ? '#F0FDF4' : 'transparent', opacity: user.googleId ? 1 : 0.6 }}>
-                                <svg width="20" height="20" viewBox="0 0 18 18">
-                                    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285f4" />
-                                    <path d="M9 18c2.43 0 4.467-.806 5.956-2.184L12.048 13.558c-.824.551-1.879.878-3.048.878-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.34 18 9 18z" fill="#34a853" />
-                                    <path d="M3.964 10.725A5.456 5.456 0 013.682 9c0-.6.103-1.176.282-1.725V4.943H.957A8.996 8.996 0 000 9c0 1.451.347 2.822.957 4.032l3.007-2.307z" fill="#fbbc05" />
-                                    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.34 0 2.438 2.017.957 4.943L3.964 7.275C4.672 5.148 6.656 3.58 9 3.58z" fill="#ea4335" />
-                                </svg>
-                                <Box sx={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <Box>
-                                        <Typography variant="body2" fontWeight="700">Google</Typography>
-                                        <Typography variant="caption" sx={{ color: user.googleId ? '#15803D' : '#9CA3AF' }}>{user.googleId ? "Connected" : "Not Linked"}</Typography>
-                                    </Box>
-                                    {!user.googleId && (
-                                        <Box sx={{ transform: "scale(0.8)", transformOrigin: "right" }}>
-                                            <GoogleLogin
-                                                onSuccess={handleGoogleSuccess}
-                                                onError={() => toast.error("Google sign-in failed.")}
-                                                theme="outline"
-                                                size="medium"
-                                                type="standard"
-                                                width="120"
-                                            />
-                                        </Box>
-                                    )}
-                                </Box>
-                            </Box>
-
-                            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid #E5E7EB', borderRadius: '12px', bgcolor: user.linkedinId ? '#F0F9FF' : 'transparent', opacity: user.linkedinId ? 1 : 0.6 }}>
-                                <Linkedin size={20} color="#0077b5" />
-                                <Box sx={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <Box>
-                                        <Typography variant="body2" fontWeight="700">LinkedIn</Typography>
-                                        <Typography variant="caption" sx={{ color: user.linkedinId ? '#0369A1' : '#9CA3AF' }}>{user.linkedinId ? "Connected" : "Not Linked"}</Typography>
-                                    </Box>
-                                    {!user.linkedinId && (
-                                        <Button
-                                            component="a"
-                                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/linkedin/start`}
-                                            variant="outlined"
-                                            size="small"
-                                            sx={{ textTransform: "none", borderRadius: "8px", borderColor: "#0077b5", color: "#0077b5", px: 2 }}
-                                        >
-                                            Link Account
-                                        </Button>
-                                    )}
-                                </Box>
-                            </Box>
-                        </Box>
                     </Box>
 
-                    <Divider sx={{ mb: 4 }} />
+                    <Divider sx={{ mb: 4, borderColor: "rgba(0,0,0,0.06)" }} />
 
                     {/* Action Buttons */}
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                         <Link to="/my-cvs" style={{ textDecoration: "none" }}>
-                            <Button variant="contained" fullWidth startIcon={<FileText size={18} />} sx={{ py: 1.2, borderRadius: "12px", textTransform: "none", fontWeight: 700, bgcolor: "#111827" }}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                startIcon={<FileText size={18} />}
+                                sx={{
+                                    py: 1.5,
+                                    borderRadius: "14px",
+                                    textTransform: "none",
+                                    fontWeight: 700,
+                                    background: "linear-gradient(45deg, #111827, #374151)",
+                                    boxShadow: "0 8px 16px rgba(17, 24, 39, 0.2)",
+                                    "&:hover": { transform: "translateY(-2px)", boxShadow: "0 12px 20px rgba(17, 24, 39, 0.3)", background: "linear-gradient(45deg, #000000, #1F2937)" },
+                                    transition: "all 0.3s ease"
+                                }}
+                            >
                                 {t("My CV Dashboard")}
                             </Button>
                         </Link>

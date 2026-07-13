@@ -123,6 +123,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(data.user);
                 localStorage.setItem("currentUser", JSON.stringify(data.user));
             }
+            await refreshAccessToken().catch(() => { });
             return { success: true };
         } catch (err) {
             return { success: false, message: err?.message || "Google sign-in failed." };
