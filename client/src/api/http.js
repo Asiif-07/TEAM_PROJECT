@@ -45,10 +45,14 @@ export async function apiRequest(path, options = {}) {
   const data = await readJsonSafe(res);
 
   if (!res.ok) {
-    let message = data?.message || data?.error || `Error ${res.status}`;
+    let message = data?.message || data?.error;
 
-    // Simple sanitization for a cleaner UI
-    message = message.replace(/\[.*?\]/g, "").trim() || "Something went wrong. Please try again.";
+    // Also handle zod validation error format: { errors: { field: "message" } }
+    if (!message && data?.errors && typeof data.errors === "object") {
+      message = Object.values(data.errors).join(", ");
+    }
+
+    message = (message || `Error ${res.status}`).replace(/\[.*?\]/g, "").trim() || "Something went wrong. Please try again.";
 
     if (showToast) toast.error(message);
     const err = new Error(message);

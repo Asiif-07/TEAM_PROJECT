@@ -1,9 +1,8 @@
-import { Box, Button, TextField, Typography, Paper, Fade, MenuItem } from "@mui/material";
+﻿import { Box, Button, TextField, Typography, Paper, Fade, MenuItem } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useGoogleLogin } from "@react-oauth/google";
 
 const Signup = () => {
     const { t } = useTranslation();
@@ -15,15 +14,13 @@ const Signup = () => {
         gender: "male",
     });
 
-    const { signup, loginWithGoogle } = useAuth();
+    const { signup } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from || "/";
     const [searchParams, setSearchParams] = useSearchParams();
     const [error, setError] = useState(() => searchParams.get("oauth_error") || "");
     const [successMessage, setSuccessMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [googleLoading, setGoogleLoading] = useState(false);
 
     useEffect(() => {
         if (searchParams.has("oauth_error")) {
@@ -33,29 +30,11 @@ const Signup = () => {
         }
     }, [searchParams, setSearchParams]);
 
-
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         setError("");
         setSuccessMessage("");
     };
-
-    const googleSignIn = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            setGoogleLoading(true);
-            const result = await loginWithGoogle(tokenResponse.credential);
-            setGoogleLoading(false);
-            if (result.success) {
-                navigate(from, { replace: true });
-            } else {
-                setError(result.message);
-            }
-        },
-        onError: () => {
-            setGoogleLoading(false);
-            setError("Google sign-in failed. Please try again.");
-        },
-    });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -112,7 +91,6 @@ const Signup = () => {
                 overflow: 'hidden'
             }}
         >
-            {/* Ambient Background Elements */}
             <Box sx={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%)' }} />
             <Box sx={{ position: 'absolute', bottom: -100, left: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, transparent 70%)' }} />
 
@@ -220,7 +198,6 @@ const Signup = () => {
                             }}
                         />
                     </Box>
-
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
                             {t("Email Address")}
@@ -247,7 +224,6 @@ const Signup = () => {
                             }}
                         />
                     </Box>
-
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <Box sx={{ flex: 1 }}>
                             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
@@ -302,10 +278,9 @@ const Signup = () => {
                             />
                         </Box>
                     </Box>
-
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#374151' }}>
-                            Gender
+                            {t("Gender")}
                         </Typography>
                         <TextField
                             fullWidth
@@ -333,26 +308,26 @@ const Signup = () => {
                         </TextField>
                     </Box>
 
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        disabled={isSubmitting}
-                        sx={{
-                            bgcolor: "#111827",
-                            fontSize: "16px",
-                            fontWeight: 700,
-                            borderRadius: "16px",
-                            py: 2,
-                            mt: 1,
-                            textTransform: "none",
-                            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                            "&:hover": { bgcolor: "#1F2937", transform: 'translateY(-2px)' },
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        {isSubmitting ? t("Signing Up") : t("Create Elite Account")}
-                    </Button>
+                    <Box>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{
+                                bgcolor: "#111827",
+                                fontSize: "16px",
+                                fontWeight: 700,
+                                borderRadius: "16px",
+                                py: 2,
+                                textTransform: "none",
+                                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                                "&:hover": { bgcolor: "#1F2937", transform: 'translateY(-2px)' },
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            {isSubmitting ? t("Signing Up") : t("Create Elite Account")}
+                        </Button>
+                    </Box>
 
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(0,0,0,0.05)" }} />
@@ -362,8 +337,9 @@ const Signup = () => {
 
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                         <Button
-                            onClick={() => googleSignIn()}
-                            disabled={googleLoading}
+                            component="a"
+                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/google/start`}
+                            disabled={isSubmitting}
                             fullWidth
                             variant="outlined"
                             startIcon={
@@ -384,7 +360,7 @@ const Signup = () => {
                                 gap: 1
                             }}
                         >
-                            {googleLoading ? "Signing in..." : "Continue with Google"}
+                            {t("Continue with Google")}
                         </Button>
                         <Button
                             component="a"
@@ -414,7 +390,7 @@ const Signup = () => {
 
                 <Box sx={{ textAlign: "center" }}>
                     <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500 }}>
-                        {t("Already have an account?")}{" "}
+                        {t("Already have an account?")} {" "}
                         <Box
                             component={Link}
                             to="/login"

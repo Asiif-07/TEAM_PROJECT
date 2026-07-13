@@ -1,14 +1,19 @@
 import crypto from "crypto";
+import { OAuth2Client } from "google-auth-library";
+
+// OAuth (Google only) + traditional auth flows.
+
+
 import AsyncHandler from '../handler/AsyncHandler.js'
 import User from '../model/user.model.js'
 import CustomError from '../handler/CustomError.js'
 import { generateAccessToken, generateRefreshToken } from "../utils/genrateAccessToken.js"
 import { CookieOptions } from '../utils/cookiesOption.js'
 import jwt from 'jsonwebtoken'
-import { OAuth2Client } from "google-auth-library"
 import { welcomeEmailTemplate } from "../template/registration.js"
 import sendEmail from "../utils/sendMail.js"
 import sanitizeUser from "../utils/sanitizeUser.js"
+
 
 const getAppUrlFromRequest = (req) => {
   const origin = req?.headers?.origin;
@@ -56,256 +61,7 @@ const RegisterUser = AsyncHandler(async (req, res, next) => {
 
 })
 
-const googleClient = process.env.GOOGLE_CLIENT_ID
-  ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
-  : null;
 
-const GOOGLE_CALLBACK_URI = process.env.CALLBACK_URL || "https://team-project-qa0v.onrender.com/api/v1/auth/google/callback";
-const  FRONTEND_BASE = process.env.CLIENT_URL || process.env.FRONTEND_URL || process.env.APP_URL || "https://carrerforge.vercel.app";
-
-const googleOAuthStateCookie = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: 10 * 60 * 1000,
-  path: "/",
-  domain: process.env.COOKIE_DOMAIN || undefined,
-};
-
-const clearOAuthCookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  path: "/",
-  domain: process.env.COOKIE_DOMAIN || undefined,
-};
-
-function getOAuth2ClientForRedirect() {
-  const id = process.env.GOOGLE_CLIENT_ID;
-  const secret = process.env.GOOGLE_CLIENT_SECRET;
-  if (!id || !secret) return null;
-  return new OAuth2Client(id, secret, GOOGLE_CALLBACK_URI);
-}
-
-const appBaseUrl = () => FRONTEND_BASE;
-
-async function findOrCreateUserFromGooglePayload(payload) {
-  if (!payload?.email || !payload?.sub) {
-    throw new CustomError(400, "Invalid Google account data");
-  }
-  const email = String(payload.email).toLowerCase().trim();
-  const googleName = payload.name || email.split("@")[0];
-  const googlePicture = payload.picture || "";
-
-  let user = await User.findOne({ $or: [{ googleId: payload.sub }, { email }] });
-
-  if (!user) {
-    // Return a new (not yet saved) instance
-    return new User({
-      name: googleName,
-      email,
-      googleId: payload.sub,
-      gender: "other",
-      profileImage: {
-        secure_url: googlePicture,
-        public_id: ""
-      }
-    });
-  }
-
-  if (user.googleId && user.googleId !== payload.sub) {
-    throw new CustomError(403, "This email is already linked to a different Google account");
-  }
-
-  // Update in-memory only; caller (issueSessionForUser) will save the final state
-  if (!user.googleId) {
-    user.googleId = payload.sub;
-  }
-  if (!user.name || user.name === "hi" || user.name === "Hi" || user.name === email.split("@")[0]) {
-    user.name = googleName;
-  }
-  if (!user.profileImage?.secure_url && googlePicture) {
-    user.profileImage = {
-      secure_url: googlePicture,
-      public_id: ""
-    };
-  }
-
-  return user;
-}
-
-async function issueSessionForUser(req, res, user) {
-  const isNewUser = user.isNew;
-  const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
-  user.refreshToken = [{ token: refreshToken, createdAt: Date.now() }];
-  await user.save({ validateBeforeSave: false });
-
-  if (isNewUser) {
-    const appUrl = getAppUrlFromRequest(req);
-    const welcomeEmail = welcomeEmailTemplate(user.name, user.email, appUrl);
-    console.log(`[AUTH] Sending welcome email to ${user.email} for Google OAuth signup...`);
-    // Await email sending to guarantee completion
-    await sendEmail(user.email, "welcome to our application", welcomeEmail)
-      .then(() => console.log(`[AUTH] Google welcome email sent for ${user.email}`))
-      .catch((error) => console.error("[AUTH] Google welcome email failed:", error?.message || error));
-  }
-
-  res.cookie("refreshToken", refreshToken, CookieOptions);
-  return { accessToken, user: sanitizeUser(user) };
-}
-
-const GoogleOAuthStart = AsyncHandler(async (req, res, next) => {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-    return next(new CustomError(503, "Google OAuth is not configured."));
-  }
-
-  const state = crypto.randomBytes(24).toString("hex");
-  res.cookie("google_oauth_state", state, googleOAuthStateCookie);
-
-  const params = new URLSearchParams({
-    client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: GOOGLE_CALLBACK_URI,
-    response_type: "code",
-    scope: "openid email profile",
-    state,
-    prompt: "select_account",
-  });
-
-  res.redirect(302, `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
-});
-
-const GoogleOAuthCallback = AsyncHandler(async (req, res) => {
-  const cookieState = req.cookies?.google_oauth_state;
-
-  const redirectLogin = (msg) =>
-    res.redirect(302, `${FRONTEND_BASE}/login?oauth_error=${encodeURIComponent(msg)}`);
-
-  const clearOAuthCookies = () =>
-    res.clearCookie("google_oauth_state", clearOAuthCookieOptions);
-
-  if (req.query.error) {
-    clearOAuthCookies();
-    return redirectLogin(String(req.query.error_description || req.query.error));
-  }
-
-  const { code, state } = req.query;
-  if (!code || !state || !cookieState || state !== cookieState) {
-    clearOAuthCookies();
-    return redirectLogin("Invalid or expired sign-in session. Please try again.");
-  }
-
-  const oauth2 = getOAuth2ClientForRedirect();
-  if (!oauth2) {
-    clearOAuthCookies();
-    return redirectLogin("Google OAuth is not configured on the server.");
-  }
-
-  let tokens;
-  try {
-    const result = await oauth2.getToken(code);
-    tokens = result.tokens;
-  } catch {
-    clearOAuthCookies();
-    return redirectLogin("Could not complete Google sign-in. Please try again.");
-  }
-
-  if (!tokens?.id_token) {
-    clearOAuthCookies();
-    return redirectLogin("Google did not return an ID token.");
-  }
-
-  let ticket;
-  try {
-    ticket = await oauth2.verifyIdToken({
-      idToken: tokens.id_token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-  } catch (err) {
-    console.error("[Google OAuth Callback] verifyIdToken failed:", err?.message || err);
-    clearOAuthCookies();
-    return redirectLogin("Could not verify Google sign-in.");
-  }
-
-  const payload = ticket.getPayload();
-  let user;
-  try {
-    user = await findOrCreateUserFromGooglePayload(payload);
-  } catch (err) {
-    clearOAuthCookies();
-    return redirectLogin(err instanceof CustomError ? err.message : "Sign-in failed.");
-  }
-
-  clearOAuthCookies();
-  await issueSessionForUser(req, res, user);
-  res.redirect(302, `${FRONTEND_BASE}/oauth/google-done`);
-});
-
-const GoogleLoginUser = AsyncHandler(async (req, res, next) => {
-  if (!process.env.GOOGLE_CLIENT_ID || !googleClient) {
-    return next(new CustomError(503, "Google sign-in is not configured on the server"));
-  }
-
-  // Accept either an ID token in `credential` (implicit/credential flow)
-  // or an authorization `code` (auth-code flow). If a code is provided,
-  // exchange it server-side for tokens, then verify the returned id_token.
-  const { credential, code } = req.body;
-
-  let idTokenToVerify = credential;
-
-  if (!idTokenToVerify && code) {
-    // Try exchanging the auth code for tokens
-    const oauth2ForCode = getOAuth2ClientForRedirect();
-    if (!oauth2ForCode) {
-      console.error("[Google Login] OAuth2 client not configured for code exchange.");
-      return next(new CustomError(503, "Google sign-in is not configured on the server"));
-    }
-    try {
-      const tokenResp = await oauth2ForCode.getToken(code);
-      const tokens = tokenResp.tokens || tokenResp;
-      idTokenToVerify = tokens.id_token;
-      console.debug("[Google Login] exchanged code for tokens; id_token length:", idTokenToVerify ? String(idTokenToVerify).length : 0);
-    } catch (err) {
-      console.error("[Google Login] Failed to exchange code for tokens:", err?.message || err);
-      return next(new CustomError(400, "Could not verify Google sign-in"));
-    }
-  }
-
-  if (!idTokenToVerify) {
-    console.error("[Google Login] No credential or code provided in request body.");
-    return next(new CustomError(400, "Missing Google credential or authorization code"));
-  }
-
-  let ticket;
-  try {
-    ticket = await googleClient.verifyIdToken({
-      idToken: idTokenToVerify,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-  } catch (err) {
-    console.error("[Google Login] verifyIdToken failed:", err?.message || err);
-    // Never log full tokens; only log presence/length for debugging
-    console.debug("[Google Login] id_token present:", Boolean(idTokenToVerify), "type:", typeof idTokenToVerify, "length:", idTokenToVerify ? String(idTokenToVerify).length : 0);
-    return next(new CustomError(400, "Could not verify Google sign-in"));
-  }
-
-  const payload = ticket.getPayload();
-  let user;
-  try {
-    user = await findOrCreateUserFromGooglePayload(payload);
-  } catch (err) {
-    return next(err);
-  }
-
-  const { accessToken, user: safeUser } = await issueSessionForUser(req, res, user);
-
-  res.status(200).json({
-    success: true,
-    message: "Signed in with Google",
-    accessToken,
-    user: safeUser,
-  });
-});
 
 const LoginUser = AsyncHandler(async (req, res, next) => {
   const { email, password } = req.body
@@ -413,151 +169,110 @@ const LogoutUser = AsyncHandler(async (req, res, next) => {
   });
 })
 
-const LINKEDIN_CALLBACK_URI = process.env.LINKEDIN_CALLBACK_URL || "https://team-project-qa0v.onrender.com/api/v1/auth/linkedin/callback";
 
-async function findOrCreateUserFromLinkedInPayload(payload) {
+
+const googleOAuthStateCookie = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "none",
+  maxAge: 10 * 60 * 1000,
+  path: "/",
+};
+
+async function findOrCreateUserFromGooglePayload(payload) {
   if (!payload?.email || !payload?.sub) {
-    throw new CustomError(400, "Invalid LinkedIn account data");
+    throw new CustomError(400, "Invalid Google account data");
   }
-  const email = String(payload.email).toLowerCase().trim();
-  const linkedInName = payload.name || `${payload.given_name || ""} ${payload.family_name || ""}`.trim() || email.split("@")[0];
-  const linkedInPicture = payload.picture || "";
 
-  let user = await User.findOne({ $or: [{ linkedinId: payload.sub }, { email }] });
+  const email = String(payload.email).toLowerCase().trim();
+  const googleName = payload.name || email.split("@")[0];
+  const googlePicture = payload.picture || "";
+
+  let user = await User.findOne({ $or: [{ googleId: payload.sub }, { email }] });
 
   if (!user) {
     return new User({
-      name: linkedInName,
+      name: googleName,
       email,
-      linkedinId: payload.sub,
+      googleId: payload.sub,
       gender: "other",
       profileImage: {
-        secure_url: linkedInPicture,
-        public_id: ""
-      }
+        secure_url: googlePicture,
+        public_id: "",
+      },
     });
   }
 
-  if (user.linkedinId && user.linkedinId !== payload.sub) {
-    throw new CustomError(403, "This email is already linked to a different LinkedIn account");
+  if (user.googleId && user.googleId !== payload.sub) {
+    throw new CustomError(403, "This email is already linked to a different Google account");
   }
 
-  if (!user.linkedinId) {
-    user.linkedinId = payload.sub;
-  }
+  if (!user.googleId) user.googleId = payload.sub;
   if (!user.name || user.name === "hi" || user.name === "Hi" || user.name === email.split("@")[0]) {
-    user.name = linkedInName;
+    user.name = googleName;
   }
-  if (!user.profileImage?.secure_url && linkedInPicture) {
-    user.profileImage = {
-      secure_url: linkedInPicture,
-      public_id: ""
-    };
+  if (!user.profileImage?.secure_url && googlePicture) {
+    user.profileImage = { secure_url: googlePicture, public_id: "" };
   }
 
   return user;
 }
 
-const LinkedInOAuthStart = AsyncHandler(async (req, res, next) => {
-  if (!process.env.LINKEDIN_CLIENT_ID || !process.env.LINKEDIN_CLIENT_SECRET) {
-    return next(new CustomError(503, "LinkedIn OAuth is not configured."));
+async function issueSessionForUser(req, res, user) {
+  const isNewUser = user.isNew;
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  user.refreshToken = [{ token: refreshToken, createdAt: Date.now() }];
+  await user.save({ validateBeforeSave: false });
+
+  if (isNewUser) {
+    const appUrl = getAppUrlFromRequest(req);
+    const welcomeEmail = welcomeEmailTemplate(user.name, user.email, appUrl);
+    await sendEmail(user.email, "welcome to our application", welcomeEmail).catch(() => {});
   }
 
-  const state = crypto.randomBytes(24).toString("hex");
-  res.cookie("linkedin_oauth_state", state, googleOAuthStateCookie); // Reuse same cookie options
+  res.cookie("refreshToken", refreshToken, CookieOptions);
+  return { accessToken, user: sanitizeUser(user) };
+}
 
-  const params = new URLSearchParams({
-    response_type: "code",
-    client_id: process.env.LINKEDIN_CLIENT_ID,
-    redirect_uri: LINKEDIN_CALLBACK_URI,
-    state,
-    scope: "openid profile email",
-  });
+const googleClient = process.env.GOOGLE_CLIENT_ID
+  ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+  : null;
 
-  res.redirect(302, `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`);
-});
-
-const LinkedInOAuthCallback = AsyncHandler(async (req, res) => {
-  const cookieState = req.cookies?.linkedin_oauth_state;
-
-  const redirectLogin = (msg) =>
-    res.redirect(302, `${FRONTEND_BASE}/login?oauth_error=${encodeURIComponent(msg)}`);
-
-  const clearOAuthCookies = () =>
-    res.clearCookie("linkedin_oauth_state", clearOAuthCookieOptions);
-
-  if (req.query.error) {
-    clearOAuthCookies();
-    return redirectLogin(String(req.query.error_description || req.query.error));
+const GoogleLoginUser = AsyncHandler(async (req, res, next) => {
+  if (!process.env.GOOGLE_CLIENT_ID || !googleClient) {
+    return next(new CustomError(503, "Google sign-in is not configured on the server"));
   }
 
-  const { code, state } = req.query;
-  if (!code || !state || !cookieState || state !== cookieState) {
-    clearOAuthCookies();
-    return redirectLogin("Invalid or expired sign-in session. Please try again.");
-  }
+  const { credential } = req.body;
 
-  if (!process.env.LINKEDIN_CLIENT_ID || !process.env.LINKEDIN_CLIENT_SECRET) {
-    clearOAuthCookies();
-    return redirectLogin("LinkedIn OAuth is not configured on the server.");
-  }
-
-  // Exchange code for token
-  const tokenBody = new URLSearchParams({
-    grant_type: "authorization_code",
-    code,
-    redirect_uri: LINKEDIN_CALLBACK_URI,
-    client_id: process.env.LINKEDIN_CLIENT_ID,
-    client_secret: process.env.LINKEDIN_CLIENT_SECRET,
-  });
-
-  let tokenResponse;
+  let ticket;
   try {
-    const fetchResponse = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: tokenBody.toString(),
+    ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
-    tokenResponse = await fetchResponse.json();
-    console.log("[LinkedIn OAuth] Token response:", tokenResponse);
-    if (!fetchResponse.ok || tokenResponse.error) {
-      throw new Error(tokenResponse.error_description || tokenResponse.error || "Token request failed");
-    }
   } catch (err) {
-    console.error("[LinkedIn OAuth] Token exchange error:", err);
-    clearOAuthCookies();
-    return redirectLogin("Could not complete LinkedIn sign-in. Please try again.");
+    return next(new CustomError(400, "Could not verify Google sign-in"));
   }
 
-  // Fetch full user info using access token
-  let userInfo;
-  try {
-    const userFetch = await fetch("https://api.linkedin.com/v2/userinfo", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${tokenResponse.access_token}`
-      }
-    });
-    userInfo = await userFetch.json();
-    if (!userFetch.ok) {
-      throw new Error("Failed to fetch LinkedIn user info");
-    }
-  } catch (err) {
-    clearOAuthCookies();
-    return redirectLogin("Could not retrieve your LinkedIn profile details.");
-  }
-
+  const payload = ticket.getPayload();
   let user;
   try {
-    user = await findOrCreateUserFromLinkedInPayload(userInfo);
+    user = await findOrCreateUserFromGooglePayload(payload);
   } catch (err) {
-    clearOAuthCookies();
-    return redirectLogin(err instanceof CustomError ? err.message : "Sign-in failed.");
+    return next(err);
   }
 
-  clearOAuthCookies();
-  await issueSessionForUser(req, res, user);
-  res.redirect(302, `${FRONTEND_BASE}/oauth/linkedin-done`);
+  const { accessToken, user: safeUser } = await issueSessionForUser(req, res, user);
+
+  return res.status(200).json({
+    success: true,
+    message: "Signed in with Google",
+    accessToken,
+    user: safeUser,
+  });
 });
 
 export {
@@ -566,8 +281,5 @@ export {
   RefreshToken,
   LogoutUser,
   GoogleLoginUser,
-  GoogleOAuthStart,
-  GoogleOAuthCallback,
-  LinkedInOAuthStart,
-  LinkedInOAuthCallback,
 }
+
