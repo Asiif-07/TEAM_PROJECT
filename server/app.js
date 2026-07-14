@@ -22,28 +22,35 @@ const allowedOrigins = [
     process.env.FRONTEND_URL,
     process.env.CLIENT_URL,
     process.env.APP_URL,
-    "https://carrerforge.vercel.app", // Explicit fallback
+    "https://carrerforge.vercel.app",
 ].filter(Boolean);
 
+const isAllowedOrigin = (origin) => {
+    if (!origin) return true;
+    if (allowedOrigins.includes(origin)) return true;
+    if (origin === "https://carrerforge.vercel.app") return true;
+    // Allow all Vercel preview/production URLs (colleagues may use a different *.vercel.app host)
+    if (/^https:\/\/[\w-]+\.vercel\.app$/.test(origin)) return true;
+    return false;
+};
 
-app.use(cors({
+const corsOptions = {
     origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, server-to-server)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
-        // Explicitly allow Vercel frontend even if env vars are missing/mismatched.
-        if (origin === "https://carrerforge.vercel.app") return callback(null, true);
+        if (isAllowedOrigin(origin)) return callback(null, true);
 
+        console.error(`[CORS] Blocked origin: ${origin}. Allowed: ${allowedOrigins.join(", ") || "(none)"}`);
         return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     optionsSuccessStatus: 200,
-}));
+};
 
-// Ensure preflight requests are answered (fixes "preflight failed" on some clients)
-app.options('*', cors());
+app.use(cors(corsOptions));
+
+// Ensure preflight requests use the same CORS policy
+app.options("*", cors(corsOptions));
 
 
 

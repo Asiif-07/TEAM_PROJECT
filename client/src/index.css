@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @keyframes float {
@@ -105,20 +104,19 @@
     animation-delay: 4s;
 }
 
-.font-urdu {
-    font-family: 'Noto Nastaliq Urdu', serif !important;
-}
-
-[dir="rtl"] .font-urdu {
-    line-height: 2 !important;
-}
-
 /* Glassmorphism & Premium UI Utilities */
 .glass {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+    background: rgba(17, 24, 39, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .bg-mesh {
@@ -176,30 +174,30 @@
 
 /* CV Document & Print Styles */
 @media print {
-    body {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+    body * {
+        visibility: hidden;
     }
 
-    .no-print,
-    .exclude-from-pdf,
-    button,
-    .MuiButton-root {
+    .cv-document,
+    .cv-document * {
+        visibility: visible;
+    }
+
+    .cv-document {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 40px !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    .no-print {
         display: none !important;
     }
-
-    @page {
-        size: A4;
-        margin: 0;
-    }
-
-    body,
-    html {
-        margin: 0;
-        padding: 0;
-    }
 }
-
 
 .cv-content h1 {
     font-size: 3rem !important;
@@ -246,14 +244,12 @@
     border-top: 10px solid #DC2626 !important;
     background: #FFFFFF !important;
 }
-
 .cv-document.cv-template-classic-red .cv-content h1 {
     font-size: 2.65rem !important;
     color: #991B1B !important;
     text-transform: none !important;
     letter-spacing: -0.5px !important;
 }
-
 .cv-document.cv-template-classic-red .cv-content h2 {
     color: #B91C1C !important;
     border-bottom: 1px solid #FECACA !important;
@@ -265,18 +261,15 @@
     background: linear-gradient(145deg, #ffffff 0%, #EFF6FF 100%) !important;
     border: 1px solid #BFDBFE !important;
 }
-
 .cv-document.cv-template-modern-blue .cv-content h1 {
     color: #0F172A !important;
     font-size: 2.8rem !important;
 }
-
 .cv-document.cv-template-modern-blue .cv-content h2 {
     color: #1D4ED8 !important;
     border-bottom: none !important;
     position: relative;
 }
-
 .cv-document.cv-template-modern-blue .cv-content h2::after {
     content: "";
     display: block;
@@ -291,12 +284,10 @@
     background: #FFFFFF !important;
     border: 1px solid #E5E7EB !important;
 }
-
 .cv-document.cv-template-minimal-black .cv-content h1 {
     color: #111827 !important;
     font-size: 2.55rem !important;
 }
-
 .cv-document.cv-template-minimal-black .cv-content h2 {
     color: #111827 !important;
     border-bottom: 2px solid #111827 !important;
@@ -308,18 +299,15 @@
     background: radial-gradient(circle at top left, #EEF2FF 0%, #ffffff 45%, #F8FAFF 100%) !important;
     border: 1px solid #DDD6FE !important;
 }
-
 .cv-document.cv-template-creative-purple .cv-content h1 {
     color: #4C1D95 !important;
     font-size: 2.9rem !important;
 }
-
 .cv-document.cv-template-creative-purple .cv-content h2 {
     color: #6D28D9 !important;
     border-bottom: none !important;
     position: relative;
 }
-
 .cv-document.cv-template-creative-purple .cv-content h2::after {
     content: "";
     display: block;
@@ -329,211 +317,25 @@
     margin-top: 10px;
     border-radius: 999px;
 }
-
-/* (Print rules consolidated above) */
-
-/* PDF / html2pdf helpers */
-@page {
-    size: A4;
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .cv-document, .cv-document * {
+    visibility: visible;
+  }
+  .cv-document {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    height: 297mm;
+    box-shadow: none !important;
     margin: 0;
-}
-
-/* Prevent content breaking in the middle of important blocks */
-.cv-document .cv-content>* {
-    page-break-inside: avoid;
-    break-inside: avoid;
-}
-
-/* Utility class to explicitly exclude nodes from generated PDF */
-.exclude-from-pdf {
-    display: none !important;
-}
-
-/* Improve image rendering quality when rasterized */
-.cv-document img {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
-
-/* CMS Blog Editor — Quill Overrides */
-.quill-editor-cms .ql-toolbar.ql-snow {
-    border: none;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    padding: 10px 0;
-    font-family: 'Inter', sans-serif;
-}
-
-.quill-editor-cms .ql-container.ql-snow {
-    border: none;
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    line-height: 1.8;
-    color: #374151;
-}
-
-.quill-editor-cms .ql-editor {
-    padding: 24px 0;
-    min-height: 450px;
-}
-
-.quill-editor-cms .ql-editor.ql-blank::before {
-    font-style: normal;
-    color: #d1d5db;
-    font-size: 16px;
-}
-
-.quill-editor-cms .ql-editor h1 {
-    font-size: 2em;
-    font-weight: 900;
-}
-
-.quill-editor-cms .ql-editor h2 {
-    font-size: 1.5em;
-    font-weight: 800;
-}
-
-.quill-editor-cms .ql-editor h3 {
-    font-size: 1.25em;
-    font-weight: 700;
-}
-
-.quill-editor-cms .ql-toolbar button:hover,
-.quill-editor-cms .ql-toolbar button.ql-active {
-    color: #2563EB !important;
-}
-
-.quill-editor-cms .ql-toolbar button:hover .ql-stroke,
-.quill-editor-cms .ql-toolbar button.ql-active .ql-stroke {
-    stroke: #2563EB !important;
-}
-
-.quill-editor-cms .ql-toolbar button:hover .ql-fill,
-.quill-editor-cms .ql-toolbar button.ql-active .ql-fill {
-    fill: #2563EB !important;
-}
-
-/* Premium Editorial Prose */
-.premium-prose {
-    font-family: 'Inter', sans-serif;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    max-width: 100%;
-}
-
-.premium-prose p {
-    font-size: 1.125rem;
-    line-height: 1.8;
-    color: #374151;
-    margin-bottom: 2rem;
-    font-weight: 500;
-}
-
-.premium-prose h1,
-.premium-prose h2,
-.premium-prose h3 {
-    color: #111827;
-    font-weight: 900;
-    line-height: 1.25;
-    margin-bottom: 1.5rem;
-    margin-top: 3rem;
-    letter-spacing: -0.025em;
-}
-
-.premium-prose h2 {
-    font-size: 2.25rem;
-}
-
-.premium-prose h3 {
-    font-size: 1.875rem;
-}
-
-.premium-prose blockquote {
-    font-style: italic;
-    font-weight: 500;
-    color: #111827;
-    border-left: 4px solid #2563EB;
-    padding-left: 2rem;
-    margin: 3rem 0;
-    position: relative;
-}
-
-.premium-prose blockquote::before {
-    content: '"';
-    position: absolute;
-    top: -20px;
-    left: -10px;
-    font-size: 5rem;
-    color: #2563EB;
-    opacity: 0.1;
-    font-family: serif;
-}
-
-.premium-prose ul,
-.premium-prose ol {
-    margin-bottom: 2rem;
-    padding-left: 1.5rem;
-}
-
-.premium-prose li {
-    margin-bottom: 0.75rem;
-    position: relative;
-    padding-left: 1rem;
-}
-
-.premium-prose ul li::before {
-    content: "";
-    position: absolute;
-    left: -1.5rem;
-    top: 0.7rem;
-    width: 6px;
-    height: 6px;
-    background: #2563EB;
-    border-radius: 50%;
-}
-
-.premium-prose strong {
-    color: #111827;
-    font-weight: 800;
-}
-
-.premium-prose a {
-    color: #2563EB;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    font-weight: 700;
-    transition: all 0.2s;
-}
-
-.premium-prose a:hover {
-    color: #1D4ED8;
-    text-decoration-thickness: 2px;
-}
-
-.premium-prose img {
-    margin: 3rem 0;
-    border-radius: 2rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #E5E7EB;
-    border-radius: 10px;
-}
-
-/* Core Cursor Pointer Overrides */
-button,
-[role="button"],
-select,
-input[type="submit"],
-input[type="button"],
-input[type="reset"] {
-    cursor: pointer;
+    padding: 0;
+  }
+  * {
+    -webkit-print-color-adjust:git exact !important;
+    print-color-adjust: exact !important;
+  }
 }

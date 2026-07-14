@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { getApiBaseUrl } from "../../utils/apiBaseUrl";
 import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
@@ -324,7 +325,7 @@ const Login = () => {
                             </Button>
                             <Button
                                 component="a"
-                                href={`${import.meta.env.VITE_API_BASE_URL}/auth/linkedin/start`}
+                                href={`${getApiBaseUrl()}/auth/linkedin/start`}
                                 fullWidth
                                 variant="outlined"
                                 startIcon={

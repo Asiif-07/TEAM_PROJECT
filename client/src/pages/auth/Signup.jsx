@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { getApiBaseUrl } from "../../utils/apiBaseUrl";
 import { useGoogleLogin } from "@react-oauth/google";
 
 const Signup = () => {
@@ -376,7 +377,7 @@ const Signup = () => {
                         </Button>
                         <Button
                             component="a"
-                            href={`${import.meta.env.VITE_API_BASE_URL}/auth/linkedin/start`}
+                            href={`${getApiBaseUrl()}/auth/linkedin/start`}
                             disabled={isSubmitting}
                             fullWidth
                             variant="outlined"
