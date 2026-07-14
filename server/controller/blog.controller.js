@@ -85,10 +85,15 @@ export const getPostBySlug = async (req, res) => {
         // (prevents view inflation when user navigates back/again)
         // Views are only counted when the viewer is authenticated.
         // If you need views for guests too, we can extend this with a cookie/visitorId.
+        // If authenticated user comes again, do not increment.
+        // Note: viewedBy is a Mongoose Map, so `has` should work after load.
         if (req.user?._id) {
             const userId = req.user._id.toString();
 
-            if (!post.viewedBy?.has(userId)) {
+            // Ensure viewedBy exists (older docs might not have it)
+            if (!post.viewedBy) post.viewedBy = new Map();
+
+            if (!post.viewedBy.has(userId)) {
                 post.viewedBy.set(userId, true);
                 post.views += 1;
                 await post.save();
