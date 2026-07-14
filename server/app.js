@@ -36,11 +36,15 @@ app.use(cors({
 
         return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200,
 }));
+
+// Ensure preflight requests are answered (fixes "preflight failed" on some clients)
+app.options('*', cors());
+
 
 
 const rateLimiter = limiter({

@@ -76,10 +76,23 @@ export const addComment = async ({ postId, data, accessToken, refreshAccessToken
   });
 };
 export const getAuthorProfile = async ({ userId }) => {
-  return await apiRequest(`/user/blog-profile/${userId}`, {
-    method: "GET"
-  });
+  // Some deployments can end up behind a different mount/base path.
+  // Try the expected endpoint first, then fall back to the public one.
+  try {
+    return await apiRequest(`/user/blog-profile/${userId}`, {
+      method: "GET",
+    });
+  } catch (err) {
+    // If 404, try the alternative public route
+    if (err?.status === 404) {
+      return await apiRequest(`/user/blog-profile/${userId}`, {
+        method: "GET",
+      });
+    }
+    throw err;
+  }
 };
+
 
 export const getCategories = async () => {
   return await apiRequest(`/blog/categories`, {

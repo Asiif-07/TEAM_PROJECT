@@ -30,7 +30,9 @@ const AuthorProfile = () => {
         );
     }
 
-    if (!authorProfile) return (
+    // Only show "not found" after loading completes.
+    // During navigation/fetch failures, authorProfile may be temporarily undefined/null.
+    if (!loading && !authorProfile) return (
         <div className="min-h-screen flex items-center justify-center bg-mesh">
             <div className="text-center space-y-4">
                 <h2 className="text-2xl font-black text-gray-300 uppercase tracking-widest">Author Not Found</h2>
@@ -38,6 +40,7 @@ const AuthorProfile = () => {
             </div>
         </div>
     );
+
 
     return (
         <div className="min-h-screen bg-mesh pb-20 pt-10 animate-fade-in-up">
