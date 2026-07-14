@@ -49,9 +49,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Ensure preflight requests use the same CORS policy
-app.options("*", cors(corsOptions));
-
 
 
 const rateLimiter = limiter({
