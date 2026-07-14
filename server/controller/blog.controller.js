@@ -81,9 +81,20 @@ export const getPostBySlug = async (req, res) => {
 
         if (!post) return res.status(404).json({ message: "Post not found" });
 
-        // Increment views
-        post.views += 1;
-        await post.save();
+        // Increment views only once per logged-in account
+        // (prevents view inflation when user navigates back/again)
+        // Views are only counted when the viewer is authenticated.
+        // If you need views for guests too, we can extend this with a cookie/visitorId.
+        if (req.user?._id) {
+            const userId = req.user._id.toString();
+
+            if (!post.viewedBy?.has(userId)) {
+                post.viewedBy.set(userId, true);
+                post.views += 1;
+                await post.save();
+            }
+        }
+
 
         const postObj = post.toJSON();
         const response = {

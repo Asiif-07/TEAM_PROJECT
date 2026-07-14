@@ -40,6 +40,12 @@ const postSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    // Used to ensure we count only 1 view per logged-in account per post
+    viewedBy: {
+        type: Map,
+        of: Boolean, // userId: true
+        default: {}
+    },
     reactions: {
         type: Map,
         of: Boolean, // userId: true
