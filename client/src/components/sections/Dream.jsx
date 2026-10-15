@@ -62,7 +62,7 @@ const Dream = () => {
         </button>
 
         {/* View Pricing Button */}
-        <button className="px-8 py-3 bg-white text-[#344054] font-semibold rounded-lg border border-[#D0D5DD] shadow-sm hover:bg-gray-50 transition-all active:scale-95">
+        <button onClick={() => navigate('/services')} className="px-8 py-3 bg-white text-[#344054] font-semibold rounded-lg border border-[#D0D5DD] shadow-sm hover:bg-gray-50 transition-all active:scale-95">
           {t("View Pricing")}
         </button>
       </div>

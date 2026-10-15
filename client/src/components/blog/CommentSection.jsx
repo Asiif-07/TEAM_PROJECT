@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import * as commentApi from "../../api/comments";
 import { MessageCircle, Reply, Send, Trash2, ChevronDown, ChevronUp } from "lucide-react";
@@ -252,9 +253,9 @@ const CommentSection = ({ postId }) => {
                 <div className="bg-gray-50 rounded-[28px] p-8 text-center space-y-4">
                     <MessageCircle size={28} className="text-blue-600 mx-auto" />
                     <p className="text-gray-600 font-medium text-sm">Sign in to join the dialogue</p>
-                    <a href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:shadow-xl transition-all">
+                    <Link to="/login" state={{ from: window.location.pathname }} className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:shadow-xl transition-all">
                         Sign In
-                    </a>
+                    </Link>
                 </div>
             )}
 

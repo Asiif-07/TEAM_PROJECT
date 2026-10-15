@@ -1,16 +1,57 @@
-# React + Vite
+# CareerForge – Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 18 single-page app built with Vite. See the [root README](../README.md) for the full system and the [server README](../server/README.md) for the API.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+React 18, Vite 7, React Router 6 (`createBrowserRouter`, lazy-loaded pages), Tailwind CSS 4 (`@tailwindcss/vite`), MUI 7 + Emotion, Zustand (blog store), `socket.io-client`, i18next, Zod, react-hot-toast, react-quill-new (rich-text editor), react-markdown, react-to-print, `@react-oauth/google`, `react-linkedin-login-oauth2`, Stripe.js.
 
-## React Compiler
+## Run
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev       # http://localhost:5173
+npm run build     # production build to dist/
+npm run preview   # serve the build
+npm run lint      # ESLint
+```
 
-## Expanding the ESLint configuration
+## Environment (`client/.env`)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+VITE_API_BASE_URL=/api/v1
+VITE_SOCKET_URL=http://localhost:8080
+VITE_GOOGLE_CLIENT_ID=<google oauth client id>
+```
+
+- `VITE_API_BASE_URL` defaults to `/api/v1` (see `src/utils/apiBaseUrl.js`).
+- `VITE_SOCKET_URL` falls back to `http://localhost:2000` in `SocketContext.jsx`; point it at your server's `PORT`.
+- In dev, Vite proxies `/api` to `https://team-project-qa0v.onrender.com` (`vite.config.js`). Change the `target` to `http://localhost:8080` to use a local server.
+
+## Structure
+
+| Path | Role |
+|---|---|
+| `src/main.jsx` | providers: GoogleOAuth, Auth, Socket, Notification, RouterProvider |
+| `src/router.jsx` | all routes; protected ones wrapped in `components/auth/RequireAuth` |
+| `src/api/` | per-resource wrappers over `http.js` (`apiRequest`: auth header, 15 s timeout, retries, 401 refresh, toasts) |
+| `src/context/` | `AuthContext`, `SocketContext`, `NotificationContext` |
+| `src/store/useBlogStore.js` | Zustand store for posts, categories, drafts |
+| `src/hooks/useCVDraft.js` | CV draft handling |
+| `src/pages/` | public pages, `auth/`, `dashboard/`, `Blog/` |
+| `src/components/` | `auth`, `blog` (+ editor), `cvBuilder` (steps, templates, preview), `layout`, `sections`, `common` |
+| `src/utils/` | `i18n`, API base URL, Google script loader, blog and `cvBuilder/` helpers (templates config/schemas, data mapping) |
+| `vercel.json` | rewrites `/api/v1/*` to the Render backend; SPA fallback |
+
+## Routes
+
+Public: `/`, `/about`, `/how-it-works`, `/blogs`, `/blogs/:slug`, `/author/:id`, `/contact-us`, `/services`, `/cv-templates`, `/cv-builder`, `/login`, `/signup`, `/forgot-password`, `/reset-password/:token`, `/oauth/google-done`, `/oauth/linkedin-done`.
+
+Requires login (`RequireAuth`): `/dashboard`, `/blogs/create`, `/blogs/edit/:slug`, `/profile`, `/blog-profile`, `/my-cvs`, `/my-blogs`.
+
+## Notes
+
+- Auth state and token refresh live in `AuthContext`; sockets connect only when authenticated, passing `userId` in the handshake query.
+- CV templates are components in `components/cvBuilder/templates/`, selected through `utils/cvBuilder/templateConfig.js`.
+- `src/pages/Blog.jsx` and `Blog_Details.jsx` are not used by the router (it uses `pages/Blog/BlogFeed.jsx` and `PostDetail.jsx`).
+- No test runner is configured.
