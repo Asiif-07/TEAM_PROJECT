@@ -1,4 +1,5 @@
-import { groq } from '../config/groq.js';
+import { groq, GROQ_MODELS, GROQ_TIMEOUT_MS } from '../config/groq.js';
+import { completeJsonWithFallback } from '../utils/aiFallback.js';
 import AsyncHandler from '../handler/AsyncHandler.js';
 
 export const generateAIContent = AsyncHandler(async (req, res) => {
@@ -90,18 +91,24 @@ export const generateAIContent = AsyncHandler(async (req, res) => {
                 return res.status(400).json({ success: false, message: "Invalid type requested." });
         }
 
-        // Switched to the 70B model for smarter, more professional text generation
-        const response = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile", 
-            response_format: { type: "json_object" }, 
-            temperature: taskTemperature,
-            messages: [
-                { role: "system", content: systemContent },
-                { role: "user", content: userContent }
-            ]
-        });
+        if (!process.env.GROQ_API_KEY) {
+            return res.status(503).json({ success: false, message: "AI service is not configured. Please contact support." });
+        }
 
-        const parsedData = JSON.parse(response.choices[0].message.content);
+        const { data: parsedData, model: usedModel } = await completeJsonWithFallback({
+            client: groq,
+            models: GROQ_MODELS,
+            timeoutMs: GROQ_TIMEOUT_MS,
+            params: {
+                response_format: { type: "json_object" },
+                temperature: taskTemperature,
+                messages: [
+                    { role: "system", content: systemContent },
+                    { role: "user", content: userContent }
+                ]
+            }
+        });
+        console.log(`[AI] ${type} generated with ${usedModel}`);
 
         res.status(200).json({
             success: true,
@@ -109,7 +116,21 @@ export const generateAIContent = AsyncHandler(async (req, res) => {
         });
 
     } catch (error) {
-        console.error("AI Generation Error:", error);
+        console.error("AI Generation Error:", error?.status, error?.message, error?.attempts ?? "");
+
+        // Provider (Groq SDK) errors carry an HTTP status; map them to meaningful responses.
+        if (error?.status === 401 || error?.status === 403) {
+            return res.status(503).json({ success: false, message: "AI service credentials were rejected. Please contact support." });
+        }
+        if (error?.status === 404) {
+            return res.status(503).json({ success: false, message: "The configured AI models are unavailable. Please contact support." });
+        }
+        if (error?.attempts?.length > 1) {
+            return res.status(503).json({ success: false, message: "AI service is temporarily unavailable. Please try again shortly." });
+        }
+        if (error?.status === 429) {
+            return res.status(429).json({ success: false, message: "AI service is busy. Please try again in a moment." });
+        }
         
         if (error instanceof SyntaxError) {
              return res.status(500).json({ success: false, message: "AI returned malformed data. Please try again." });

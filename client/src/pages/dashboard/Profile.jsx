@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, Container, Paper, Typography, Avatar, Divider, Button, IconButton, CircularProgress, TextField, Collapse } from "@mui/material";
 import { useAuth } from "../../context/AuthContext";
-import { FileText, User, Mail, Calendar, Camera, XCircle, Lock, ChevronDown, ChevronUp, Linkedin } from "lucide-react";
+import { FileText, User, Mail, Calendar, Camera, XCircle, Lock, ChevronDown, ArrowLeft, Crown, Loader2, Sparkles, ArrowRight } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { updateProfilePic, updateEmail, changePassword } from "../../api/user";
 import { verifySession, cancelSubscription } from "../../api/stripe";
@@ -158,246 +157,291 @@ export default function Profile() {
 
     if (!user) {
         return (
-            <Container maxWidth="sm" sx={{ py: 20, textAlign: "center" }}>
-                <Typography variant="h5">{t("Login To View Profile")}</Typography>
-            </Container>
+            <div className="mx-auto max-w-md px-4 py-24 text-center">
+                <h1 className="text-xl font-bold text-slate-900">{t("Login To View Profile")}</h1>
+            </div>
         );
     }
 
+    const isPremium = user.subscriptionStatus === "active";
+    const status = user.subscriptionStatus || "none";
+    const STATUS_LABELS = {
+        active: t("Active"),
+        trialing: t("Trial"),
+        past_due: t("Payment past due"),
+        unpaid: t("Unpaid"),
+        incomplete: t("Incomplete"),
+        incomplete_expired: t("Expired"),
+        canceled: t("Canceled"),
+    };
+    const planName = isPremium ? t("Premium Member") : t("Free Plan");
+    const statusLabel = STATUS_LABELS[status];
+    const username = user.username || user.email?.split("@")[0];
+    const memberSince = user.createdAt
+        ? new Date(user.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
+        : t("Active Member");
+
+    const inputClass =
+        "w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10";
+
     return (
-        <Box sx={{ minHeight: "100vh", position: "relative", py: { xs: 8, md: 12 }, overflow: "hidden" }} className="bg-mesh">
-            {/* Ambient Background Orbs */}
-            <Box sx={{ position: "absolute", top: "-10%", left: "-10%", width: "50vw", height: "50vw", background: "radial-gradient(circle, rgba(66,133,244,0.1) 0%, rgba(255,255,255,0) 70%)", borderRadius: "50%", zIndex: 0 }} />
-            <Box sx={{ position: "absolute", bottom: "-10%", right: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(16,185,129,0.08) 0%, rgba(255,255,255,0) 70%)", borderRadius: "50%", zIndex: 0 }} />
-            <Box sx={{ position: "absolute", top: "40%", left: "60%", width: "30vw", height: "30vw", background: "radial-gradient(circle, rgba(236,72,153,0.06) 0%, rgba(255,255,255,0) 70%)", borderRadius: "50%", zIndex: 0 }} />
+        <div className="bg-mesh min-h-screen px-4 pb-24 pt-8 sm:px-6">
+            <div className="mx-auto max-w-3xl space-y-6">
+                <Link
+                    to="/dashboard"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
+                >
+                    <ArrowLeft size={16} />
+                    {t("Back to Dashboard", "Back to Dashboard")}
+                </Link>
 
-            <Container maxWidth="sm" sx={{ position: "relative", zIndex: 1 }}>
-                <Paper elevation={0} sx={{
-                    p: { xs: 4, md: 5 },
-                    borderRadius: "32px",
-                    background: "rgba(255, 255, 255, 0.65)",
-                    backdropFilter: "blur(24px)",
-                    WebkitBackdropFilter: "blur(24px)",
-                    boxShadow: "0 24px 64px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.6)",
-                    textAlign: "center"
-                }}>
+                {/* Identity card */}
+                <section className="animate-fade-in-up overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                    <div className="h-28 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-800 sm:h-32" />
+                    <div className="px-6 pb-8 sm:px-10">
+                        <div className="-mt-14 flex flex-col items-center gap-5 sm:-mt-16 sm:flex-row sm:items-end">
+                            <div className="relative shrink-0">
+                                {user.profileImage?.secure_url ? (
+                                    <img
+                                        src={user.profileImage.secure_url}
+                                        alt={user.name}
+                                        className="h-28 w-28 rounded-3xl border-4 border-white object-cover shadow-md sm:h-32 sm:w-32"
+                                    />
+                                ) : (
+                                    <span className="flex h-28 w-28 items-center justify-center rounded-3xl border-4 border-white bg-slate-900 text-4xl font-extrabold text-white shadow-md sm:h-32 sm:w-32">
+                                        {user.name?.charAt(0).toUpperCase()}
+                                    </span>
+                                )}
+                                <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileChange} />
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current.click()}
+                                    disabled={uploading}
+                                    aria-label={t("Change profile picture", "Change profile picture")}
+                                    className="absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-md transition hover:scale-105 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
+                                >
+                                    {uploading ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
+                                </button>
+                            </div>
 
-                    {/* Animated Gradient Avatar */}
-                    <Box sx={{ position: "relative", width: 140, height: 140, mx: "auto", mb: 4 }}>
-                        <Box sx={{
-                            position: "absolute", top: -4, left: -4, right: -4, bottom: -4,
-                            background: "linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #FFBE0B)",
-                            backgroundSize: "400% 400%",
-                            animation: "gradientBG 10s ease infinite",
-                            borderRadius: "50%",
-                            zIndex: 0
-                        }}>
-                            <style>
-                                {`
-                                @keyframes gradientBG {
-                                    0% { background-position: 0% 50%; }
-                                    50% { background-position: 100% 50%; }
-                                    100% { background-position: 0% 50%; }
-                                }
-                                `}
-                            </style>
-                        </Box>
+                            <div className="min-w-0 flex-1 text-center sm:pb-2 sm:text-left">
+                                <h1 className="truncate text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{user.name}</h1>
+                                <p className="truncate text-sm text-slate-500">@{username}</p>
+                            </div>
 
-                        <Avatar
-                            src={user.profileImage?.secure_url}
-                            sx={{
-                                width: 140, height: 140,
-                                bgcolor: "#111827",
-                                fontSize: "56px",
-                                fontWeight: 800,
-                                border: "4px solid #ffffff",
-                                position: "relative",
-                                zIndex: 1,
-                                boxShadow: "0 8px 24px rgba(0,0,0,0.15)"
-                            }}
-                        >
-                            {!user.profileImage?.secure_url && user.name?.charAt(0).toUpperCase()}
-                        </Avatar>
+                            <div className="flex flex-col items-center gap-2 sm:items-end sm:pb-2">
+                                <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${
+                                        isPremium
+                                            ? "bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm"
+                                            : "bg-slate-100 text-slate-600"
+                                    }`}
+                                >
+                                    {isPremium && <Crown size={12} />}
+                                    {isPremium ? t("Premium Member") : t("Free Plan")}
+                                </span>
+                                {isPremium && (
+                                    <button
+                                        type="button"
+                                        onClick={handleCancelSubscription}
+                                        disabled={canceling}
+                                        className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        {canceling ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />}
+                                        {canceling ? t("Canceling...") : t("Cancel Premium")}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-                        <input
-                            type="file"
-                            hidden
-                            ref={fileInputRef}
-                            accept="image/*"
-                            onChange={handleFileChange}
-                        />
+                {/* Account details */}
+                <section
+                    style={{ animationDelay: "80ms" }}
+                    className="animate-fade-in-up rounded-3xl border border-slate-200 bg-white p-2 shadow-sm sm:p-3"
+                >
+                    <h2 className="px-4 pb-1 pt-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+                        {t("Account", "Account")}
+                    </h2>
 
-                        <IconButton
-                            onClick={() => fileInputRef.current.click()}
-                            disabled={uploading}
-                            sx={{
-                                position: "absolute", bottom: 4, right: 4,
-                                bgcolor: "#111827", color: "white", p: 1.2,
-                                zIndex: 2,
-                                transition: "all 0.3s ease",
-                                "&:hover": { bgcolor: "#374151", transform: "scale(1.1)" },
-                                boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
-                            }}
-                        >
-                            {uploading ? <CircularProgress size={20} color="inherit" /> : <Camera size={20} />}
-                        </IconButton>
-                    </Box>
-
-                    {/* Header Info */}
-                    <Typography variant="h4" fontWeight="800" color="#111827" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, letterSpacing: "-0.5px" }}>
-                        {user.name}
-                    </Typography>
-
-                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, mb: 5, mt: 1.5 }}>
-                        <Typography variant="body2" sx={{
-                            background: user.subscriptionStatus === "active"
-                                ? "linear-gradient(90deg, #F59E0B, #EF4444, #EC4899)"
-                                : "#E5E7EB",
-                            color: user.subscriptionStatus === "active" ? "#ffffff" : "#6B7280",
-                            px: 2, py: 0.6,
-                            borderRadius: "100px",
-                            fontWeight: "800",
-                            fontSize: "12px",
-                            letterSpacing: "0.5px",
-                            textTransform: "uppercase",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            boxShadow: user.subscriptionStatus === "active" ? "0 4px 14px rgba(239, 68, 68, 0.4)" : "none",
-                            transition: "all 0.3s ease",
-                            "&:hover": { transform: "translateY(-1px)", boxShadow: user.subscriptionStatus === "active" ? "0 6px 20px rgba(239, 68, 68, 0.5)" : "none" }
-                        }}>
-                            {user.subscriptionStatus === "active" ? `👑 ${t("Premium Member")}` : t("Free Plan")}
-                        </Typography>
-
-                        {user.subscriptionStatus === "active" && (
-                            <Button
-                                onClick={handleCancelSubscription}
-                                disabled={canceling}
-                                color="error"
-                                size="small"
-                                startIcon={canceling ? <CircularProgress size={12} color="inherit" /> : <XCircle size={14} />}
-                                sx={{ textTransform: 'none', fontSize: '11px', fontWeight: 600, mt: 0.5, opacity: 0.6, "&:hover": { opacity: 1, backgroundColor: "rgba(239, 68, 68, 0.08)" }, borderRadius: '8px', px: 1.5 }}
+                    {/* Email */}
+                    <Row icon={Mail} tone="blue" label={t("Email Address")} value={user.email}>
+                        <ToggleButton open={showEmailForm} onClick={() => setShowEmailForm(!showEmailForm)} label={t("Edit")} />
+                    </Row>
+                    <Collapsible open={showEmailForm}>
+                        <form onSubmit={handleUpdateEmail} className="mx-3 mb-3 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <input
+                                type="email"
+                                placeholder={t("Enter new email")}
+                                value={emailData.email}
+                                onChange={(e) => setEmailData({ email: e.target.value })}
+                                className={inputClass}
+                            />
+                            <button
+                                type="submit"
+                                disabled={updatingEmail}
+                                className="flex w-full items-center justify-center rounded-xl bg-slate-900 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
                             >
-                                {canceling ? t("Canceling...") : t("Cancel Premium")}
-                            </Button>
-                        )}
-                    </Box>
+                                {updatingEmail ? <Loader2 size={18} className="animate-spin" /> : t("Update Email")}
+                            </button>
+                        </form>
+                    </Collapsible>
 
-                    <Divider sx={{ mb: 4, borderColor: "rgba(0,0,0,0.06)" }} />
-
-                    {/* Data List container */}
-                    <Box sx={{ textAlign: "left", mb: 4 }}>
-                        {/* Email Row */}
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1, p: 2, borderRadius: "16px", transition: "all 0.3s ease", "&:hover": { background: "rgba(255, 255, 255, 0.8)", transform: "translateX(4px)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" } }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 2.5 }}>
-                                <Box sx={{ p: 1.2, borderRadius: "12px", background: "rgba(37, 99, 235, 0.1)", color: "#2563EB" }}>
-                                    <Mail size={20} />
-                                </Box>
-                                <Box>
-                                    <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>{t("Email Address")}</Typography>
-                                    <Typography variant="body1" fontWeight="700" color="#1F2937">{user.email}</Typography>
-                                </Box>
-                            </Box>
-                            <Button size="small" onClick={() => setShowEmailForm(!showEmailForm)} sx={{ textTransform: "none", fontSize: "12px", fontWeight: 600, borderRadius: "20px", color: "#2563EB", bgcolor: "rgba(37, 99, 235, 0.05)", px: 2 }} endIcon={showEmailForm ? <ChevronUp size={14} /> : <ChevronDown size={14} />}>
-                                {t("Edit")}
-                            </Button>
-                        </Box>
-
-                        <Collapse in={showEmailForm}>
-                            <Box component="form" onSubmit={handleUpdateEmail} sx={{ mb: 3, ml: 2, mr: 2, p: 2.5, background: "rgba(255,255,255,0.9)", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" }}>
-                                <TextField fullWidth size="small" type="email" placeholder={t("Enter new email")} value={emailData.email} onChange={(e) => setEmailData({ email: e.target.value })}
-                                    sx={{ mb: 2, "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "#fff", transition: "all 0.2s", "&:focus-within": { boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.1)" } } }}
-                                />
-                                <Button fullWidth type="submit" variant="contained" disabled={updatingEmail} sx={{ borderRadius: "10px", bgcolor: "#111827", textTransform: "none", py: 1.2, fontWeight: 700, boxShadow: "0 4px 12px rgba(17, 24, 39, 0.2)", "&:hover": { bgcolor: "#1F2937" } }}>
-                                    {updatingEmail ? <CircularProgress size={20} color="inherit" /> : t("Update Email")}
-                                </Button>
-                            </Box>
-                        </Collapse>
-
-                        {/* Password Row */}
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1, p: 2, borderRadius: "16px", transition: "all 0.3s ease", "&:hover": { background: "rgba(255, 255, 255, 0.8)", transform: "translateX(4px)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" } }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 2.5 }}>
-                                <Box sx={{ p: 1.2, borderRadius: "12px", background: "rgba(239, 68, 68, 0.1)", color: "#EF4444" }}>
-                                    <Lock size={20} />
-                                </Box>
-                                <Box>
-                                    <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>{t("Password")}</Typography>
-                                    <Typography variant="body1" fontWeight="800" sx={{ letterSpacing: "2px" }} color="#1F2937">••••••••</Typography>
-                                </Box>
-                            </Box>
-                            <Button size="small" onClick={() => setShowPasswordForm(!showPasswordForm)} sx={{ textTransform: "none", fontSize: "12px", fontWeight: 600, borderRadius: "20px", color: "#EF4444", bgcolor: "rgba(239, 68, 68, 0.05)", px: 2 }} endIcon={showPasswordForm ? <ChevronUp size={14} /> : <ChevronDown size={14} />}>
-                                {t("Change")}
-                            </Button>
-                        </Box>
-
-                        <Collapse in={showPasswordForm}>
-                            <Box component="form" onSubmit={handleUpdatePassword} sx={{ mb: 3, ml: 2, mr: 2, p: 2.5, background: "rgba(255,255,255,0.9)", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" }}>
-                                <TextField fullWidth size="small" type="password" placeholder={t("Current Password")} value={passwordData.oldPassword} onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                                    sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "#fff", transition: "all 0.2s", "&:focus-within": { boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.1)" } } }}
-                                />
-                                <TextField fullWidth size="small" type="password" placeholder={t("New Password")} value={passwordData.newPassword} onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "#fff", transition: "all 0.2s", "&:focus-within": { boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.1)" } } }}
-                                />
-                                <TextField fullWidth size="small" type="password" placeholder={t("Confirm New Password")} value={passwordData.confirmPassword} onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    sx={{ mb: 2.5, "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "#fff", transition: "all 0.2s", "&:focus-within": { boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.1)" } } }}
-                                />
-                                <Button fullWidth type="submit" variant="contained" disabled={updatingPassword} sx={{ borderRadius: "10px", bgcolor: "#EF4444", textTransform: "none", py: 1.2, fontWeight: 700, boxShadow: "0 4px 12px rgba(239, 68, 68, 0.2)", "&:hover": { bgcolor: "#DC2626" } }}>
-                                    {updatingPassword ? <CircularProgress size={20} color="inherit" /> : t("Change Password")}
-                                </Button>
-                            </Box>
-                        </Collapse>
-
-                        {/* Username Row */}
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, mb: 1, p: 2, borderRadius: "16px", transition: "all 0.3s ease", "&:hover": { background: "rgba(255, 255, 255, 0.8)", transform: "translateX(4px)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" } }}>
-                            <Box sx={{ p: 1.2, borderRadius: "12px", background: "rgba(16, 185, 129, 0.1)", color: "#10B981" }}>
-                                <User size={20} />
-                            </Box>
-                            <Box>
-                                <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>{t("Username")}</Typography>
-                                <Typography variant="body1" fontWeight="700" color="#1F2937">@{user.username || user.email.split("@")[0]}</Typography>
-                            </Box>
-                        </Box>
-
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, mb: 1, p: 2, borderRadius: "16px", transition: "all 0.3s ease", "&:hover": { background: "rgba(255, 255, 255, 0.8)", transform: "translateX(4px)", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" } }}>
-                            <Box sx={{ p: 1.2, borderRadius: "12px", background: "rgba(139, 92, 246, 0.1)", color: "#8B5CF6" }}>
-                                <Calendar size={20} />
-                            </Box>
-                            <Box>
-                                <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>{t("Member Since")}</Typography>
-                                <Typography variant="body1" fontWeight="700" color="#1F2937">
-                                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : "Active Member"}
-                                </Typography>
-                            </Box>
-                        </Box>
-
-                    </Box>
-
-                    <Divider sx={{ mb: 4, borderColor: "rgba(0,0,0,0.06)" }} />
-
-                    {/* Action Buttons */}
-                    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <Link to="/my-cvs" style={{ textDecoration: "none" }}>
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                startIcon={<FileText size={18} />}
-                                sx={{
-                                    py: 1.5,
-                                    borderRadius: "14px",
-                                    textTransform: "none",
-                                    fontWeight: 700,
-                                    background: "linear-gradient(45deg, #111827, #374151)",
-                                    boxShadow: "0 8px 16px rgba(17, 24, 39, 0.2)",
-                                    "&:hover": { transform: "translateY(-2px)", boxShadow: "0 12px 20px rgba(17, 24, 39, 0.3)", background: "linear-gradient(45deg, #000000, #1F2937)" },
-                                    transition: "all 0.3s ease"
-                                }}
+                    {/* Password */}
+                    <Row icon={Lock} tone="red" label={t("Password")} value="••••••••">
+                        <ToggleButton open={showPasswordForm} onClick={() => setShowPasswordForm(!showPasswordForm)} label={t("Change")} />
+                    </Row>
+                    <Collapsible open={showPasswordForm}>
+                        <form onSubmit={handleUpdatePassword} className="mx-3 mb-3 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <input
+                                type="password"
+                                placeholder={t("Current Password")}
+                                value={passwordData.oldPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                                className={inputClass}
+                            />
+                            <input
+                                type="password"
+                                placeholder={t("New Password")}
+                                value={passwordData.newPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                className={inputClass}
+                            />
+                            <input
+                                type="password"
+                                placeholder={t("Confirm New Password")}
+                                value={passwordData.confirmPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                className={inputClass}
+                            />
+                            <button
+                                type="submit"
+                                disabled={updatingPassword}
+                                className="flex w-full items-center justify-center rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
                             >
-                                {t("My CV Dashboard")}
-                            </Button>
+                                {updatingPassword ? <Loader2 size={18} className="animate-spin" /> : t("Change Password")}
+                            </button>
+                        </form>
+                    </Collapsible>
+
+                    <Row icon={User} tone="green" label={t("Username")} value={`@${username}`} />
+                    <Row icon={Calendar} tone="violet" label={t("Member Since")} value={memberSince} />
+                </section>
+
+                {/* Subscription */}
+                <section
+                    style={{ animationDelay: "120ms" }}
+                    className="animate-fade-in-up rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+                >
+                    <h2 className="pb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+                        {t("Subscription", "Subscription")}
+                    </h2>
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-4">
+                            <span
+                                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
+                                    isPremium ? "bg-amber-50 text-amber-500" : "bg-slate-100 text-slate-500"
+                                }`}
+                            >
+                                {isPremium ? <Crown size={22} /> : <Sparkles size={22} />}
+                            </span>
+                            <div className="min-w-0">
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                    {t("Current Plan", "Current Plan")}
+                                </p>
+                                <p className="truncate text-lg font-bold text-slate-900">
+                                    {user.subscriptionPlan || planName}
+                                </p>
+                                {statusLabel && (
+                                    <span
+                                        className={`mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                            isPremium || status === "trialing"
+                                                ? "bg-emerald-50 text-emerald-700"
+                                                : "bg-amber-50 text-amber-700"
+                                        }`}
+                                    >
+                                        {statusLabel}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        <Link
+                            to="/services"
+                            className="group inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 active:scale-[0.98]"
+                        >
+                            {isPremium ? t("View Plans", "View Plans") : t("Upgrade Plan", "Upgrade Plan")}
+                            <ArrowRight size={16} className="transition group-hover:translate-x-1" />
                         </Link>
-                    </Box>
-                </Paper>
-            </Container>
-        </Box>
+                    </div>
+                </section>
+
+                {/* Quick action */}
+                <Link
+                    to="/my-cvs"
+                    style={{ animationDelay: "200ms" }}
+                    className="animate-fade-in-up group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                    <span className="flex items-center gap-4">
+                        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
+                            <FileText size={20} />
+                        </span>
+                        <span className="font-semibold text-slate-900">{t("My CV Dashboard")}</span>
+                    </span>
+                    <ArrowLeft size={18} className="rotate-180 text-slate-300 transition group-hover:translate-x-1 group-hover:text-blue-600" />
+                </Link>
+            </div>
+        </div>
+    );
+}
+
+const TONES = {
+    blue: "bg-blue-50 text-blue-600",
+    red: "bg-red-50 text-red-500",
+    green: "bg-emerald-50 text-emerald-600",
+    violet: "bg-violet-50 text-violet-600",
+};
+
+function Row({ icon, tone, label, value, children }) {
+    const Icon = icon;
+    return (
+        <div className="flex items-center gap-4 rounded-2xl px-4 py-3.5 transition hover:bg-slate-50">
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${TONES[tone]}`}>
+                <Icon size={20} />
+            </span>
+            <span className="min-w-0 flex-1">
+                <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-400">{label}</span>
+                <span className="block truncate text-[15px] font-semibold text-slate-900">{value}</span>
+            </span>
+            {children}
+        </div>
+    );
+}
+
+function ToggleButton({ open, onClick, label }) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            aria-expanded={open}
+            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        >
+            {label}
+            <ChevronDown size={14} className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+        </button>
+    );
+}
+
+// Height-animating wrapper using the grid 0fr -> 1fr technique.
+function Collapsible({ open, children }) {
+    return (
+        <div
+            className={`grid transition-all duration-300 ease-out motion-reduce:transition-none ${
+                open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+            }`}
+            aria-hidden={!open}
+        >
+            <div className="overflow-hidden">{children}</div>
+        </div>
     );
 }

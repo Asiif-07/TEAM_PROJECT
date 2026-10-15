@@ -23,6 +23,7 @@ const allowedOrigins = [
     process.env.CLIENT_URL,
     process.env.APP_URL,
     "https://carrerforge.vercel.app",
+    "http://localhost:5173",
 ].filter(Boolean);
 
 const isAllowedOrigin = (origin) => {

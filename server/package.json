@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test",
     "start": "node server.js --trace-deprecation",
     "dev": "nodemon server.js --trace-deprecation"
   },
@@ -35,6 +35,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@dietrichgebert/ponytail": "^5.2.0",
     "nodemon": "^3.1.14"
   },
   "description": ""

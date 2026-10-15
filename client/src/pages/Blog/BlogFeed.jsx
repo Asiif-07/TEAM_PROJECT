@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Search, ChevronRight, Clock, User as UserIcon, PenTool, Heart } from 'lucide-react';
 import useBlogStore from '../../store/useBlogStore';
 import BlogSkeleton from '../../components/blog/BlogSkeleton';
@@ -198,7 +199,14 @@ const BlogFeed = () => {
                                 Join 5,000+ professionals receiving weekly insights, industry templates, and design inspiration directly in their inbox.
                             </p>
                         </div>
-                        <form className="max-w-xl mx-auto flex flex-col sm:flex-row gap-4">
+                        <form
+                            className="max-w-xl mx-auto flex flex-col sm:flex-row gap-4"
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                // No newsletter endpoint exists on the server yet.
+                                toast("Newsletter sign-up is not available yet.");
+                            }}
+                        >
                             <input
                                 type="email"
                                 placeholder="Enter your email address"

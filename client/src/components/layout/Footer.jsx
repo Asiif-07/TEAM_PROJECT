@@ -49,6 +49,7 @@ const FacebookIcon = () => (
   </svg>
 );
 
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export default function Footer() {
@@ -95,16 +96,16 @@ export default function Footer() {
             <nav>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("CV Writing")}</a>
+                  <Link to="/services" className="text-gray-300 hover:text-white transition-colors">{t("CV Writing")}</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Cover Letter")}</a>
+                  <Link to="/services" className="text-gray-300 hover:text-white transition-colors">{t("Cover Letter")}</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("LinkedIn Optimization")}</a>
+                  <Link to="/services" className="text-gray-300 hover:text-white transition-colors">{t("LinkedIn Optimization")}</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Interview Coaching")}</a>
+                  <Link to="/services" className="text-gray-300 hover:text-white transition-colors">{t("Interview Coaching")}</Link>
                 </li>
               </ul>
             </nav>
@@ -115,16 +116,16 @@ export default function Footer() {
             <nav>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("About Us")}</a>
+                  <Link to="/about" className="text-gray-300 hover:text-white transition-colors">{t("About Us")}</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("How It Works")}</a>
+                  <Link to="/how-it-works" className="text-gray-300 hover:text-white transition-colors">{t("How It Works")}</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Success Stories")}</a>
+                  <Link to="/" className="text-gray-300 hover:text-white transition-colors">{t("Success Stories")}</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Blog")}</a>
+                  <Link to="/blogs" className="text-gray-300 hover:text-white transition-colors">{t("Blog")}</Link>
                 </li>
               </ul>
             </nav>
@@ -135,13 +136,13 @@ export default function Footer() {
             <nav>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Help Center")}</a>
+                  <Link to="/contact-us" className="text-gray-300 hover:text-white transition-colors">{t("Help Center")}</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Contact Us")}</a>
+                  <Link to="/contact-us" className="text-gray-300 hover:text-white transition-colors">{t("Contact Us")}</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("FAQ")}</a>
+                  <Link to="/how-it-works" className="text-gray-300 hover:text-white transition-colors">{t("FAQ")}</Link>
                 </li>
                 <li>
                   <a href="#" className="text-gray-300 hover:text-white transition-colors">{t("Live Chat")}</a>

@@ -295,17 +295,8 @@ const Header = () => {
                   },
                 }}
               >
-                <MenuItem component={Link} to="/profile" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5 }}>
-                  My Profile
-                </MenuItem>
-                <MenuItem component={Link} to="/my-cvs" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5 }}>
-                  My CVs
-                </MenuItem>
-                <MenuItem component={Link} to="/my-blogs" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5 }}>
-                  My Articles
-                </MenuItem>
-                <MenuItem component={Link} to="/blog-profile" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", py: 1.5 }}>
-                  Blog Profile
+                <MenuItem component={Link} to="/dashboard" onClick={handleUserMenuClose} sx={{ fontFamily: "Inter, sans-serif", fontSize: "14px", fontWeight: 600, py: 1.5 }}>
+                  {t("Dashboard", "Dashboard")}
                 </MenuItem>
                 <Box sx={{ borderTop: "1px solid #E5E7EB", my: 1 }} />
                 <MenuItem
@@ -498,46 +489,7 @@ const Header = () => {
                   {user?.name || "User"}
                 </Typography>
               </Box>
-              <Link to="/profile" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  sx={{
-                    color: "#111827",
-                    borderColor: "#111827",
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    py: "12px",
-                    mb: 1.5,
-                  }}
-                >
-                  My Profile
-                </Button>
-              </Link>
-              <Link to="/my-cvs" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{
-                    backgroundColor: "#111827",
-                    color: "white",
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    py: "12px",
-                    mb: 1,
-                    "&:hover": { backgroundColor: "#374151" },
-                  }}
-                >
-                  My CVs Dashboard
-                </Button>
-              </Link>
-              <Link to="/my-blogs" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
+              <Link to="/dashboard" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
                 <Button
                   variant="contained"
                   fullWidth
@@ -550,31 +502,11 @@ const Header = () => {
                     borderRadius: "8px",
                     textTransform: "none",
                     py: "12px",
-                    mb: 1,
+                    mb: 1.5,
                     "&:hover": { backgroundColor: "#1D4ED8" },
                   }}
                 >
-                  My Articles Dashboard
-                </Button>
-              </Link>
-              <Link to="/blog-profile" onClick={handleDrawerToggle} style={{ textDecoration: "none" }}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  sx={{
-                    color: "#2563EB",
-                    borderColor: "#2563EB",
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    py: "12px",
-                    mb: 1.5,
-                    "&:hover": { backgroundColor: "#EFF6FF" },
-                  }}
-                >
-                  Blog Profile
+                  {t("Dashboard", "Dashboard")}
                 </Button>
               </Link>
               <Button

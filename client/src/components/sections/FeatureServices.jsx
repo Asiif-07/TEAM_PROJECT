@@ -68,7 +68,7 @@ const FeatureSection = () => {
               >
                 {t("Try AI Interview")}
               </Button>
-              <Button variant="outlined" className="px-6 py-3 text-blue-600 border-blue-600 hover:bg-blue-50 w-full sm:w-auto">
+              <Button onClick={() => navigate('/services')} variant="outlined" className="px-6 py-3 text-blue-600 border-blue-600 hover:bg-blue-50 w-full sm:w-auto">
                 {t("Learn More")}
               </Button>
             </div>
