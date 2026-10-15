@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
-import { Eye, EyeOff, Send, Sparkles, Loader2, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Send, Sparkles, Loader2, ArrowLeft, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import useBlogStore from '../../store/useBlogStore';
 import { useAuth } from '../../context/AuthContext';
@@ -19,7 +19,7 @@ const PostEditor = () => {
     const { accessToken, refreshAccessToken } = useAuth();
     const { slug } = useParams();
     const navigate = useNavigate();
-    const [errors, setErrors] = useState([]);
+    const [attempted, setAttempted] = useState(false);
     const [preview, setPreview] = useState(false);
     const timerRef = useRef(null);
 
@@ -63,12 +63,40 @@ const PostEditor = () => {
         return () => clearInterval(timerRef.current);
     }, [draft.title, draft.content, updateDraft]);
 
-    const saveDraft = () => updateDraft({ lastSaved: new Date().toISOString(), isPublic: false });
+    // Object URL for the preview cover (created once per file)
+    const cover = draft.images[0];
+    const previewUrl = useMemo(() => (preview && cover ? URL.createObjectURL(cover) : ''), [preview, cover]);
+
+    // Field-level errors, shown after the first publish attempt and kept live while fixing them
+    const fieldErrors = useMemo(() => {
+        if (!attempted) return {};
+        const v = schema.safeParse(draft);
+        if (v.success) return {};
+        const out = {};
+        v.error.issues.forEach((i) => {
+            const key = i.path[0];
+            if (!out[key]) out[key] = i.message;
+        });
+        return out;
+    }, [attempted, draft]);
+    const errorCount = Object.keys(fieldErrors).length;
+
+    const saveDraft = () => {
+        updateDraft({ lastSaved: new Date().toISOString(), isPublic: false });
+        toast.success("Draft saved. It stays in this editor until you publish.");
+    };
 
     const publish = async () => {
-        setErrors([]);
+        setAttempted(true);
         const v = schema.safeParse(draft);
-        if (!v.success) return setErrors(v.error.issues.map(e => e.message));
+        if (!v.success) {
+            const first = v.error.issues[0]?.path[0];
+            const target = first === 'category' ? document.getElementById('post-category')
+                : first === 'content' ? document.querySelector('.quill-editor-cms')
+                    : document.getElementById('post-title');
+            target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
 
         const fd = new FormData();
         fd.append('title', draft.title);
@@ -95,49 +123,96 @@ const PostEditor = () => {
             navigate('/blogs');
         } catch (e) {
             console.error(e);
-            toast.error(e.message || "Failed to publish post");
+            if (!e.toasted) toast.error(e.message || "Failed to publish post");
         }
     };
 
     // Preview Mode
     if (preview) return (
         <div className={S.page}>
-            <div className={S.topBar}>
-                <h1 className="text-2xl font-black text-gray-900">Live Preview</h1>
-                <button onClick={() => setPreview(false)} className={S.btnDraft}><EyeOff size={16} className="mr-2" />Back to Editor</button>
+            <div className={`${S.topBar} flex items-center justify-between gap-4`}>
+                <div>
+                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Preview</h1>
+                    <p className="text-sm text-slate-500">This is how your article will look.</p>
+                </div>
+                <button type="button" onClick={() => setPreview(false)} className={S.btnDraft}>
+                    <EyeOff size={16} />Back to editor
+                </button>
             </div>
-            <article className="max-w-3xl mx-auto py-12 px-6">
-                {draft.images.length > 0 && (
-                    <div className="aspect-[21/9] rounded-3xl overflow-hidden mb-10 border border-black/5 shadow-xl">
-                        <img src={URL.createObjectURL(draft.images[0])} className="w-full h-full object-cover" alt="" />
-                    </div>
-                )}
-                <span className="bg-blue-50 text-[#2563EB] text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-2xl">{draft.category}</span>
-                <h1 className="text-4xl lg:text-5xl font-black text-gray-900 leading-tight mt-6 mb-10">{draft.title || "Untitled"}</h1>
-                <div className="prose prose-lg max-w-none text-gray-600" dangerouslySetInnerHTML={{ __html: draft.content }} />
+            <article className="mx-auto max-w-3xl px-4 sm:px-6">
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-10">
+                    {previewUrl && (
+                        <div className="mb-8 aspect-video overflow-hidden rounded-2xl border border-slate-100 sm:aspect-[21/9]">
+                            <img src={previewUrl} className="h-full w-full object-cover" alt="" />
+                        </div>
+                    )}
+                    {draft.category && (
+                        <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700">
+                            {draft.category}
+                        </span>
+                    )}
+                    <h1 className="mt-4 mb-8 text-3xl font-extrabold leading-tight tracking-tight text-slate-900 [overflow-wrap:anywhere] sm:text-4xl">
+                        {draft.title || "Untitled"}
+                    </h1>
+                    <div className="article-content" dangerouslySetInnerHTML={{ __html: draft.content }} />
+                </div>
             </article>
         </div>
     );
 
     return (
         <div className={S.page}>
-            {/* Header (matches CVBuilder header) */}
+            {/* Header */}
             <div className={S.topBar}>
-                <div className="text-center flex-1">
-                    <h1 className="text-2xl lg:text-4xl font-black text-gray-900">{slug ? 'Edit Your Post' : 'Create Your Post'}</h1>
-                    <p className="text-sm text-gray-400 mt-1 font-medium">Craft something worth reading</p>
+                <Link to="/blogs" className="group mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-600">
+                    <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+                    Back to Blog
+                </Link>
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                        {slug ? 'Edit your article' : 'Write a new article'}
+                    </h1>
+                    <p className="text-sm text-slate-500">
+                        Fields marked <span className="text-red-500">*</span> are required to publish.
+                    </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <button onClick={saveDraft} className={S.btnDraft}>Save Draft</button>
-                    <button onClick={() => setPreview(true)} className={S.btnDraft}><Eye size={16} /></button>
-                    <button onClick={publish} disabled={loading} className={S.btnPublish}>
-                        {loading ? <><Loader2 size={16} className="animate-spin mr-1" />Saving…</> : slug ? <><Sparkles size={16} className="mr-1" />Update</> : <><Send size={16} className="mr-1" />Publish</>}
-                    </button>
-                </div>
+                {errorCount > 0 && (
+                    <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                        Please fix {errorCount} {errorCount === 1 ? 'issue' : 'issues'} before publishing.
+                    </div>
+                )}
             </div>
 
             {/* Body */}
-            <PostDesigner validationErrors={errors} />
+            <PostDesigner fieldErrors={fieldErrors} />
+
+            {/* Action bar */}
+            <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/90 backdrop-blur-xl">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+                    <p className="hidden truncate text-sm text-slate-500 sm:block">
+                        {draft.lastSaved
+                            ? `Draft saved at ${new Date(draft.lastSaved).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                            : 'Your changes are kept while this page is open.'}
+                    </p>
+                    <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
+                        <button type="button" onClick={saveDraft} className={S.btnDraft}>
+                            <Save size={16} />
+                            Save draft
+                        </button>
+                        <button type="button" onClick={() => setPreview(true)} aria-label="Preview" className={S.btnDraft}>
+                            <Eye size={16} />
+                            <span className="hidden sm:inline">Preview</span>
+                        </button>
+                        <button type="button" onClick={publish} disabled={loading} className={S.btnPublish}>
+                            {loading
+                                ? <><Loader2 size={16} className="animate-spin" />Saving…</>
+                                : slug
+                                    ? <><Sparkles size={16} />Update</>
+                                    : <><Send size={16} />Publish</>}
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

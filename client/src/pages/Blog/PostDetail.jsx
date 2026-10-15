@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Heart, MessageCircle, Share2, ArrowLeft, Clock, Calendar } from 'lucide-react';
+import { Heart, Share2, ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
 import useBlogStore from '../../store/useBlogStore';
 import AuthorInfo from '../../components/blog/AuthorInfo';
 import BlogCarousel from '../../components/blog/BlogCarousel';
@@ -9,71 +9,29 @@ import CommentSection from '../../components/blog/CommentSection';
 import { formatDate, calculateReadingTime } from '../../utils/blogUtils';
 import toast from 'react-hot-toast';
 
-const PostDetailSkeleton = () => {
-    return (
-        <div className="min-h-screen bg-white pb-32 animate-pulse">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
-                {/* Back button skeleton */}
-                <div className="h-4 w-32 bg-gray-100 rounded-md mb-16"></div>
-
-                <div className="flex flex-col lg:flex-row gap-16 relative justify-center">
-                    {/* Main Article Container */}
-                    <div className="flex-grow max-w-3xl space-y-10">
-                        <header className="space-y-6 text-center lg:text-left">
-                            {/* Category Badge */}
-                            <div className="flex justify-center lg:justify-start">
-                                <div className="h-8 w-24 bg-gray-100 rounded-2xl"></div>
-                            </div>
-
-                            {/* Title lines */}
-                            <div className="space-y-3">
-                                <div className="h-10 w-full bg-gray-100 rounded-xl"></div>
-                                <div className="h-10 w-4/5 bg-gray-100 rounded-xl mx-auto lg:mx-0"></div>
-                            </div>
-
-                            {/* Meta items */}
-                            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4">
-                                <div className="h-8 w-28 bg-gray-100 rounded-xl"></div>
-                                <div className="h-8 w-32 bg-gray-100 rounded-xl"></div>
-                                <div className="h-8 w-24 bg-gray-100 rounded-xl"></div>
-                            </div>
-                        </header>
-
-                        {/* Image Carousel/Cover */}
-                        <div className="w-full aspect-[16/9] md:aspect-[21/9] bg-gray-100 rounded-[48px]"></div>
-
-                        {/* Article Content prose block */}
-                        <div className="space-y-6 pt-8">
-                            <div className="h-4 w-full bg-gray-100 rounded-md"></div>
-                            <div className="h-4 w-full bg-gray-100 rounded-md"></div>
-                            <div className="h-4 w-5/6 bg-gray-100 rounded-md"></div>
-                            <div className="h-4 w-full bg-gray-100 rounded-md"></div>
-                            <div className="h-4 w-3/4 bg-gray-100 rounded-md"></div>
-                        </div>
-                    </div>
-
-                    {/* Right Rail */}
-                    <aside className="hidden lg:block w-72 shrink-0">
-                        <div className="space-y-8">
-                            <div className="flex gap-4">
-                                <div className="flex-1 h-20 bg-gray-100 rounded-[24px]"></div>
-                                <div className="flex-1 h-20 bg-gray-100 rounded-[24px]"></div>
-                            </div>
-                            <div className="space-y-4">
-                                <div className="h-4 w-24 bg-gray-100 rounded-md"></div>
-                                <div className="space-y-3">
-                                    <div className="h-4 w-full bg-gray-100 rounded-md"></div>
-                                    <div className="h-4 w-5/6 bg-gray-100 rounded-md"></div>
-                                    <div className="h-4 w-4/5 bg-gray-100 rounded-md"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+const PostDetailSkeleton = () => (
+    <div className="min-h-screen bg-white pb-24 animate-pulse">
+        <div className="mx-auto max-w-3xl px-4 pt-10 sm:px-6">
+            <div className="mb-8 h-4 w-32 rounded-md bg-slate-100" />
+            <div className="mb-4 h-7 w-28 rounded-full bg-slate-100" />
+            <div className="mb-3 h-10 w-full rounded-xl bg-slate-100" />
+            <div className="mb-8 h-10 w-4/5 rounded-xl bg-slate-100" />
+            <div className="mb-8 flex items-center gap-3">
+                <div className="h-11 w-11 rounded-full bg-slate-100" />
+                <div className="space-y-2">
+                    <div className="h-3 w-32 rounded bg-slate-100" />
+                    <div className="h-3 w-44 rounded bg-slate-100" />
                 </div>
             </div>
+            <div className="mb-10 aspect-video w-full rounded-2xl bg-slate-100" />
+            <div className="space-y-4">
+                {[100, 100, 85, 100, 70].map((w, i) => (
+                    <div key={i} className="h-4 rounded bg-slate-100" style={{ width: `${w}%` }} />
+                ))}
+            </div>
         </div>
-    );
-};
+    </div>
+);
 
 const PostDetail = () => {
     const { slug } = useParams();
@@ -90,7 +48,7 @@ const PostDetail = () => {
     useEffect(() => {
         const handleScroll = () => {
             const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const progress = (window.scrollY / scrollHeight) * 100;
+            const progress = scrollHeight > 0 ? (window.scrollY / scrollHeight) * 100 : 0;
             const progressBar = document.getElementById('reading-progress');
             if (progressBar) progressBar.style.width = `${progress}%`;
 
@@ -107,7 +65,7 @@ const PostDetail = () => {
 
     const handleLike = () => {
         if (!user) {
-            toast.error("Protocol Error: Identity Required for Appreciation");
+            toast.error('Please log in to like this article.');
             return;
         }
         likePost(activePost._id, { accessToken, refreshAccessToken });
@@ -118,18 +76,18 @@ const PostDetail = () => {
         if (navigator.share) {
             navigator.share({ title: activePost.title, url }).catch(() => {
                 navigator.clipboard.writeText(url);
-                toast.success("Link copied!");
+                toast.success('Link copied!');
             });
         } else {
             navigator.clipboard.writeText(url);
-            toast.success("Link copied!");
+            toast.success('Link copied!');
         }
     };
 
     const headers = [];
-    const contentWithIds = activePost.content.replace(/<(h[23])>(.*?)<\/h[23]>/g, (match, tag, text) => {
+    const contentWithIds = (activePost.content || '').replace(/<(h[23])>(.*?)<\/h[23]>/g, (match, tag, text) => {
         // Strip tags and decode entities for the TOC display text
-        const rawText = text.replace(/<\/?[^>]+(>|$)/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").trim();
+        const rawText = text.replace(/<\/?[^>]+(>|$)/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
         const id = rawText.toLowerCase().replace(/[^\w]/g, '-');
         headers.push({ id, text: rawText, level: tag });
         return `<${tag} id="${id}" class="scroll-mt-32">${text}</${tag}>`;
@@ -138,132 +96,152 @@ const PostDetail = () => {
     const carouselImages = activePost.bodyImages?.length > 0
         ? [activePost.coverImage, ...activePost.bodyImages]
         : [activePost.coverImage];
+    const hasCover = carouselImages.some((img) => img?.secure_url || typeof img === 'string');
+
+    const author = activePost.author;
+    const authorName = author?.blogProfile?.displayName || author?.name;
+    const authorAvatar = author?.blogProfile?.avatar?.secure_url || author?.profileImage?.secure_url;
+
+    const actionBtn = (active) =>
+        `inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+            active
+                ? 'border-red-200 bg-red-50 text-red-600'
+                : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
+        }`;
 
     return (
-        <div className="min-h-screen bg-white pb-32 animate-fade-in relative">
+        <div className="relative min-h-screen bg-white pb-24 animate-fade-in">
             {/* Reading Progress */}
-            <div className="fixed top-0 left-0 w-full h-1.5 bg-gray-50 z-[100]">
-                <div id="reading-progress" className="h-full bg-blue-600 transition-all duration-300 shadow-[0_0_10px_rgba(37,99,235,0.5)]"></div>
+            <div className="fixed left-0 top-0 z-[100] h-1 w-full bg-slate-100">
+                <div id="reading-progress" className="h-full bg-blue-600 transition-all duration-300" />
             </div>
 
-            {/* Sticky Mobile/Desktop Action Header */}
-            <div className={`fixed top-0 left-0 w-full bg-white/80 backdrop-blur-xl border-b border-gray-100 z-50 transition-all duration-500 ${scrolled ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}>
-                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-4 truncate mr-8">
-                        <span className="hidden sm:inline-block px-3 py-1 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg">{activePost.category}</span>
-                        <h2 className="text-sm font-black text-gray-900 truncate max-w-sm">{activePost.title}</h2>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                        <button onClick={handleLike} className={`p-3 rounded-xl border transition-all ${liked ? 'bg-red-50 border-red-100 text-red-500' : 'hover:bg-gray-50 border-gray-100 text-gray-400'}`}>
-                            <Heart size={18} fill={liked ? "currentColor" : "none"} />
+            {/* Sticky action bar (appears after scrolling) */}
+            <div
+                className={`fixed left-0 top-0 z-50 w-full border-b border-slate-100 bg-white/90 backdrop-blur-xl transition-all duration-300 ${
+                    scrolled ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
+                }`}
+            >
+                <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4 sm:px-6">
+                    <h2 className="min-w-0 truncate text-sm font-bold text-slate-900">{activePost.title}</h2>
+                    <div className="flex shrink-0 items-center gap-2">
+                        <button type="button" onClick={handleLike} aria-label="Like" className={actionBtn(liked)}>
+                            <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
+                            <span className="hidden sm:inline">{activePost.likeCount || 0}</span>
                         </button>
-                        <button onClick={handleShare} className="p-3 rounded-xl border border-gray-100 text-gray-400 hover:bg-gray-50 transition-all">
-                            <Share2 size={18} />
+                        <button type="button" onClick={handleShare} aria-label="Share" className={actionBtn(false)}>
+                            <Share2 size={16} />
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
-                <Link to="/blogs" className="inline-flex items-center gap-2 text-gray-400 hover:text-blue-600 transition-all mb-16 font-black uppercase tracking-[0.2em] text-[10px] group">
-                    <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                    Back to Archive
+            <div className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 lg:px-8 lg:pt-10">
+                <Link
+                    to="/blogs"
+                    className="group mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-600"
+                >
+                    <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+                    Back to Blog
                 </Link>
 
-                <div className="flex flex-col lg:flex-row gap-16 relative justify-center">
-                    {/* Center: Article */}
-                    <article className="flex-grow max-w-3xl">
-                        <header className="space-y-10 mb-20 text-center lg:text-left">
-                            <div className="flex items-center justify-center lg:justify-start gap-4">
-                                <span className="px-5 py-2 bg-blue-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-100">
-                                    {activePost.category || "Editorial"}
+                <div className="flex flex-col gap-12 lg:flex-row lg:gap-14">
+                    {/* Article */}
+                    <article className="mx-auto w-full min-w-0 max-w-3xl flex-1">
+                        <header className="mb-8">
+                            {activePost.category && (
+                                <span className="mb-4 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700">
+                                    {activePost.category}
                                 </span>
-                            </div>
-
-                            <h1 className="text-5xl md:text-7xl font-black text-gray-900 leading-[1.05] tracking-tighter">
+                            )}
+                            <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-slate-900 [overflow-wrap:anywhere] sm:text-4xl lg:text-[2.75rem]">
                                 {activePost.title}
                             </h1>
 
-                            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-10 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                                <div className="flex items-center gap-2.5 text-blue-600 bg-blue-50/50 px-4 py-2 rounded-xl">
-                                    <Clock size={16} />
-                                    {calculateReadingTime(activePost.content)}
-                                </div>
-                                <div className="flex items-center gap-2.5">
-                                    <Calendar size={16} />
-                                    {formatDate(activePost.createdAt)}
-                                </div>
-                                <div className="flex items-center gap-2.5">
-                                    <MessageCircle size={16} />
-                                    Thought Leadership
+                            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 border-y border-slate-100 py-4">
+                                {author && (
+                                    <Link to={`/author/${author._id}`} className="group flex min-w-0 items-center gap-3">
+                                        {authorAvatar ? (
+                                            <img src={authorAvatar} alt="" className="h-11 w-11 rounded-full object-cover" />
+                                        ) : (
+                                            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+                                                {authorName?.charAt(0).toUpperCase()}
+                                            </span>
+                                        )}
+                                        <span className="min-w-0">
+                                            <span className="block truncate text-sm font-semibold text-slate-900 group-hover:text-blue-600">
+                                                {authorName}
+                                            </span>
+                                            <span className="block text-xs text-slate-500">Author</span>
+                                        </span>
+                                    </Link>
+                                )}
+                                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-500">
+                                    <span className="inline-flex items-center gap-1.5">
+                                        <Calendar size={15} />
+                                        {formatDate(activePost.createdAt)}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1.5">
+                                        <Clock size={15} />
+                                        {calculateReadingTime(activePost.content || '')}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1.5">
+                                        <Eye size={15} />
+                                        {activePost.views || 0}
+                                    </span>
                                 </div>
                             </div>
                         </header>
 
-                        <div className="relative group mb-24 rounded-[48px] overflow-hidden shadow-2xl scale-100 hover:scale-[1.02] transition-transform duration-700">
-                            <BlogCarousel images={carouselImages} />
+                        {hasCover && (
+                            <div className="mb-10 overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
+                                <BlogCarousel images={carouselImages} />
+                            </div>
+                        )}
+
+                        <div className="article-content" dangerouslySetInnerHTML={{ __html: contentWithIds }} />
+
+                        {/* Engagement (always visible, incl. mobile) */}
+                        <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-6">
+                            <button type="button" onClick={handleLike} className={actionBtn(liked)}>
+                                <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
+                                {activePost.likeCount || 0} {activePost.likeCount === 1 ? 'Like' : 'Likes'}
+                            </button>
+                            <button type="button" onClick={handleShare} className={actionBtn(false)}>
+                                <Share2 size={16} />
+                                Share
+                            </button>
                         </div>
 
-                        <div
-                            className="premium-prose max-w-none text-gray-700 leading-[1.9] font-medium text-xl break-words
-                                prose-headings:text-gray-900 prose-headings:font-black prose-headings:tracking-tighter prose-headings:mt-16 prose-headings:mb-8
-                                prose-h2:text-4xl prose-h3:text-2xl
-                                prose-p:mb-10 prose-p:opacity-90
-                                prose-strong:text-gray-900 prose-strong:font-black
-                                prose-blockquote:border-l-0 prose-blockquote:bg-gray-50/80 prose-blockquote:py-16 prose-blockquote:px-12 prose-blockquote:rounded-[40px] prose-blockquote:my-16 prose-blockquote:relative
-                                prose-blockquote:before:content-['\201C'] prose-blockquote:before:absolute prose-blockquote:before:-top-4 prose-blockquote:before:left-10 prose-blockquote:before:text-8xl prose-blockquote:before:text-blue-200 prose-blockquote:before:font-serif
-                                prose-img:rounded-[40px] prose-img:shadow-2xl prose-img:my-16
-                                prose-li:mb-4 prose-ol:list-decimal prose-ul:list-disc prose-ul:pl-6"
-                            dangerouslySetInnerHTML={{ __html: contentWithIds }}
-                        />
-
-
-                        <div className="mt-24">
+                        <div className="mt-10">
                             <AuthorInfo author={activePost.author} />
                         </div>
 
                         <CommentSection postId={activePost._id} />
                     </article>
 
-                    {/* Right Rail: TOC & Social */}
-                    <aside className="hidden lg:block w-72 shrink-0">
-                        <div className="sticky top-32 space-y-12">
-                            {/* Combined Engagement & Navigation */}
-                            <div className="flex flex-col gap-8">
-                                <div className="flex gap-4">
-                                    <button onClick={handleLike} className={`flex-1 p-5 rounded-[24px] border transition-all shadow-sm flex flex-col items-center gap-2 ${liked ? 'bg-red-50 border-red-100 text-red-500' : 'bg-white border-gray-100 text-gray-400 hover:border-blue-100'}`}>
-                                        <Heart size={22} fill={liked ? "currentColor" : "none"} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">{activePost.likeCount || 0} Likes</span>
-                                    </button>
-                                    <button onClick={handleShare} className="flex-1 p-5 rounded-[24px] bg-white border border-gray-100 text-gray-400 hover:border-blue-100 transition-all shadow-sm flex flex-col items-center gap-2">
-                                        <Share2 size={22} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Broadcast</span>
-                                    </button>
-                                </div>
-
-                                <div className="space-y-6">
-                                    <div className="flex items-center justify-between text-[10px] font-black text-gray-300 uppercase tracking-widest px-2">
-                                        <span>Architecture</span>
-                                        <span className="flex items-center gap-1.5 text-blue-600/40">
-                                            <Clock size={12} />
-                                            {activePost.views || 0} Reads
-                                        </span>
-                                    </div>
-                                    <nav className="space-y-4">
-                                        {headers.map((h, i) => (
+                    {/* Right rail: table of contents */}
+                    {headers.length > 0 && (
+                        <aside className="hidden w-60 shrink-0 lg:block">
+                            <nav aria-label="Table of contents" className="sticky top-28">
+                                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">On this page</p>
+                                <ul className="space-y-2 border-l border-slate-100">
+                                    {headers.map((h, i) => (
+                                        <li key={i}>
                                             <a
-                                                key={i}
                                                 href={`#${h.id}`}
-                                                className={`block text-[13px] leading-relaxed font-bold transition-all hover:text-blue-600 hover:translate-x-1 ${h.level === 'h3' ? 'ml-6 text-gray-400 border-l border-gray-50 pl-4' : 'text-gray-600'}`}
+                                                className={`-ml-px block border-l-2 border-transparent py-0.5 text-sm leading-snug text-slate-500 transition hover:border-blue-500 hover:text-blue-600 ${
+                                                    h.level === 'h3' ? 'pl-7' : 'pl-4'
+                                                }`}
                                             >
                                                 {h.text}
                                             </a>
-                                        ))}
-                                    </nav>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </nav>
+                        </aside>
+                    )}
                 </div>
             </div>
         </div>

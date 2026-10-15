@@ -123,6 +123,7 @@ export async function apiRequest(path, options = {}) {
 
         if (!isRetryableError(err, res.status) || attempt >= maxRetries) {
           if (showToast) toast.error(toUserMessage(err, res.status));
+          err.toasted = showToast;
           throw err;
         }
 
@@ -135,6 +136,9 @@ export async function apiRequest(path, options = {}) {
     } catch (error) {
       lastError = error;
       lastStatus = error?.status ?? lastStatus;
+
+      // Already reported to the user above; don't show it a second time.
+      if (error?.toasted) throw error;
 
       if (!isRetryableError(error, lastStatus) || attempt >= maxRetries) {
         const message = toUserMessage(error, lastStatus);

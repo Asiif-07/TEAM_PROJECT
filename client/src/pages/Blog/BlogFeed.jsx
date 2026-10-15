@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Search, ChevronRight, Clock, User as UserIcon, PenTool, Heart } from 'lucide-react';
+import { Search, ArrowRight, Clock, Heart, Eye, PenTool, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import useBlogStore from '../../store/useBlogStore';
 import BlogSkeleton from '../../components/blog/BlogSkeleton';
 import { formatDate, calculateReadingTime, stripHtml } from '../../utils/blogUtils';
@@ -15,12 +15,60 @@ const BlogFeed = () => {
     const categories = useBlogStore((state) => state.categories);
     const fetchPosts = useBlogStore((state) => state.fetchPosts);
     const fetchCategories = useBlogStore((state) => state.fetchCategories);
+    const totalPages = useBlogStore((state) => state.totalPages);
+    const currentPage = useBlogStore((state) => state.currentPage);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
-    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || "");
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
 
-    const activeCategory = searchParams.get('category') || "All";
+    const activeCategory = searchParams.get('category') || 'All';
+
+    // Category scroller (arrows appear only when there is more to scroll to)
+    const catRef = useRef(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(false);
+
+    const syncArrows = useCallback(() => {
+        const el = catRef.current;
+        if (!el) return;
+        setCanScrollLeft(el.scrollLeft > 4);
+        setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    }, []);
+
+    const scrollCategories = (dir) => {
+        const el = catRef.current;
+        if (!el) return;
+        const start = el.scrollLeft;
+        const target = start + dir * Math.max(160, el.clientWidth * 0.7);
+        el.scrollTo({ left: target, behavior: 'smooth' });
+        // Some embedded browsers ignore smooth scrolling; make sure the control never looks dead.
+        window.setTimeout(() => {
+            if (el.scrollLeft === start) el.scrollTo({ left: target, behavior: 'instant' });
+            syncArrows();
+        }, 400);
+        // Re-check once the smooth scroll has settled so the arrows never show a stale state.
+        window.setTimeout(syncArrows, 800);
+    };
+
+    useEffect(() => {
+        syncArrows();
+        window.addEventListener('resize', syncArrows);
+        return () => window.removeEventListener('resize', syncArrows);
+    }, [syncArrows, categories]);
+
+    // Keep the selected category visible inside the scroller
+    useEffect(() => {
+        const el = catRef.current;
+        const active = el?.querySelector('[aria-pressed="true"]');
+        if (!el || !active) return;
+        const left = active.offsetLeft - el.offsetLeft;
+        if (left < el.scrollLeft || left + active.offsetWidth > el.scrollLeft + el.clientWidth) {
+            el.scrollTo({ left: Math.max(0, left - 24), behavior: 'instant' });
+        }
+        syncArrows();
+    }, [activeCategory, categories, syncArrows]);
+    const authorFilter = searchParams.get('author');
 
     useEffect(() => {
         const query = searchParams.toString();
@@ -33,193 +81,296 @@ const BlogFeed = () => {
         const newParams = new URLSearchParams(searchParams);
         if (searchTerm) newParams.set('search', searchTerm);
         else newParams.delete('search');
+        newParams.delete('page');
         setSearchParams(newParams);
     };
 
     const handleCategoryClick = (category) => {
         const newParams = new URLSearchParams(searchParams);
-        if (category === "All") newParams.delete('category');
+        if (category === 'All') newParams.delete('category');
         else newParams.set('category', category);
+        newParams.delete('page');
+        setSearchParams(newParams);
+    };
+
+    const goToPage = (page) => {
+        const newParams = new URLSearchParams(searchParams);
+        if (page <= 1) newParams.delete('page');
+        else newParams.set('page', String(page));
+        setSearchParams(newParams);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const clearAuthorFilter = () => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('author');
+        newParams.delete('page');
         setSearchParams(newParams);
     };
 
     const displayPosts = posts || [];
 
+    const chip = (active) =>
+        `whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+            active
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'border border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-700'
+        }`;
+
     return (
-        <div className="min-h-screen bg-mesh pb-32 pt-10 animate-fade-in">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header Section */}
-                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
-                    <div className="max-w-3xl space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600/5 rounded-2xl border border-blue-600/10 mb-4">
-                            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-                            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Industry Insights</span>
-                        </div>
-                        <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tight leading-[1.1]">
-                            The <span className="premium-text-gradient">Editorial</span> <br /> Career Archive
+        <div className="bg-mesh min-h-screen pb-24 pt-10 animate-fade-in">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                {/* Header */}
+                <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="max-w-2xl">
+                        <span className="mb-3 inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700">
+                            Career Blog
+                        </span>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                            Insights for your <span className="premium-text-gradient">career</span>
                         </h1>
-                        <p className="text-gray-500 text-xl font-medium max-w-xl leading-relaxed">
-                            A curated collection of professional wisdom, design strategies, and career blueprints.
+                        <p className="mt-3 text-base leading-relaxed text-slate-500 sm:text-lg">
+                            Practical advice on CVs, interviews, job search and growth from our community.
                         </p>
                     </div>
-                    <div className="pt-6">
-                        <button
-                            onClick={() => navigate('/blogs/create')}
-                            className="group flex items-center gap-3 px-10 py-5 bg-gray-900 text-white rounded-3xl font-black uppercase tracking-widest text-sm hover:shadow-2xl hover:shadow-gray-400/30 transition-all hover:-translate-y-1 active:translate-y-0"
-                        >
-                            <PenTool size={20} className="group-hover:rotate-12 transition-transform" />
-                            Contribute Article
-                        </button>
-                    </div>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/blogs/create')}
+                        className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+                    >
+                        <PenTool size={16} className="transition-transform group-hover:rotate-12" />
+                        Write an article
+                    </button>
                 </div>
 
-                {/* Filters & Search - Premium Bar */}
-                <div className="sticky top-4 z-40 bg-white/80 backdrop-blur-2xl border border-white/20 p-4 rounded-[32px] shadow-2xl shadow-gray-200/50 mb-16 flex flex-col md:flex-row gap-6 items-center justify-between">
-                    <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide w-full md:w-auto px-2">
+                {/* Filters & search */}
+                <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex min-w-0 flex-1 items-center gap-2">
                         <button
-                            onClick={() => handleCategoryClick("All")}
-                            className={`whitespace-nowrap px-6 py-2.5 rounded-[18px] text-[11px] font-black uppercase tracking-widest transition-all duration-500 ${activeCategory === "All"
-                                ? "bg-blue-600 text-white shadow-xl shadow-blue-200 scale-105"
-                                : "bg-white text-gray-400 border border-gray-50 hover:text-gray-900 hover:bg-gray-50"
-                                }`}
+                            type="button"
+                            onClick={() => scrollCategories(-1)}
+                            disabled={!canScrollLeft}
+                            aria-label="Scroll categories left"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-blue-300 hover:text-blue-700 disabled:cursor-default disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:text-slate-600"
                         >
-                            All
+                            <ChevronLeft size={18} />
                         </button>
-                        {categories.map((cat) => (
+                        <div
+                            ref={catRef}
+                            onScroll={syncArrows}
+                            role="group"
+                            aria-label="Categories"
+                            className="flex min-w-0 flex-1 gap-2 overflow-x-auto scroll-smooth px-0.5 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                        >
                             <button
-                                key={cat._id}
-                                onClick={() => handleCategoryClick(cat.name)}
-                                className={`whitespace-nowrap px-6 py-2.5 rounded-[18px] text-[11px] font-black uppercase tracking-widest transition-all duration-500 ${activeCategory === cat.name
-                                    ? "bg-blue-600 text-white shadow-xl shadow-blue-200 scale-105"
-                                    : "bg-white text-gray-400 border border-gray-50 hover:text-gray-900 hover:bg-gray-50"
-                                    }`}
+                                type="button"
+                                aria-pressed={activeCategory === 'All'}
+                                onClick={() => handleCategoryClick('All')}
+                                className={chip(activeCategory === 'All')}
                             >
-                                {cat.name}
+                                All
                             </button>
-                        ))}
+                            {categories.map((cat) => (
+                                <button
+                                    type="button"
+                                    key={cat._id}
+                                    aria-pressed={activeCategory === cat.name}
+                                    onClick={() => handleCategoryClick(cat.name)}
+                                    className={chip(activeCategory === cat.name)}
+                                >
+                                    {cat.name}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => scrollCategories(1)}
+                            disabled={!canScrollRight}
+                            aria-label="Scroll categories right"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-blue-300 hover:text-blue-700 disabled:cursor-default disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:text-slate-600"
+                        >
+                            <ChevronRight size={18} />
+                        </button>
                     </div>
 
-                    <form onSubmit={handleSearch} className="relative w-full md:w-96 group px-2 md:px-0">
+                    <form onSubmit={handleSearch} role="search" className="relative w-full shrink-0 lg:w-72">
+                        <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input
                             type="text"
-                            placeholder="Discover articles..."
+                            placeholder="Search articles..."
+                            aria-label="Search articles"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all text-sm font-bold placeholder:text-gray-400"
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
                         />
-                        <Search className="absolute left-6 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={18} />
                     </form>
                 </div>
 
-                {/* Posts Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                {authorFilter && (
+                    <div className="mb-6 flex items-center gap-2 text-sm text-slate-600">
+                        <span>Showing articles by one author.</span>
+                        <button
+                            type="button"
+                            onClick={clearAuthorFilter}
+                            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 font-semibold text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                        >
+                            <X size={14} /> Clear
+                        </button>
+                    </div>
+                )}
+
+                {/* Posts */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {loading ? (
                         [...Array(6)].map((_, i) => <BlogSkeleton key={i} />)
-                    ) : (displayPosts.length > 0 || (activeCategory !== "All" && posts?.length > 0)) ? (
-                        (activeCategory === "All" ? displayPosts : posts).map((post) => (
-                            <div
-                                key={post._id}
-                                onClick={() => navigate(`/blogs/${post.slug}`)}
-                                className="group bg-white rounded-[40px] overflow-hidden border border-transparent hover:border-blue-100 shadow-sm hover:shadow-2xl hover:-translate-y-3 transition-all duration-700 cursor-pointer flex flex-col h-full"
-                            >
-                                <div className="relative h-64 overflow-hidden">
-                                    {post.coverImage?.secure_url && (
-                                        <img
-                                            src={post.coverImage.secure_url}
-                                            alt={post.title}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
-                                        />
-                                    )}
-                                    <div className="absolute top-6 left-6">
-                                        <span className="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-xl text-[10px] font-black text-blue-600 uppercase tracking-widest shadow-sm">
-                                            {post.category}
+                    ) : displayPosts.length > 0 ? (
+                        displayPosts.map((post) => {
+                            const authorName = post.author?.blogProfile?.displayName || post.author?.name;
+                            const avatar = post.author?.blogProfile?.avatar?.secure_url || post.author?.profileImage?.secure_url;
+                            return (
+                                <Link
+                                    key={post._id}
+                                    to={`/blogs/${post.slug}`}
+                                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1.5 hover:border-blue-200 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                >
+                                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                                        {post.coverImage?.secure_url && (
+                                            <img
+                                                src={post.coverImage.secure_url}
+                                                alt={post.title}
+                                                loading="lazy"
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                        )}
+                                        {post.category && (
+                                            <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-blue-700 shadow-sm">
+                                                {post.category}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-1 flex-col p-5 sm:p-6">
+                                        <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                                            <span>{formatDate(post.createdAt)}</span>
+                                            <span className="h-1 w-1 rounded-full bg-slate-300" />
+                                            <span className="inline-flex items-center gap-1">
+                                                <Clock size={12} />
+                                                {calculateReadingTime(post.content)}
+                                            </span>
+                                        </div>
+
+                                        <h3 className="line-clamp-2 [overflow-wrap:anywhere] text-lg font-bold leading-snug tracking-tight text-slate-900 transition-colors group-hover:text-blue-600">
+                                            {post.title}
+                                        </h3>
+
+                                        <p className="mt-2 line-clamp-3 [overflow-wrap:anywhere] text-sm leading-relaxed text-slate-500">
+                                            {stripHtml(post.content).substring(0, 160)}
+                                        </p>
+
+                                        <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                                            <div className="flex min-w-0 items-center gap-2.5">
+                                                {avatar ? (
+                                                    <img src={avatar} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
+                                                ) : (
+                                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                                                        {authorName?.charAt(0).toUpperCase() || '?'}
+                                                    </span>
+                                                )}
+                                                <span className="truncate text-sm font-medium text-slate-700">{authorName || 'CareerForge'}</span>
+                                            </div>
+                                            <div className="flex shrink-0 items-center gap-3 text-xs text-slate-500">
+                                                <span className="inline-flex items-center gap-1">
+                                                    <Heart size={13} /> {post.likeCount || 0}
+                                                </span>
+                                                <span className="inline-flex items-center gap-1">
+                                                    <Eye size={13} /> {post.views || 0}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600">
+                                            View blog
+                                            <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
                                         </span>
                                     </div>
-                                </div>
-
-                                <div className="p-10 flex-grow flex flex-col space-y-6">
-                                    <div className="flex items-center gap-4 text-[10px] font-black text-gray-400/60 uppercase tracking-[0.2em]">
-                                        <span>{formatDate(post.createdAt)}</span>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600/10"></span>
-                                        <span>{calculateReadingTime(post.content)}</span>
-                                    </div>
-
-                                    <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight tracking-tight">
-                                        {post.title}
-                                    </h3>
-
-                                    <p className="text-gray-500 line-clamp-3 text-base leading-relaxed font-medium">
-                                        {stripHtml(post.content).substring(0, 140)}...
-                                    </p>
-
-                                    <div className="pt-8 mt-auto flex items-center justify-between border-t border-gray-50">
-                                        <div className="flex items-center gap-6">
-                                            <div className="flex items-center gap-2 text-[10px] font-black text-blue-600/60 uppercase tracking-widest">
-                                                <Heart size={14} className="fill-current" />
-                                                {post.likeCount || 0}
-                                            </div>
-                                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400/60 uppercase tracking-widest">
-                                                <Clock size={14} />
-                                                {post.views || 0}
-                                            </div>
-                                        </div>
-                                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
-                                            <ChevronRight size={20} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
+                                </Link>
+                            );
+                        })
                     ) : (
-                        <div className="col-span-full py-40 text-center bg-white/50 backdrop-blur-sm rounded-[60px] border-2 border-dashed border-gray-100">
-                            <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-blue-200">
-                                <Search size={40} />
-                            </div>
-                            <h3 className="text-2xl font-black text-gray-900 tracking-tight">No articles found.</h3>
-                            <p className="text-gray-500 mt-2 font-medium">Try adjusting your filters or search terms.</p>
+                        <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white/70 px-6 py-20 text-center">
+                            <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                                <Search size={26} />
+                            </span>
+                            <h3 className="text-xl font-bold text-slate-900">No articles found</h3>
+                            <p className="mt-1 text-sm text-slate-500">Try adjusting your filters or search terms.</p>
                             <button
-                                onClick={() => setSearchParams({})}
-                                className="mt-8 px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-800 transition-all"
+                                type="button"
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setSearchParams({});
+                                }}
+                                className="mt-6 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
                             >
-                                Reset Archive
+                                Reset filters
                             </button>
                         </div>
                     )}
                 </div>
 
-                {/* Newsletter Section - Premium Glassmorphism */}
-                <div className="mt-40 relative group">
-                    <div className="absolute -inset-10 bg-blue-600/5 rounded-[80px] blur-3xl group-hover:bg-blue-600/10 transition-all duration-1000"></div>
-                    <div className="relative bg-white border border-white/20 p-12 lg:p-24 rounded-[60px] shadow-2xl overflow-hidden text-center space-y-12 backdrop-blur-3xl">
-                        <div className="max-w-2xl mx-auto space-y-6">
-                            <h2 className="text-4xl lg:text-6xl font-black text-gray-900 tracking-tighter leading-tight">
-                                Stay ahead of the <br /> <span className="premium-text-gradient">Career Curve</span>
-                            </h2>
-                            <p className="text-gray-500 text-xl font-medium leading-relaxed">
-                                Join 5,000+ professionals receiving weekly insights, industry templates, and design inspiration directly in their inbox.
-                            </p>
-                        </div>
-                        <form
-                            className="max-w-xl mx-auto flex flex-col sm:flex-row gap-4"
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                // No newsletter endpoint exists on the server yet.
-                                toast("Newsletter sign-up is not available yet.");
-                            }}
+                {/* Pagination */}
+                {!loading && totalPages > 1 && (
+                    <nav aria-label="Pagination" className="mt-10 flex items-center justify-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => goToPage(currentPage - 1)}
+                            disabled={currentPage <= 1}
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                            <input
-                                type="email"
-                                placeholder="Enter your email address"
-                                className="flex-grow px-8 py-5 rounded-[24px] bg-gray-50 border border-transparent focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all text-sm font-bold shadow-inner"
-                            />
-                            <button className="px-10 py-5 bg-blue-600 text-white rounded-[24px] font-black uppercase tracking-widest text-sm hover:shadow-[0_20px_50px_rgba(37,99,235,0.3)] hover:-translate-y-1 transition-all active:translate-y-0">
-                                Subscribe
-                            </button>
-                        </form>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                            No spam. Just professional growth. Unsubscribe anytime.
-                        </p>
+                            <ChevronLeft size={16} /> Previous
+                        </button>
+                        <span className="text-sm font-medium text-slate-500">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => goToPage(currentPage + 1)}
+                            disabled={currentPage >= totalPages}
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Next <ChevronRight size={16} />
+                        </button>
+                    </nav>
+                )}
+
+                {/* Newsletter */}
+                <div className="mt-16 rounded-3xl border border-slate-200 bg-white px-6 py-12 text-center shadow-sm sm:px-12 sm:py-14">
+                    <div className="mx-auto max-w-xl space-y-3">
+                        <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                            Stay ahead of the <span className="premium-text-gradient">career curve</span>
+                        </h2>
+                        <p className="text-base text-slate-500">Get new articles delivered to your inbox.</p>
                     </div>
+                    <form
+                        className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            // No newsletter endpoint exists on the server yet.
+                            toast('Newsletter sign-up is not available yet.');
+                        }}
+                    >
+                        <input
+                            type="email"
+                            placeholder="Enter your email address"
+                            aria-label="Email address"
+                            className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                        />
+                        <button
+                            type="submit"
+                            className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-[0.98]"
+                        >
+                            Subscribe
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

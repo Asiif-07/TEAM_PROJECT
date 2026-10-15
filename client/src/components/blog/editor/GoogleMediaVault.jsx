@@ -1,8 +1,14 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { ImagePlus, X, Images, Upload } from 'lucide-react';
 import useBlogStore from '../../../store/useBlogStore';
 import { S } from './styles';
+
+// One object URL per File (created once, not on every render).
+const FileImage = ({ file, className, alt = '' }) => {
+    const url = useMemo(() => URL.createObjectURL(file), [file]);
+    return <img src={url} className={className} alt={alt} />;
+};
 
 const GoogleMediaVault = () => {
     const { draft, updateDraft } = useBlogStore();
@@ -35,55 +41,65 @@ const GoogleMediaVault = () => {
     const removeGallery = (idx) => updateDraft({ images: draft.images.filter((_, i) => i !== idx + 1) });
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             {/* COVER */}
             <div>
-                <h4 className={S.cardTitle}><Upload size={14} className="text-[#2563EB]" /> Cover Image</h4>
+                <p className={S.label}><Upload size={15} className="text-blue-600" /> Cover image</p>
                 {coverImage ? (
-                    <div className="relative group rounded-3xl overflow-hidden border border-black/5 aspect-[21/9]">
-                        <img src={URL.createObjectURL(coverImage)} className="w-full h-full object-cover" alt="Cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent opacity-0 group-hover:opacity-100 transition-all" />
-                        <button onClick={removeCover}
-                            className="absolute top-3 right-3 p-2 bg-white/90 text-gray-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 shadow-sm">
+                    <div className="group relative aspect-video overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 sm:aspect-[21/9]">
+                        <FileImage file={coverImage} alt="Cover" className="h-full w-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent opacity-0 transition group-hover:opacity-100" />
+                        <button
+                            type="button"
+                            onClick={removeCover}
+                            aria-label="Remove cover image"
+                            className="absolute right-3 top-3 rounded-lg bg-white/95 p-2 text-slate-600 shadow-sm transition hover:text-red-500 sm:opacity-0 sm:group-hover:opacity-100"
+                        >
                             <X size={14} />
                         </button>
-                        <div className="absolute bottom-3 left-3 bg-[#2563EB] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-all">
+                        <span className="absolute bottom-3 left-3 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white sm:opacity-0 sm:group-hover:opacity-100">
                             Cover
-                        </div>
+                        </span>
                     </div>
                 ) : (
                     <div {...coverDrop.getRootProps()} className={S.coverZone}>
-                        <input {...coverDrop.getInputProps()} />
-                        <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center">
-                            <Upload size={24} className="text-[#2563EB]" />
-                        </div>
-                        <p className="text-sm text-gray-600 font-bold">Add Featured Image</p>
-                        <p className="text-xs text-gray-400">This will be your article's hero image</p>
+                        <input {...coverDrop.getInputProps()} aria-label="Upload cover image" />
+                        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                            <Upload size={22} />
+                        </span>
+                        <p className="text-sm font-semibold text-slate-800">Click to upload or drag an image here</p>
+                        <p className="text-xs text-slate-500">PNG, JPG or WebP. Shown at the top of your article.</p>
                     </div>
                 )}
             </div>
 
             {/* GALLERY */}
             <div>
-                <h4 className={S.cardTitle}><Images size={14} className="text-[#2563EB]" /> Gallery <span className="ml-auto text-[10px] text-gray-400 font-medium normal-case tracking-normal">{galleryImages.length} images</span></h4>
+                <p className={`${S.label} justify-between`}>
+                    <span className="flex items-center gap-2"><Images size={15} className="text-blue-600" /> Gallery <span className="font-normal text-slate-400">(optional)</span></span>
+                    <span className="text-xs font-normal text-slate-400">{galleryImages.length} {galleryImages.length === 1 ? 'image' : 'images'}</span>
+                </p>
                 {galleryImages.length > 0 && (
-                    <div className="grid grid-cols-3 gap-3 mb-3">
+                    <div className="mb-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
                         {galleryImages.map((file, i) => (
-                            <div key={i} className="relative group aspect-square rounded-2xl overflow-hidden bg-gray-100 border border-black/5">
-                                <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" alt="" />
-                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
-                                    <button onClick={() => removeGallery(i)} className="p-2 bg-white/90 text-red-500 rounded-xl hover:bg-white shadow-sm">
-                                        <X size={12} />
-                                    </button>
-                                </div>
+                            <div key={`${file.name}-${i}`} className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                                <FileImage file={file} className="h-full w-full object-cover" />
+                                <button
+                                    type="button"
+                                    onClick={() => removeGallery(i)}
+                                    aria-label="Remove gallery image"
+                                    className="absolute right-1.5 top-1.5 rounded-lg bg-white/95 p-1.5 text-red-500 shadow-sm transition hover:bg-white sm:opacity-0 sm:group-hover:opacity-100"
+                                >
+                                    <X size={12} />
+                                </button>
                             </div>
                         ))}
                     </div>
                 )}
-                <div {...galleryDrop.getRootProps()} className={`${S.galleryZone} ${!hasCover ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <input {...galleryDrop.getInputProps()} />
-                    <ImagePlus size={18} className="text-gray-400" />
-                    <p className="text-[11px] text-gray-400 font-semibold">{hasCover ? 'Add more images' : 'Add cover first'}</p>
+                <div {...galleryDrop.getRootProps()} className={`${S.galleryZone} ${!hasCover ? 'cursor-not-allowed opacity-50' : ''}`}>
+                    <input {...galleryDrop.getInputProps()} aria-label="Upload gallery images" />
+                    <ImagePlus size={18} className="text-slate-400" />
+                    <p className="text-xs font-medium text-slate-500">{hasCover ? 'Add more images' : 'Add a cover image first'}</p>
                 </div>
             </div>
         </div>
