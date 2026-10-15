@@ -2,6 +2,7 @@ import React from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import useBlogStore from '../../../store/useBlogStore';
+import { S } from './styles';
 
 const MODULES = {
     toolbar: [
@@ -30,20 +31,25 @@ const FORMATS = [
     'clean',
 ];
 
-const RichTextLayout = () => {
+const RichTextLayout = ({ error }) => {
     const { draft, updateDraft } = useBlogStore();
 
     return (
-        <div className="quill-editor-cms p-1">
-            <ReactQuill
-                theme="snow"
-                value={draft.content}
-                onChange={(val) => updateDraft({ content: val })}
-                modules={MODULES}
-                formats={FORMATS}
-                placeholder="Start writing your next masterpiece..."
-                className="min-h-[400px]"
-            />
+        <div>
+            <p className={S.label}>
+                Article content <span className="text-red-500">*</span>
+            </p>
+            <div className={`quill-editor-cms ${error ? 'quill-invalid' : ''}`}>
+                <ReactQuill
+                    theme="snow"
+                    value={draft.content}
+                    onChange={(val) => updateDraft({ content: val })}
+                    modules={MODULES}
+                    formats={FORMATS}
+                    placeholder="Tell your story. Use headings to structure it and add links or images where they help (at least 20 characters)."
+                />
+            </div>
+            {error && <p role="alert" className={S.error}>{error}</p>}
         </div>
     );
 };

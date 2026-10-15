@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import useBlogStore from '../../../store/useBlogStore';
 import { S } from './styles';
-import { X, Plus, ExternalLink, Check, Tag, Search, Eye } from 'lucide-react';
+import { X, Check, Tag, Search, Eye, FolderOpen } from 'lucide-react';
 
-const SidebarPanels = () => {
+const SidebarPanels = ({ categoryError }) => {
     const { draft, updateDraft, categories, fetchCategories } = useBlogStore();
     const [tagInput, setTagInput] = useState("");
     const [tags, setTags] = useState([]);
-    const [showMeta, setShowMeta] = useState(false);
 
     useEffect(() => {
         if (!categories.length) fetchCategories();
@@ -27,57 +26,78 @@ const SidebarPanels = () => {
         <>
             {/* Post Status */}
             <div className={S.card}>
-                <h4 className={S.cardTitle}><Eye size={14} className="text-[#2563EB]" /> Post Status</h4>
-                <div className="flex items-center gap-3">
-                    <span className={`w-2.5 h-2.5 rounded-full ${draft.isPublic ? 'bg-green-400' : 'bg-amber-400'}`} />
-                    <span className="text-sm font-bold text-gray-700">{draft.isPublic ? 'Public' : 'Draft'}</span>
-                    <button onClick={() => updateDraft({ isPublic: !draft.isPublic })}
-                        className="ml-auto text-[11px] text-[#2563EB] font-bold hover:underline transition-colors">
+                <h4 className={S.cardTitle}><Eye size={15} className="text-blue-600" /> Visibility</h4>
+                <div className="mt-3 flex items-center gap-3">
+                    <span className={`h-2.5 w-2.5 rounded-full ${draft.isPublic ? 'bg-green-500' : 'bg-amber-400'}`} />
+                    <span className="text-sm font-semibold text-slate-800">{draft.isPublic ? 'Public' : 'Draft'}</span>
+                    <button
+                        type="button"
+                        onClick={() => updateDraft({ isPublic: !draft.isPublic })}
+                        className="ml-auto text-xs font-semibold text-blue-600 hover:underline"
+                    >
                         Switch to {draft.isPublic ? 'Draft' : 'Public'}
                     </button>
                 </div>
-                <p className="text-[11px] text-gray-400 mt-2 font-medium">
-                    {draft.lastSaved ? `Last saved: ${new Date(draft.lastSaved).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Last saved: Just now'}
+                <p className="mt-2 text-xs text-slate-500">
+                    {draft.lastSaved
+                        ? `Last saved ${new Date(draft.lastSaved).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                        : 'Not saved yet'}
                 </p>
             </div>
 
-            <div className={S.card}>
-                <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-xs font-extrabold text-gray-700 uppercase tracking-wider flex items-center gap-2">
-                        <Plus size={14} className="text-[#2563EB]" /> Categories
-                    </h4>
+            {/* Categories */}
+            <div className={`${S.card} ${categoryError ? 'border-red-300' : ''}`} id="post-category">
+                <h4 className={S.cardTitle}>
+                    <FolderOpen size={15} className="text-blue-600" /> Category <span className="text-red-500">*</span>
+                </h4>
+                <p className={S.cardHint}>Pick the one that fits your article best.</p>
+                <div role="radiogroup" aria-label="Category" className="flex flex-wrap gap-2">
+                    {categories.map((cat) => {
+                        const selected = draft.category === cat.name;
+                        return (
+                            <button
+                                type="button"
+                                role="radio"
+                                aria-checked={selected}
+                                key={cat._id}
+                                onClick={() => updateDraft({ category: cat.name })}
+                                className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                                    selected
+                                        ? 'border-blue-600 bg-blue-600 text-white shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:text-blue-700'
+                                }`}
+                            >
+                                {selected ? <Check size={14} strokeWidth={3} /> : cat.icon && <span>{cat.icon}</span>}
+                                {cat.name}
+                            </button>
+                        );
+                    })}
+                    {categories.length === 0 && <p className="text-xs text-slate-400">Loading categories…</p>}
                 </div>
-                <div className="space-y-1.5">
-                    {categories.map(cat => (
-                        <div key={cat._id} onClick={() => updateDraft({ category: cat.name })}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-300 ${draft.category === cat.name ? 'bg-blue-50 border border-blue-100' : 'border border-transparent hover:bg-gray-50'}`}>
-                            <div className={`w-5 h-5 rounded-lg flex items-center justify-center border-2 transition-all duration-300 ${draft.category === cat.name ? 'bg-[#2563EB] border-[#2563EB]' : 'border-gray-300'}`}>
-                                {draft.category === cat.name && <Check size={12} className="text-white" strokeWidth={3} />}
-                            </div>
-                            <span className="text-base mr-1">{cat.icon}</span>
-                            <span className={`text-sm transition-colors ${draft.category === cat.name ? 'text-[#2563EB] font-bold' : 'text-gray-600 font-medium'}`}>{cat.name}</span>
-                        </div>
-                    ))}
-                </div>
+                {categoryError && <p role="alert" className={S.error}>{categoryError}</p>}
             </div>
 
             {/* Tags */}
             <div className={S.card}>
-                <h4 className={S.cardTitle}><Tag size={14} className="text-[#2563EB]" /> Tags</h4>
+                <h4 className={S.cardTitle}><Tag size={15} className="text-blue-600" /> Tags</h4>
+                <p className={S.cardHint}>Press Enter to add. Tags are for your reference and are not saved with the article yet.</p>
                 <input
                     type="text"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={addTag}
-                    placeholder="Type tag & press Enter…"
+                    placeholder="e.g. resume, interviews"
+                    aria-label="Add a tag"
                     className={S.input}
                 />
                 {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-3">
-                        {tags.map(tag => (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {tags.map((tag) => (
                             <span key={tag} className={S.tag}>
                                 {tag}
-                                <button onClick={() => setTags(tags.filter(t => t !== tag))} className="hover:text-red-500 transition-colors"><X size={12} /></button>
+                                <button type="button" aria-label={`Remove ${tag}`} onClick={() => setTags(tags.filter((t) => t !== tag))} className="transition-colors hover:text-red-500">
+                                    <X size={12} />
+                                </button>
                             </span>
                         ))}
                     </div>
@@ -86,31 +106,26 @@ const SidebarPanels = () => {
 
             {/* SEO */}
             <div className={S.card}>
-                <h4 className={S.cardTitle}><Search size={14} className="text-[#2563EB]" /> SEO Preview</h4>
-                <div className="bg-white rounded-2xl p-4 space-y-1.5 border border-black/5">
-                    <p className="text-[#1a0dab] text-sm font-bold truncate">{draft.title || 'Post Title'} - CareerForge Blog</p>
-                    <p className="text-[#006621] text-[11px] font-medium truncate">careerforge.com/blog/{slug}</p>
-                    <p className="text-gray-500 text-[11px] leading-relaxed line-clamp-2">
-                        {draft.seoDescription || 'This is a preview of how your post will appear in search engine results...'}
+                <h4 className={S.cardTitle}><Search size={15} className="text-blue-600" /> Search preview</h4>
+                <p className={S.cardHint}>How your article may look in search results.</p>
+                <div className="space-y-1 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="truncate text-sm font-semibold text-[#1a0dab]">{draft.title || 'Post title'} - CareerForge Blog</p>
+                    <p className="truncate text-xs text-[#006621]">careerforge.com/blog/{slug}</p>
+                    <p className="line-clamp-2 text-xs leading-relaxed text-slate-500">
+                        {draft.seoDescription || 'Add a short description below to control this snippet.'}
                     </p>
                 </div>
-                {showMeta ? (
-                    <div className="mt-3 space-y-1">
-                        <textarea
-                            value={draft.seoDescription}
-                            onChange={(e) => updateDraft({ seoDescription: e.target.value })}
-                            placeholder="Write a compelling meta description…"
-                            rows={2}
-                            maxLength={160}
-                            className={`${S.input} resize-none`}
-                        />
-                        <p className="text-right text-[10px] text-gray-400 font-medium">{draft.seoDescription?.length || 0}/160</p>
-                    </div>
-                ) : (
-                    <button onClick={() => setShowMeta(true)} className="flex items-center gap-1.5 text-[#2563EB] text-[11px] font-bold mt-3 hover:underline">
-                        <ExternalLink size={12} /> Edit Meta Description
-                    </button>
-                )}
+                <label htmlFor="meta-description" className="mt-3 block text-xs font-semibold text-slate-700">Meta description</label>
+                <textarea
+                    id="meta-description"
+                    value={draft.seoDescription}
+                    onChange={(e) => updateDraft({ seoDescription: e.target.value })}
+                    placeholder="A compelling 1–2 sentence summary…"
+                    rows={2}
+                    maxLength={160}
+                    className={`${S.input} mt-1 resize-none`}
+                />
+                <p className="mt-1 text-right text-[11px] text-slate-400">{draft.seoDescription?.length || 0}/160</p>
             </div>
         </>
     );

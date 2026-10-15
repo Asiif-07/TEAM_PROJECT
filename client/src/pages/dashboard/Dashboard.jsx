@@ -217,7 +217,7 @@ export default function Dashboard() {
     const start = el.scrollLeft;
     el.scrollTo({ left, behavior: "smooth" });
     window.setTimeout(() => {
-      if (el.scrollLeft === start && Math.abs(left - start) > 4) el.scrollTo({ left, behavior: "auto" });
+      if (el.scrollLeft === start && Math.abs(left - start) > 4) el.scrollTo({ left, behavior: "instant" });
     }, 400);
   };
 

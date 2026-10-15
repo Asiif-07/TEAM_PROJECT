@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Post from "../model/post.model.js";
 import Comment from "../model/comment.model.js";
 import Category from "../model/category.model.js";
@@ -188,53 +189,82 @@ export const likePost = async (req, res) => {
     }
 };
 
+export const MAX_COMMENT_LENGTH = 1000;
+
 export const addComment = async (req, res) => {
     try {
-        const { content, parentCommentId } = req.body;
+        const { parentCommentId } = req.body;
         const postId = req.params.postId;
         const author = req.user._id;
+        const content = typeof req.body.content === "string" ? req.body.content.trim() : "";
+
+        if (!mongoose.isValidObjectId(postId)) {
+            return res.status(400).json({ success: false, message: "Invalid post id" });
+        }
+        if (!content) {
+            return res.status(400).json({ success: false, message: "Comment cannot be empty" });
+        }
+        if (content.length > MAX_COMMENT_LENGTH) {
+            return res.status(400).json({
+                success: false,
+                message: `Comment must be ${MAX_COMMENT_LENGTH} characters or fewer`
+            });
+        }
+        if (parentCommentId && !mongoose.isValidObjectId(parentCommentId)) {
+            return res.status(400).json({ success: false, message: "Invalid parent comment id" });
+        }
+
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ success: false, message: "Post not found" });
+        }
+
+        // Threads are two levels deep: a reply to a reply is attached to the thread's root
+        // comment so that it is always returned by getComments (which populates one level).
+        let parent = null;
+        let threadRootId = null;
+        if (parentCommentId) {
+            parent = await Comment.findById(parentCommentId);
+            if (!parent || parent.post.toString() !== postId.toString()) {
+                return res.status(404).json({ success: false, message: "Parent comment not found" });
+            }
+            threadRootId = parent.parentComment || parent._id;
+        }
 
         const comment = await Comment.create({
             content,
             author,
             post: postId,
-            parentComment: parentCommentId || null
+            parentComment: threadRootId
         });
 
-        if (parentCommentId) {
-            const parent = await Comment.findById(parentCommentId);
-            if (parent) {
-                parent.replies.push(comment._id);
-                await parent.save();
-
-                // Notify parent comment author via socket
-                await createNotification({
-                    recipient: parent.author,
-                    sender: author,
-                    type: "reply",
-                    post: postId,
-                    comment: comment._id
-                });
-            }
+        if (threadRootId) {
+            await Comment.findByIdAndUpdate(threadRootId, { $push: { replies: comment._id } });
+            // Notify the author of the comment being replied to
+            await createNotification({
+                recipient: parent.author,
+                sender: author,
+                type: "reply",
+                post: postId,
+                comment: comment._id
+            });
         } else {
             // Top-level comment — notify the post author
-            const post = await Post.findById(postId);
-            if (post) {
-                await createNotification({
-                    recipient: post.author,
-                    sender: author,
-                    type: "reply",
-                    post: postId,
-                    comment: comment._id
-                });
-            }
+            await createNotification({
+                recipient: post.author,
+                sender: author,
+                type: "reply",
+                post: postId,
+                comment: comment._id
+            });
         }
 
         const populatedComment = await Comment.findById(comment._id).populate("author", "name profileImage");
 
         res.status(201).json(populatedComment);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("addComment failed:", error);
+        res.status(500).json({ success: false, message: "Could not post your comment. Please try again." });
     }
 };
 
@@ -305,6 +335,10 @@ export const getMyPosts = async (req, res) => {
 
 export const getComments = async (req, res) => {
     try {
+        if (!mongoose.isValidObjectId(req.params.postId)) {
+            return res.status(400).json({ success: false, message: "Invalid post id" });
+        }
+
         const comments = await Comment.find({ post: req.params.postId, parentComment: null })
             .populate("author", "name profileImage")
             .populate({
@@ -313,16 +347,32 @@ export const getComments = async (req, res) => {
             })
             .sort({ createdAt: -1 });
 
-        res.status(200).json(comments);
+        // Show replies oldest-first so conversations read naturally
+        const result = comments.map((c) => {
+            const obj = c.toObject();
+            obj.replies = (obj.replies || [])
+                .filter(Boolean)
+                .sort((x, y) => new Date(x.createdAt) - new Date(y.createdAt));
+            return obj;
+        });
+
+        res.status(200).json(result);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("getComments failed:", error);
+        res.status(500).json({ success: false, message: "Could not load comments. Please try again." });
     }
 };
 
 export const deleteComment = async (req, res) => {
     try {
+        if (!mongoose.isValidObjectId(req.params.commentId) || !mongoose.isValidObjectId(req.params.postId)) {
+            return res.status(400).json({ success: false, message: "Invalid id" });
+        }
+
         const comment = await Comment.findById(req.params.commentId);
-        if (!comment) return res.status(404).json({ message: "Comment not found" });
+        if (!comment || comment.post.toString() !== req.params.postId.toString()) {
+            return res.status(404).json({ message: "Comment not found" });
+        }
 
         // Only author can delete
         if (comment.author.toString() !== req.user._id.toString()) {

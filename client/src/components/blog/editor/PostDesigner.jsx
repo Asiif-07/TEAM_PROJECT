@@ -5,37 +5,27 @@ import RichTextLayout from './RichTextLayout';
 import SidebarPanels from './SidebarPanels';
 import { S } from './styles';
 
-/** Stateless wrapper — zero local state */
-const PostDesigner = ({ validationErrors }) => (
+/** Stateless wrapper — zero local state. `fieldErrors` = { title, content, category } */
+const PostDesigner = ({ fieldErrors = {} }) => (
     <div className={S.canvas}>
-        {/* LEFT: Editor in Glass Card (matches CVBuilder Paper) */}
+        {/* LEFT: writing area */}
         <div className={S.editorCol}>
             <div className={S.glassCard}>
-                <DesignHeader />
+                <DesignHeader error={fieldErrors.title} />
 
                 <div className="mt-8">
                     <GoogleMediaVault />
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-black/5">
-                    <RichTextLayout />
+                <div className="mt-8 border-t border-slate-100 pt-6">
+                    <RichTextLayout error={fieldErrors.content} />
                 </div>
-
-                {validationErrors?.length > 0 && (
-                    <div className="mt-6 bg-red-50 border border-red-100 rounded-2xl p-5 space-y-1.5">
-                        {validationErrors.map((err, i) => (
-                            <p key={i} className="text-xs font-bold text-red-600 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-400" />{err}
-                            </p>
-                        ))}
-                    </div>
-                )}
             </div>
         </div>
 
-        {/* RIGHT: Sidebar Cards */}
+        {/* RIGHT: settings */}
         <div className={S.sidebarCol}>
-            <SidebarPanels />
+            <SidebarPanels categoryError={fieldErrors.category} />
         </div>
     </div>
 );

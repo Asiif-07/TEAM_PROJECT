@@ -1,32 +1,33 @@
-// CV Builder Theme — Matching the glassmorphism, blue-primary, rounded design
+// Blog editor theme — aligned with the dashboard design system (slate neutrals, blue primary, rounded-2xl cards)
 export const S = {
   // Layout
-  page: "min-h-screen py-8 lg:py-16 bg-[#f8f9fa]",
-  topBar: "max-w-7xl mx-auto mb-6 lg:mb-10 px-4 sm:px-6 flex items-center justify-between",
-  canvas: "max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row gap-4 lg:gap-6 items-start",
-  editorCol: "flex-[0_1_800px] w-full space-y-4",
-  sidebarCol: "w-full lg:w-[380px] space-y-4 shrink-0",
+  page: "bg-mesh min-h-screen pt-8 pb-32 lg:pt-10",
+  topBar: "max-w-7xl mx-auto mb-6 lg:mb-8 px-4 sm:px-6 lg:px-8",
+  canvas: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6 items-start",
+  editorCol: "flex-1 min-w-0 w-full space-y-6",
+  sidebarCol: "w-full lg:w-[340px] space-y-5 shrink-0 lg:sticky lg:top-24",
 
-  // Main glass card (matches Paper in CVBuilder)
-  glassCard: "glass rounded-3xl lg:rounded-[32px] p-4 sm:p-6 lg:p-10 bg-white",
+  // Cards
+  glassCard: "rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 shadow-sm",
+  card: "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm",
+  cardTitle: "mb-1 flex items-center gap-2 text-sm font-bold text-slate-900",
+  cardHint: "mb-3 text-xs text-slate-500",
+  label: "mb-1.5 flex items-center gap-2 text-sm font-semibold text-slate-800",
 
-  // Sidebar card (purple-left accent kept, but using CV builder rounding)
-  card: "bg-white/50 backdrop-blur-sm rounded-2xl border border-black/5 p-5 transition-all hover:bg-white/80",
-  cardTitle: "text-xs font-extrabold text-gray-700 uppercase tracking-wider mb-3 flex items-center gap-2",
+  // Inputs
+  input: "w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10",
+  titleInput: "w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-2xl sm:text-3xl font-extrabold leading-tight tracking-tight text-slate-900 placeholder:text-slate-300 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10",
+  titleFilled: "w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-2xl sm:text-3xl font-extrabold leading-tight tracking-tight text-slate-900 placeholder:text-slate-300 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10",
+  error: "mt-1.5 text-xs font-medium text-red-600",
 
-  // Inputs (matches PremiumInput)
-  input: "w-full bg-white/50 border border-black/5 rounded-2xl px-4 py-3 text-sm text-gray-700 font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all duration-300 placeholder:text-gray-400",
-  titleInput: "w-full text-3xl lg:text-[2.5rem] leading-[1.2] font-extrabold text-gray-300 placeholder:text-gray-300 border-none focus:ring-0 p-0 resize-none bg-transparent focus:outline-none",
-  titleFilled: "w-full text-3xl lg:text-[2.5rem] leading-[1.2] font-extrabold text-gray-900 border-none focus:ring-0 p-0 resize-none bg-transparent focus:outline-none",
-
-  // Buttons (matches CVBuilder contained buttons)
-  btnPublish: "px-6 py-3 bg-[#2563EB] text-white rounded-2xl text-sm font-bold hover:bg-[#1d4ed8] transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 active:scale-[0.97]",
-  btnDraft: "px-5 py-3 bg-white text-gray-600 border border-black/5 rounded-2xl text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all",
+  // Buttons
+  btnPublish: "inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60",
+  btnDraft: "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60",
 
   // Tags
-  tag: "inline-flex items-center gap-1.5 bg-blue-50 text-[#2563EB] px-3 py-1.5 rounded-xl text-[11px] font-bold border border-blue-100",
+  tag: "inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700",
 
-  // Dropzone
-  coverZone: "border-2 border-dashed border-gray-200 rounded-3xl py-16 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#2563EB] hover:bg-blue-50/30 transition-all duration-300",
-  galleryZone: "border-2 border-dashed border-gray-200 rounded-2xl py-5 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#2563EB] hover:bg-blue-50/20 transition-all duration-200",
+  // Dropzones
+  coverZone: "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 px-4 py-12 text-center transition hover:border-blue-400 hover:bg-blue-50/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+  galleryZone: "flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/60 px-4 py-4 text-center transition hover:border-blue-400 hover:bg-blue-50/40",
 };

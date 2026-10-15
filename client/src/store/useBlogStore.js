@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import * as blogApi from '../api/blog';
 
+// Monotonic id so an older, slower response can never overwrite a newer one
+let postsRequestId = 0;
+
 const useBlogStore = create((set, get) => ({
     posts: [],
+    postsQuery: null, // query string the current `posts` list was loaded with
     totalPages: 1,
     currentPage: 1,
     activePost: null,
@@ -46,20 +50,29 @@ const useBlogStore = create((set, get) => ({
     },
 
     fetchPosts: async (query = "") => {
-        const { posts } = get();
-        // Only fetch if searching or if posts list is empty
-        if (!query && posts.length > 0) return;
+        const { posts, postsQuery } = get();
+        // Skip only when this exact query is already loaded. (A different query - e.g. switching
+        // from a category back to "All", which has an empty query - must always refetch.)
+        if (postsQuery === query && posts.length > 0) {
+            postsRequestId++; // invalidate any in-flight request for a different query
+            set({ loading: false });
+            return;
+        }
 
+        const requestId = ++postsRequestId;
         set({ loading: true });
         try {
             const response = await blogApi.getPosts({ query });
-            set({ 
-                posts: response.posts || [], 
-                totalPages: response.totalPages || 1, 
+            if (requestId !== postsRequestId) return; // a newer request superseded this one
+            set({
+                posts: response.posts || [],
+                postsQuery: query,
+                totalPages: response.totalPages || 1,
                 currentPage: response.currentPage || 1,
-                loading: false 
+                loading: false
             });
         } catch (err) {
+            if (requestId !== postsRequestId) return;
             set({ error: err.message, loading: false });
         }
     },

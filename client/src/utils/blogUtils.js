@@ -1,8 +1,10 @@
 export const calculateReadingTime = (content) => {
     const wordsPerMinute = 200;
-    const noOfWords = content.split(/\s+/g).length;
+    // Count words of visible text, not HTML markup
+    const text = (content || "").replace(/<[^>]*>/g, " ").trim();
+    const noOfWords = text ? text.split(/\s+/g).length : 0;
     const minutes = noOfWords / wordsPerMinute;
-    const readTime = Math.ceil(minutes);
+    const readTime = Math.max(1, Math.ceil(minutes));
     return `${readTime} min read`;
 };
 

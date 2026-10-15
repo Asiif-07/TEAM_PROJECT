@@ -21,7 +21,7 @@ const BlogCarousel = ({ images = [] }) => {
     if (!images || images.length === 0) return null;
 
     return (
-        <div className="relative group w-full aspect-[21/9] rounded-[40px] overflow-hidden shadow-2xl border border-white/20">
+        <div className="relative group w-full aspect-video sm:aspect-[21/9] overflow-hidden bg-slate-100">
             {/* Background Grain/Texture */}
             <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
 
@@ -46,22 +46,25 @@ const BlogCarousel = ({ images = [] }) => {
                 <>
                     <button
                         onClick={prevSlide}
-                        className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl glass flex items-center justify-center text-gray-900 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 active:scale-95"
+                        aria-label="Previous image"
+                        className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow flex items-center justify-center text-gray-900 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 active:scale-95"
                     >
                         <ChevronLeft size={24} />
                     </button>
                     <button
                         onClick={nextSlide}
-                        className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl glass flex items-center justify-center text-gray-900 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 active:scale-95"
+                        aria-label="Next image"
+                        className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow flex items-center justify-center text-gray-900 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 active:scale-95"
                     >
                         <ChevronRight size={24} />
                     </button>
 
                     {/* Indicators */}
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3">
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
                         {images.map((_, index) => (
                             <button
                                 key={index}
+                                aria-label={`Go to image ${index + 1}`}
                                 onClick={() => setCurrentIndex(index)}
                                 className={`h-1.5 transition-all duration-500 rounded-full ${index === currentIndex
                                     ? 'w-8 bg-white'
